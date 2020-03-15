@@ -58,6 +58,6 @@ class BacklinksController extends AbstractController
                 'backlink' => $backlink,
             ]
         );
-    }
-
+    } 
+    
 }
