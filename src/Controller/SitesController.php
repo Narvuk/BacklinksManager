@@ -65,6 +65,7 @@ class SitesController extends AbstractController
         // backlinks
         $newbl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'New'] );
         $activebl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
+        $lostbl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'Lost'] );
         // prospects
         $newprosp = $prospectrepo->findBy(['siteid' => $id, 'status' => 'New'] );
         $activeprosp = $prospectrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
@@ -73,6 +74,8 @@ class SitesController extends AbstractController
         // backlinks
         $countnew = count($newbl);
         $countactive = count($activebl);
+        $countlost = count($lostbl);
+
         // Prospects
         $cnprosp = count($newprosp);
         $caprosp = count($activeprosp);
@@ -82,6 +85,7 @@ class SitesController extends AbstractController
 
         $site->setNewBL($countnew);
         $site->setActiveBL($countactive);
+        $site->setLostBL($countlost);
         $site->setNewProsp($cnprosp);
         $site->setActiveProsp($caprosp);
         $site->setUpdated(new \DateTime());
@@ -91,6 +95,7 @@ class SitesController extends AbstractController
             $temp = array(
                'newbl' => $countnew,  
                'activebl' => $countactive,
+               'lostbl' => $countlost,
                'cnprosp' => $cnprosp,
                'caprosp' => $caprosp,  
             );   

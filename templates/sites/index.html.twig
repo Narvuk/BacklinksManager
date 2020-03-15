@@ -61,7 +61,7 @@
             <!-- small card -->
             <div class="small-box bg-red">
               <div class="inner">
-                <h3>{{site.lostbl}}</h3>
+                <h3 id="lostbl">{{site.lostbl}}</h3>
 
                 <p>Lost Backlinks</p>
               </div>
@@ -89,13 +89,12 @@
                 </div>
               </div>
               <!-- /.card-header -->
-              <div class="card-body table-responsive p-0">
+              <div class="card-body p-0">
                 <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
                       <th>Backlink</th>
-                      <th>Date</th>
-                      <th>Status</th>
+                      <th>Added</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -103,8 +102,7 @@
                   {% for nb in newbls %}
                     <tr>
                       <td>{{ nb.backlink }}</td>
-                      <td>01-03-2020</td>
-                      <td><span class="tag tag-success">{{ nb.status }}</span></td>
+                      <td>{{ nb.created|date('d/m/Y') }}</td>
                       <td>
                         <button class="btn btn-success btn-sm"><i class="fas fa-eye"></i></button>
                         <button class="btn btn-info btn-sm"><i class="fas fa-check"></i></button>
@@ -136,7 +134,7 @@
                 </div>
               </div>
               <!-- /.card-header -->
-              <div class="card-body table-responsive p-0">
+              <div class="card-body p-0">
                 <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
@@ -175,6 +173,8 @@
             $('#newbl').append('<i class="fas fa-spinner fa-pulse"></i>');
             $('#activebl').html('');  
             $('#activebl').append('<i class="fas fa-spinner fa-pulse"></i>');  
+            $('#lostbl').html('');  
+            $('#lostbl').append('<i class="fas fa-spinner fa-pulse"></i>');  
             $('#newprosp').html('');  
             $('#newprosp').append('<i class="fas fa-spinner fa-pulse"></i>');  
             $.ajax({  
@@ -187,7 +187,9 @@
                   $('#newbl').html('');  
                   $('#newbl').append(data['newbl']);
                   $('#activebl').html('');  
-                  $('#activebl').append(data['activebl']); 
+                  $('#activebl').append(data['activebl']);
+                  $('#lostbl').html('');  
+                  $('#lostbl').append(data['lostbl']); 
                   $('#newprosp').html('');  
                   $('#newprosp').append(data['cnprosp']);
                   $('#bspin').html('');  
