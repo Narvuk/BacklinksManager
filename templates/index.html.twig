@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/homemenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+    Dashboard
+{% endblock %}
+{% block body %}
+<div class="row">
+    {% for site in sites %}
+    <div class="col-md-4">
+            <!-- Widget: user widget style 1 -->
+            <div class="card card-widget">
+              <!-- Add the bg color to the header using any of the bg-* classes -->
+              <div class="card-header bg-info">
+                <h5 class="card-title">{{site.name}}</h5>
+              </div>
+              <div class="card-footer">
+                <div class="row">
+                  <div class="col-sm-4 border-right">
+                    <div class="description-block">
+                      <h5 class="description-header">{{site.activebl}}</h5>
+                      <span class="description-text">Active Backlinks</span>
+                    </div>
+                    <!-- /.description-block -->
+                  </div>
+                  <!-- /.col -->
+                  <div class="col-sm-4 border-right">
+                    <div class="description-block">
+                      <h5 class="description-header">{{site.newbl}}</h5>
+                      <span class="description-text">New Backlinks</span>
+                    </div>
+                    <!-- /.description-block -->
+                  </div>
+                  <!-- /.col -->
+                  <div class="col-sm-4">
+                    <div class="description-block">
+                      <a href="{{ path('site_dashboard', {'id': site.id}) }}" class="btn btn-info">Details</a>
+                    </div>
+                    <!-- /.description-block -->
+                  </div>
+                  <!-- /.col -->
+                </div>
+                <!-- /.row -->
+              </div>
+            </div>
+            <!-- /.widget-user -->
+          </div>
+    {% endfor %}
+</div>
+{% endblock %}
+{% block pageJS %}
+    <!-- Additional Javascript or Jquery  -->
+{% endblock %}
+{% block ModalArea %}
+<div class="modal fade" id="modal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Add Site</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {{ form_start(form) }}
+            <div class="modal-body">
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Site Name</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Name, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label for="email_address_2">Site Url</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            <div class="form-line">
+                                {{ form_widget(form.Url, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label for="email_address_2">Description</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            <div class="form-line">
+                                {{ form_widget(form.Description, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>      
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" id="form-submit" class="btn btn-primary">Add Site</button>
+            </div>
+             {{ form_end(form) }}
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+{% endblock %}

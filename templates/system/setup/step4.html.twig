@@ -1,0 +1,180 @@
+{% extends 'system/setup/base.html.twig' %}
+{% block AppMenu %}
+    <li class="nav-header">Setup</li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"><i class="nav-icon fas fa-check-square"></i></span>
+            <p>Setup Introduction</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Database Details</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Set Up Tables</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Tables Created</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span>
+            <p>Setup Admin Account</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
+            <p>Installation Complete</p>
+        </a>
+    </li>
+{% endblock %}
+{% block bodytitle %}
+    <div class="progress">
+        <div class="progress-bar bg-success progress-bar-striped" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+{% endblock %}
+{% block body %}
+<div class="row clearfix">
+                <div class="col-lg-9 col-md-9 col-sm-6 col-xs-12">
+                    <div class="card card-blue">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Database Tables have now been setup <small>Nearly there now and we will be ready to get started</small>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                          
+                            {{ form_start(form) }}
+    <div class="row clearfix">
+<div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+    <label for="email_address_2">Admin Username</label>
+</div>
+<div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+    <div class="form-group">
+<div class="form-line">
+    {{ form_widget(form.username, {'attr': {'class': 'form-control', 'placeholder' : 'Admin Username'}}) }}
+</div>
+    Username to login to the system once installed
+</div>
+</div>
+</div>
+    <div class="row clearfix">
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+            <label for="email_address_2">Admin Email</label>
+        </div>
+    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+        <div class="form-group">
+            <div class="form-line">
+                {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder' : 'Enter Admin Email'}}) }}
+            </div>
+                Setup Admin email
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+            <label >Roles</label>
+        </div>
+            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+        <div class="form-group">
+            <div class="form-line">
+                {{ form_widget(form.roles, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+            </div>
+                Ensure check all roles that apply to Super Admin
+            </div>
+        </div>
+    </div>
+    <div class="row clearfix">
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+            <label >Admin Password</label>
+        </div>
+            <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+        <div class="form-group">
+    <div class="form-line">
+       {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder' : 'Enter Password'}}) }}
+    </div>
+        Ener login Password
+    </div>
+</div>
+</div>
+    <div class="row clearfix">
+        <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+            <label for="password_2">Confirm Password</label>
+        </div>
+        <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+    <div class="form-group">
+        <div class="form-line">
+            {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder' : 'Repeat Password'}}) }}
+        </div>
+            Please confirm password chosen
+        </div>
+    </div>
+</div>
+    <div class="text-center mb-3">
+       <button type="submit" id="form-submit" class="btn bg-blue waves-effect">
+       <i class="fas fa-user-shield"></i><span> Save and Continue</span></button>
+    </div>
+    {{ form_end(form) }}
+                           <div class="row clearfix">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="card card-red">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Requirements
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li><b>PHP</b> 7.3 or Above (Recommended 7.4)</li>
+                                <li>
+                                    <b>Database Versions</b>
+                                    <ul>
+                                        <li>Mysql 5.7 or Above</li>
+                                        <li>MariaDB 10.2 or Above </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <b>PHP extensions:</b><br /> (Most are enabled by default in PHP 7+)
+                                    <ul>
+                                        <li>Ctype</li>
+                                        <li>iconv</li>
+                                        <li>JSON</li>
+                                        <li>PCRE</li>
+                                        <li>Session</li>
+                                        <li>SimpleXML</li>
+                                        <li>Tokenizer</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <b>Writable directories:</b>
+                                    <br />(must be writable by the web server)
+                                    <ul>
+                                        <li>The cache directory (var/cache)</li>
+                                        <li>The log directory (var/log)</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+{% block pageJS %}
+<!-- Additional Javascript or Jquery  -->
+{% endblock %}

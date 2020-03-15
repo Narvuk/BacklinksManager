@@ -1,0 +1,116 @@
+{% extends 'system/setup/base.html.twig' %}
+{% block AppMenu %}
+    <li class="nav-header">Setup</li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"><i class="nav-icon fas fa-check-square"></i></span>
+            <p>Setup Introduction</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Database Details</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span>
+            <p>Set Up Tables</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
+            <p>Tables Created</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
+            <p>Setup Admin Account</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
+            <p>Installation Complete</p>
+        </a>
+    </li>
+{% endblock %}
+{% block bodytitle %}
+    <div class="progress">
+        <div class="progress-bar bg-success progress-bar-striped" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+{% endblock %}
+{% block body %}
+<div class="row clearfix">
+                <div class="col-lg-9 col-md-9 col-sm-6 col-xs-12">
+                    <div class="card card-blue">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Database Details Sucessfully Saved
+                            </div>
+                        </div>
+                        <div class="card-body">
+                          <b> You have successfully saved the database details now its time to make connection to submit the initial tables in order to get you setup</b>
+                            <br /><br />
+                           <div class="row clearfix">
+                            </div>
+                            <div class="text-center mb-3">
+                        <a href="{{path('setup_step2a')}}" type="button" class="btn bg-blue waves-effect">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Continue</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="card card-red">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Requirements
+                            </div>
+                        </div>
+                        <div class="body">
+                            <ul>
+                                <li><b>PHP</b> 7.3 or Above (Recommended 7.4)</li>
+                                <li>
+                                    <b>Database Versions</b>
+                                    <ul>
+                                        <li>Mysql 5.7 or Above</li>
+                                        <li>MariaDB 10.2 or Above </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <b>PHP extensions:</b><br /> (Most are enabled by default in PHP 7+)
+                                    <ul>
+                                        <li>Ctype</li>
+                                        <li>iconv</li>
+                                        <li>JSON</li>
+                                        <li>PCRE</li>
+                                        <li>Session</li>
+                                        <li>SimpleXML</li>
+                                        <li>Tokenizer</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <b>Writable directories:</b>
+                                    <br />(must be writable by the web server)
+                                    <ul>
+                                        <li>The cache directory (var/cache)</li>
+                                        <li>The log directory (var/log)</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+{% block pageJS %}
+<!-- Additional Javascript or Jquery  -->
+{% endblock %}

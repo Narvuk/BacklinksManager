@@ -1,0 +1,56 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    encoders:
+        # use your user class name here
+        App\Entity\System\Users:
+            # Use native password encoder
+            # This value auto-selects the best possible hashing algorithm
+            # (i.e. Sodium when available).
+            algorithm: auto
+
+    role_hierarchy:
+        ROLE_BANNED:
+        ROLE_VISITOR:
+        ROLE_USER: ROLE VISITOR
+        ROLE_STAFF:  ROLE_USER
+        ROLE_ADMIN:  [ROLE_USER, ROLE_STAFF, ROLE_ALLOWED_TO_SWITCH]
+        ROLE_SUPER_ADMIN: [ ROLE_USER, ROLE_STAFF, ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH ]
+
+    providers:
+        our_db_provider:
+            entity:
+                class: App\Entity\System\Users
+                property: username
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: lazy
+            form_login:
+                login_path: login
+                check_path: login
+                csrf_token_generator: security.csrf.token_manager
+            pattern:    ^/
+            http_basic: ~
+            provider: our_db_provider
+            logout:
+                path:   /logout
+                target: /
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/troubleshoot, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/setup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: ROLE_USER }
+        # - { path: ^/.*, roles: IS_AUTHENTICATED_FULLY }
+        # - { path: ^/profile, roles: ROLE_USER }

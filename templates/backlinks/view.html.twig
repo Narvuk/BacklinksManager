@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/sitesmenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+    Backlink Information
+{% endblock %}
+{% block tcright %}
+    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
+                        <button class="btn btn-info"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-danger "><i class="fas fa-trash"></i></button>
+                    <button type="button" class="btn btn-default" data-toggle="dropdown">
+                      <i class="fas fa-arrow-down"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">Check Active</a>
+                      <a class="dropdown-item" href="#">Update Last Checked</a>
+                    </div>
+{% endblock %}
+{% block body %}
+    <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Backlink Details</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+              <div class="row">
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Created</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{backlink.created|date('d-m-Y')}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Last Checked</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{backlink.lastchecked|date('d-m-Y')}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Updated</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{backlink.updated|date('d-m-Y')}}<span>
+                    </span></span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">Backlink - Notes</h3>
+                            <div class="card-tools">
+                                <button class="btn btn-tool btn-info">Add Note</button>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="post">
+                        <strong>Title</strong>
+                      <p>
+                        Lorem ipsum represents a long-held tradition for designers,
+                        typographers and the like. Some people hate it and argue for
+                        its demise, but others ignore.
+                      </p>
+                    </div>
+                    <div class="post">
+                     <strong>Title</strong>
+                      <p>
+                        Lorem ipsum represents a long-held tradition for designers,
+                        typographers and the like. Some people hate it and argue for
+                        its demise, but others ignore.
+                      </p>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+              <h3 class="text-primary">Backlink Details</h3>
+              <p class="text-muted">Description here</p>
+              <br>
+              <div class="text-muted">
+              <p class="text">Status
+                  <b class="d-block">
+                    <span class="badge badge-success">Active</span>
+                  </b>
+                </p>
+                <p class="text">Backlink
+                  <b class="d-block">{{backlink.backlink}}</b>
+                </p>
+                <p class="text">Links To
+                  <b class="d-block">https://stormdevelopers.com/somepage</b>
+                </p>
+                <p class="text">Keyword
+                  <b class="d-block">Some Keyword</b>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+{% endblock %}
+{% block pageJS %}
+   
+{% endblock %}
+{% block ModalArea %}
+
+{% endblock %}

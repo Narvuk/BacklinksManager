@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/settingsmenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+
+{% endblock %}
+{% block body %}
+    <div class="container-fluid">
+        <div class="row clearfix">
+            <div class="col-xs-12 col-sm-3">
+                <div class="card profile-card">
+                    <div class="profile-header">&nbsp;</div>
+                    <div class="profile-body">
+                        <div class="image-area">
+                            <img src="images/user-img-background.jpg" width="120" height="120" alt="">
+                        </div>
+                        <div class="content-area">
+                            <h3>{{ user.username }}</h3>
+                            <p></p>
+                            <p></p>
+                        </div>
+                    </div>
+                    <div class="profile-footer">
+                        <div class="btn-group btn-group-justified" role="group" aria-label="Justified button group">
+                            <a href="" class="btn bg-blue-grey waves-effect" role="button">Contact</a>
+                            <a href="{{ path('system_users_edit', {'id': user.id}) }}" class="btn bg-blue-grey waves-effect" role="button">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box hover-zoom-effect">
+                    <div class="icon bg-blue">
+                        <i class="material-icons">devices</i>
+                    </div>
+                    <div class="content">
+                        <div class="text">Assigned Projects</div>
+                        <div class="number">0</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box hover-zoom-effect">
+                    <div class="icon bg-blue">
+                        <i class="material-icons">devices</i>
+                    </div>
+                    <div class="content">
+                        <div class="text">Assigned HelpDesk</div>
+                        <div class="number">5</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                <div class="info-box hover-zoom-effect">
+                    <div class="icon bg-blue">
+                        <i class="material-icons">devices</i>
+                    </div>
+                    <div class="content">
+                        <div class="text">Other</div>
+                        <div class="number">8</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-12">
+                <div class="card">
+                    <div class="body">
+                        <div>
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active"><a href="#index" aria-controls="home" role="tab" data-toggle="tab" aria-expanded="true"><i class="material-icons">home</i></a></li>
+                                <li role="presentation" class=""><a href="#profile_settings" aria-controls="settings" role="tab" data-toggle="tab" aria-expanded="false"><i class="material-icons">account_balance_wallet</i></a></li>
+                                <li role="presentation" class=""><a href="#change_password_settings" aria-controls="settings" role="tab" data-toggle="tab" aria-expanded="false">  <i class="material-icons">assignment</i></a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane fade active in" id="index">
+
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="profile_settings">
+
+                                </div>
+                                <div role="tabpanel" class="tab-pane fade" id="change_password_settings">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block pageJS %}
+    <!-- Additional Javascript or Jquery  -->
+{% endblock %}

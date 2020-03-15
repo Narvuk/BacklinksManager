@@ -1,0 +1,94 @@
+{% extends 'system/setup/base.html.twig' %}
+{% block AppMenu %}
+    <li class="nav-header">Setup</li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"><i class="nav-icon fas fa-check-square"></i></span>
+            <p>Setup Introduction</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Database Details</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Set Up Tables</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Tables Created</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #1ec234"> <i class="nav-icon fas fa-check-square"></i></span>
+            <p>Setup Admin Account</p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span>
+            <p>Installation Complete</p>
+        </a>
+    </li>
+{% endblock %}
+{% block bodytitle %}
+    <div class="progress">
+        <div class="progress-bar bg-success progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+{% endblock %}
+{% block body %}
+<div class="row clearfix">
+                <div class="col-lg-9 col-md-9 col-sm-6 col-xs-12">
+                    <div class="card card-blue">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Backlinks Manager is now fully Installed
+                            </div>
+                        </div>
+                        <div class="card-body">
+                          <b> You have successfully installed the Backlinks Manager, Should you require any support we are avaliable via our website, github and email,
+                            Take a look at our knowladge base for any help and also feel free to check our our community.
+                            <br /><br />
+                            You can now login!
+                            </b>
+                           <div class="row clearfix">
+                            </div>
+                            <div class="text-center mb-3">
+                                <a href="{{path('login')}}" type="button" class="btn bg-blue waves-effect">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Continue to Login</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="card card-red">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Support Information
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li>Github Support</li>
+                                <li>Website Support</li>
+                                <li>Community Support</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+{% block pageJS %}
+<!-- Additional Javascript or Jquery  -->
+{% endblock %}
