@@ -88,20 +88,16 @@ class SitesController extends AbstractController
         
             $temp = array(
                'newbl' => $countnew,  
-               'activebl' => $countactive,  
+               'activebl' => $countactive,
+               'cnprosp' => $cnprosp,
+               'caprosp' => $caprosp,  
             );   
             $jsonData = $temp;  
          
-      
-        //$jsonData = $countnew . ";" . $countactive . ";" . $cnprosp . ":" . $caprosp;
         return new JsonResponse($jsonData);
         
         }
 
-       // $jsonData['countnew'] = $countnew;
-        //return new JsonResponse($jsonData); 
-        
-       // return $this->redirectToRoute('site_dashboard', ['id' => $id]);
     }
 
 

@@ -6,7 +6,7 @@
     {{site.name}}
 {% endblock %}
 {% block tcright %}
-    <button id="blupdate" class="btn btn-info"><i class="fas fa-sync"></i></button>
+    <button id="blupdate" class="btn btn-info"><div id="bspin"><i class="fas fa-sync"></i></div></button>
 {% endblock %}
 {% block body %}
 <div class="row">
@@ -14,7 +14,7 @@
             <!-- small card -->
             <div class="small-box bg-info">
               <div class="inner">
-                <h3>{{ site.newprosp }}</h3>
+                <h3 id="newprosp">{{ site.newprosp }}</h3>
                 <p>Prospects To Action</p>
               </div>
               <div class="icon">
@@ -45,7 +45,7 @@
             <!-- small card -->
             <div class="small-box bg-purple">
               <div class="inner">
-                <h3 id="blnew">{{site.newbl}}</h3>
+                <h3 id="newbl">{{site.newbl}}</h3>
 
                 <p>New Backlinks</p>
               </div>
@@ -168,7 +168,15 @@
 {% block pageJS %}
   <script language = "javascript">  
       $(document).ready(function(){   
-         $("#blupdate").on("click", function(event){  
+         $("#blupdate").on("click", function(event){ 
+            $('#bspin').html('');  
+            $('#bspin').append('<i class="fas fa-sync fa-spin"></i>');
+            $('#newbl').html('');  
+            $('#newbl').append('<i class="fas fa-spinner fa-pulse"></i>');
+            $('#activebl').html('');  
+            $('#activebl').append('<i class="fas fa-spinner fa-pulse"></i>');  
+            $('#newprosp').html('');  
+            $('#newprosp').append('<i class="fas fa-spinner fa-pulse"></i>');  
             $.ajax({  
                url:        '/site/{{site.id}}/updatecount',  
                type:       'POST',   
@@ -176,8 +184,14 @@
                async:      true,  
 
                success: function(data, status) {  
-                  $('#blnew').html('');  
-                  $('#blnew').append(data['newbl']);  
+                  $('#newbl').html('');  
+                  $('#newbl').append(data['newbl']);
+                  $('#activebl').html('');  
+                  $('#activebl').append(data['activebl']); 
+                  $('#newprosp').html('');  
+                  $('#newprosp').append(data['cnprosp']);
+                  $('#bspin').html('');  
+                  $('#bspin').append('<i class="fas fa-sync"></i>');  
 
                   
                },  
