@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 class BacklinksController extends AbstractController
@@ -59,5 +60,38 @@ class BacklinksController extends AbstractController
             ]
         );
     } 
+
+    /**
+     * @Route("/backlink/{id}/updatestatus/{status}", name="backlink_updatestatus")
+     */
+    public function BacklinksUpdateStatus($id, $status, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+
+        $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $backlink->setStatus($status);
+
+        $backlink->setUpdated(new \DateTime());
+        $entityManager->persist($backlink);
+        $entityManager->flush();
+
+        $getstatus = $backlink->getStatus();
+        
+            $temp = array(
+               'statuschange' => $getstatus, 
+            );   
+            $jsonData = $temp;  
+         
+        return new JsonResponse($jsonData);
+        
+        }
+
+    }
     
 }

@@ -7,7 +7,18 @@
 {% endblock %}
 {% block tcright %}
     <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                        <button class="btn btn-info"><i class="fas fa-edit"></i></button>
+                        <button type="button" class="btn btn-info" data-toggle="dropdown">
+                      <i class="fas fa-link"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="{{ backlink.backlink }}" target="_blank">Check Active</a>
+                      <div id="lostbutton">
+                       <button class="dropdown-item" id="updatestatus-lost">Lost Backlink</button>
+                       </div>
+                        <div id="activebutton">
+                       <button class="dropdown-item" id="updatestatus-active">Active Backlink</button>  
+                       </div>
+                    </div>
                         <button class="btn btn-danger "><i class="fas fa-trash"></i></button>
                     <button type="button" class="btn btn-default" data-toggle="dropdown">
                       <i class="fas fa-arrow-down"></i>
@@ -88,8 +99,8 @@
               <br>
               <div class="text-muted">
               <p class="text">Status
-                  <b class="d-block">
-                    <span class="badge badge-success">Active</span>
+                  <b class="d-block" id="bstatus">
+                      {{backlink.status}}
                   </b>
                 </p>
                 <p class="text">Backlink
@@ -109,7 +120,50 @@
       </div>
 {% endblock %}
 {% block pageJS %}
-   
+   <script language = "javascript">  
+      $(document).ready(function(){   
+         $("#updatestatus-lost").on("click", function(event){ 
+            $('#bstatus').html('');  
+            $('#bstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/updatestatus/Lost',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bstatus').html('');  
+                  $('#bstatus').append(data['statuschange']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         $("#updatestatus-active").on("click", function(event){ 
+            $('#bstatus').html('');  
+            $('#bstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/updatestatus/Active',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bstatus').html('');  
+                  $('#bstatus').append(data['statuschange']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });   
+      });  
+   </script>
 {% endblock %}
 {% block ModalArea %}
 

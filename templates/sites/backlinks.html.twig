@@ -32,17 +32,20 @@
                       <td>https://stormdevelopers/somepage</td>
                       <td>keyword here</td>
                       <td>{{ a.lastchecked|date('Y-m-d') }}</td>
-                      <td><span class="tag tag-success">{{ a.status }}</span></td>
+                      <td><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
                       <td>
                         <a href="{{ path('backlink_view', {'id': a.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
-                        <button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
-                    <button type="button" class="btn btn-sm btn-default" data-toggle="dropdown">
-                      <i class="fas fa-arrow-down"></i>
+                    <button type="button" class="btn btn-sm btn-info" data-toggle="dropdown">
+                      <i class="fas fa-link"></i>
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#">Check Active</a>
-                      <a class="dropdown-item" href="#">Update Last Checked</a>
+                      <a class="dropdown-item" href="{{ a.backlink }}" target="_blank">Check Active</a>
+                      <div id="lostbutton">
+                       <button class="dropdown-item" id="updatestatus-lost-{{a.id}}">Lost Backlink</button>
+                       </div>
+                        <div id="activebutton">
+                       <button class="dropdown-item" id="updatestatus-active-{{a.id}}">Active Backlink</button>  
+                       </div>
                     </div>
                       </td>
                     </tr>
@@ -58,7 +61,53 @@
         </div>
 {% endblock %}
 {% block pageJS %}
-    <!-- Additional Javascript or Jquery  -->
+{% for a in backlinks %}
+    <script language = "javascript">  
+      $(document).ready(function(){   
+         $("#updatestatus-lost-{{a.id}}").on("click", function(event){ 
+            $('#bstatus-{{a.id}}').html('');  
+            $('#bstatus-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{a.id}}/updatestatus/Lost',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bstatus-{{a.id}}').html('');  
+                  $('#bstatus-{{a.id}}').append(data['statuschange']); 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         $("#updatestatus-active-{{a.id}}").on("click", function(event){ 
+            $('#bstatus-{{a.id}}').html('');  
+            $('#bstatus-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{a.id}}/updatestatus/Active',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bstatus-{{a.id}}').html('');  
+                  $('#bstatus-{{a.id}}').append(data['statuschange']); 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });   
+      });  
+   </script>
+
+   {% endfor %} 
 {% endblock %}
 {% block ModalArea %}
 <div class="modal fade" id="modal-lg">
