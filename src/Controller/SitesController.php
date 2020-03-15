@@ -39,11 +39,13 @@ class SitesController extends AbstractController
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
         $newbls = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['siteid' => $id, 'status' => 'New'], ['id' => 'DESC']);
+        $newprosp = $this->getDoctrine()->getRepository(Prospects::class)->findBy(['siteid' => $id, 'status' => 'New'], ['id' => 'DESC']);
 
         return $this->render('sites/index.html.twig',
             [
                 'site' => $site,
                 'newbls' => $newbls,
+                'newprosp' => $newprosp,
             ]
         );
     }
