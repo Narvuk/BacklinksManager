@@ -99,6 +99,14 @@
                 <p class="text">Backlink
                   <b class="d-block">{{backlink.backlink}}</b>
                 </p>
+                <p class="text">Prospect
+                  <b class="d-block" id="prospectassign">{% if backlink.prospectid != null %}{{getprospect.name}}{% endif %}</b>
+                  {% if backlink.prospectid == null %}
+                  <div id="prospectassignbutton">
+                  <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assignprospectmodal-lg">Assign Prospect</button>
+                  </div>
+                  {% endif %}
+                </p>
                 <p class="text">Links To
                   <b class="d-block" id="spassign">{% if backlink.spageid != null %}{{spage.url}}{% endif %}</b>
                   {% if backlink.spageid == null %}
@@ -123,6 +131,43 @@
       </div>
 {% endblock %}
 {% block ModalArea %}
+<div class="modal fade" id="assignprospectmodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Prospect</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Prospect Name</th>
+                      <th>Assign</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for prosp in prospects %}
+                    <tr>
+                      <td>{{prosp.name}}</td>
+                      <td><button id="assignprosp-{{prosp.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
 <div class="modal fade" id="assignsitemodal-lg">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
@@ -241,6 +286,29 @@
                
             });  
          });
+          {% for prosp in prospects %}
+         $("#assignprosp-{{prosp.id}}").on("click", function(event){
+            $('#prospectassignbutton').html(''); 
+            $('#prospectassign').html('');  
+            $('#prospectassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/assignprospect/{{prosp.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#prospectassign').html('');  
+                  $('#prospectassign').append(data['getprospect']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %} 
          {% for sp in spages %}
          $("#assignsitepage-{{sp.id}}").on("click", function(event){
             $('#spassignbutton').html(''); 

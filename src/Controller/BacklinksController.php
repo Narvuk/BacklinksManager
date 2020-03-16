@@ -10,6 +10,7 @@ use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
+use App\Entity\Prospects;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
@@ -36,6 +37,14 @@ class BacklinksController extends AbstractController
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
 
+        // Show all & Get Assigned Prospect for Backlink
+        $prospects = $this->getDoctrine()->getRepository(Prospects::class)->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
+        if ($backlink->getProspectId() != Null){
+            $getprospect = $this->getDoctrine()->getRepository(Prospects::class)->find($backlink->getProspectId());
+        } else {
+            $getprospect = "";
+        }
+
         // Show all & Get Assigned Site Page for Backlink
         $sitepages = $this->getDoctrine()->getRepository(Sitepages::class)->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
         if ($backlink->getSpageId() != Null){
@@ -57,6 +66,8 @@ class BacklinksController extends AbstractController
             [
                 'site' => $site,
                 'backlink' => $backlink,
+                'prospects' => $prospects,
+                'getprospect' => $getprospect, 
                 'spages' => $sitepages,
                 'spage' => $spage,
                 'keywords' => $keywords,
@@ -108,6 +119,40 @@ class BacklinksController extends AbstractController
         
             $temp = array(
                'statuschange' => $getstatus, 
+            );   
+            $jsonData = $temp;  
+         
+        return new JsonResponse($jsonData);
+        
+        }
+
+    }
+
+    /**
+     * @Route("/backlink/{id}/assignprospect/{prospectid}", name="backlink_assignprospect")
+     */
+    public function ProspectAssignPage($id, $prospectid, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+
+        $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $backlink->setProspectId($prospectid);
+
+        $backlink->setUpdated(new \DateTime());
+        $entityManager->persist($backlink);
+        $entityManager->flush();
+
+        $getprospect = $prospect->getName();
+        
+            $temp = array(
+               'getprospect' => $getprospect, 
             );   
             $jsonData = $temp;  
          

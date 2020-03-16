@@ -26,6 +26,11 @@ class Backlinks
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $prospectid;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $spageid;
 
     /**
@@ -76,6 +81,11 @@ class Backlinks
         return $this->siteid;
     }
 
+    public function getProspectId()
+    {
+        return $this->prospectid;
+    }
+
     public function getSpageId()
     {
         return $this->spageid;
@@ -121,6 +131,11 @@ class Backlinks
     public function setSiteId($siteid)
     {
         $this->siteid = $siteid;
+    }
+
+    public function setProspectId($prospectid)
+    {
+        $this->prospectid = $prospectid;
     }
 
     public function setSpageId($spageid)
