@@ -11,6 +11,10 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
+use App\Entity\Notes\BacklinksNotes;
+
+use App\Form\Backlinks\AddNoteType;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
@@ -21,6 +25,14 @@ class BacklinksController extends AbstractController
      * @Route("/backlink", name="backlink_noinfo")
      */
     public function BacklinkNoInfo(Request $request)
+    {
+        return $this->redirectToRoute('core');
+    }
+
+    /**
+     * @Route("/backlinks", name="backlinks_noinfo")
+     */
+    public function BacklinksNoInfo(Request $request)
     {
         return $this->redirectToRoute('core');
     }
@@ -61,6 +73,8 @@ class BacklinksController extends AbstractController
             $kword = "";
         }
 
+        // Get Notes
+        $blnotes = $this->getDoctrine()->getRepository(BacklinksNotes::class)->findBy(['backlinkid' => $backlink->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
 
         return $this->render('backlinks/view.html.twig',
             [
@@ -72,6 +86,7 @@ class BacklinksController extends AbstractController
                 'spage' => $spage,
                 'keywords' => $keywords,
                 'kword' => $kword,
+                'blnotes' => $blnotes,
             ]
         );
     }
@@ -91,6 +106,54 @@ class BacklinksController extends AbstractController
             [
                 'site' => $site,
                 'backlink' => $backlink,
+            ]
+        );
+    } 
+
+    /**
+     * @Route("/backlink/{id}/notes", name="backlink_notes")
+     */
+    public function BacklinkNotes($id, Request $request)
+    {
+        if ($id == NULL){
+            return $this->redirectToRoute('core');
+        }
+        $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+        $blnotes = $this->getDoctrine()->getRepository(BacklinksNotes::class)->findBy(['backlinkid' => $backlink->getId()]);
+
+        // 1) build the form
+        $addnote = new BacklinksNotes();
+        $form = $this->createForm(AddNoteType::class, $addnote);
+
+        // 2) handle the submit (will only happen on POST)
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // 4) save the site!
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $addnote->setSiteId($backlink->getSiteId());
+            $addnote->setBacklinkId($id);
+            $addnote->setStatus('Unread');
+            $addnote->setCreated(new \DateTime());
+
+            $entityManager->persist($addnote);
+            $entityManager->flush();
+
+            // ... do any other work - like sending them an email, etc
+            // maybe set a "flash" success message for the user
+
+            return $this->redirectToRoute('backlink_notes', ['id' => $id]);
+        }
+
+        return $this->render('backlinks/notes/list.html.twig',
+            [
+                'site' => $site,
+                'backlink' => $backlink,
+                'blnotes' => $blnotes,
+                'form' => $form->createView(),
             ]
         );
     } 

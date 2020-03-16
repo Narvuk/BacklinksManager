@@ -170,7 +170,7 @@ class Backlinks
 
     public function setUpdated($updated)
     {
-        $this->upated = $updated;
+        $this->updated = $updated;
     }
 
     public function setLastChecked($lastchecked)

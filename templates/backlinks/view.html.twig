@@ -7,19 +7,17 @@
 {% endblock %}
 {% block tcright %}
     <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                        <button type="button" class="btn btn-info" data-toggle="dropdown">
-                      <i class="fas fa-link"></i>
-                    </button>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" href="{{ backlink.backlink }}" target="_blank">Check Active</a>
-                      <div id="lostbutton">
-                       <button class="dropdown-item" id="updatestatus-lost">Lost Backlink</button>
-                       </div>
-                        <div id="activebutton">
-                       <button class="dropdown-item" id="updatestatus-active">Active Backlink</button>  
-                       </div>
-                    </div>
-                    <button class="btn btn-secondary"><i class="fas fa-cog"></i></button>
+    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-link"></i></button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="{{ backlink.backlink }}" target="_blank">Check Active</a>
+      <div id="lostbutton">
+        <button class="dropdown-item" id="updatestatus-lost">Lost Backlink</button>
+      </div>
+      <div id="activebutton">
+        <button class="dropdown-item" id="updatestatus-active">Active Backlink</button>  
+      </div>
+    </div>
+    <button class="btn btn-secondary"><i class="fas fa-cog"></i></button>
 {% endblock %}
 {% block body %}
     <div class="card">
@@ -120,29 +118,24 @@
           <div class="col-md-6">
             <div class="card card-info">
               <div class="card-header">
-                            <h3 class="card-title">Backlink - Notes</h3>
+                            <h3 class="card-title">Backlink - Unread Notes</h3>
                             <div class="card-tools">
-                                <button class="btn btn-tool btn-info">Add Note</button>
+                                <a href="{{ path('backlink_notes', {'id': backlink.id}) }}" class="btn btn-tool btn-info">View Notes</a>
                             </div>
                         </div>
               <!-- /.card-header -->
               <div class="card-body">
+                {% if not blnotes %}
+                  Nice Work - No New Notes
+                {% endif %}
+                {% for note in blnotes %}
                 <div class="post">
-                        <strong>Title</strong>
-                      <p>
-                        Lorem ipsum represents a long-held tradition for designers,
-                        typographers and the like. Some people hate it and argue for
-                        its demise, but others ignore.
-                      </p>
-                    </div>
-                    <div class="post">
-                     <strong>Title</strong>
-                      <p>
-                        Lorem ipsum represents a long-held tradition for designers,
-                        typographers and the like. Some people hate it and argue for
-                        its demise, but others ignore.
-                      </p>
-                    </div>
+                    <strong>{{ note.title }}</strong>
+                    <p>
+                      {{ note.description }}
+                    </p>
+                </div>
+                {% endfor %}
               </div>
               <!-- /.card-body -->
             </div>
