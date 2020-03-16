@@ -18,8 +18,6 @@
                   <thead>
                     <tr>
                       <th>Backlink</th>
-                      <th>Links To</th>
-                      <th>keyword</th>
                       <th>Last Checked</th>
                       <th>Status</th>
                       <th>Action</th>
@@ -29,8 +27,6 @@
                   {% for a in backlinks %}
                     <tr>
                       <td>{{ a.backlink }}</td>
-                      <td>page to come</td>
-                      <td>keyword here</td>
                       <td>{{ a.lastchecked|date('Y-m-d') }}</td>
                       <td><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
                       <td>
