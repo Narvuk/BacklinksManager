@@ -6,10 +6,8 @@
     Prospect Information
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                        <button type="button" class="btn btn-info" data-toggle="dropdown">
-                      <i class="fas fa-handshake"></i>
-                    </button>
+                    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-handshake"></i></button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -94,13 +92,13 @@
                       {{prospect.status}}
                   </b>
                 </p>
-                <p class="text">Backlinks
-                  <b class="d-block">25</b>
+                <p class="text">Backlinks <a href="{{ path('prospect_backlinks_view', {'id': prospect.id}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>
+                  <b class="d-block">{{bcount}}</b>
                 </p>
-                <p class="text">Linked Pages
+                <p class="text">Linked Pages <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
                   <b class="d-block">10</b>
                 </p>
-                <p class="text">Keywords Used
+                <p class="text">Keywords Used <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
                   <b class="d-block">100</b>
                 </p>
               </div>
