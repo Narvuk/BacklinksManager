@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
+use App\Entity\Sitepages;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
@@ -34,10 +35,20 @@ class BacklinksController extends AbstractController
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
 
+        $sitepages = $this->getDoctrine()->getRepository(Sitepages::class)->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
+        if ($backlink->getSpageId() != Null){
+            $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($backlink->getSpageId());
+        } else {
+            $spage = "";
+        }
+
+
         return $this->render('backlinks/view.html.twig',
             [
                 'site' => $site,
                 'backlink' => $backlink,
+                'spages' => $sitepages,
+                'spage' => $spage,
             ]
         );
     }
@@ -85,6 +96,40 @@ class BacklinksController extends AbstractController
         
             $temp = array(
                'statuschange' => $getstatus, 
+            );   
+            $jsonData = $temp;  
+         
+        return new JsonResponse($jsonData);
+        
+        }
+
+    }
+
+    /**
+     * @Route("/backlink/{id}/assignsitepage/{pageid}", name="backlink_assignsite")
+     */
+    public function BacklinksAssignPage($id, $pageid, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+
+        $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+        $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($pageid);
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $backlink->setSpageId($pageid);
+
+        $backlink->setUpdated(new \DateTime());
+        $entityManager->persist($backlink);
+        $entityManager->flush();
+
+        $spageurl = $spage->getUrl();
+        
+            $temp = array(
+               'spageurl' => $spageurl, 
             );   
             $jsonData = $temp;  
          

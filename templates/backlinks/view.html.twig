@@ -19,6 +19,7 @@
                        <button class="dropdown-item" id="updatestatus-active">Active Backlink</button>  
                        </div>
                     </div>
+                    <button class="btn btn-secondary"><i class="fas fa-cog"></i></button>
 {% endblock %}
 {% block body %}
     <div class="card">
@@ -99,7 +100,12 @@
                   <b class="d-block">{{backlink.backlink}}</b>
                 </p>
                 <p class="text">Links To
-                  <b class="d-block">https://stormdevelopers.com/somepage</b>
+                  <b class="d-block" id="spassign">{% if backlink.spageid != null %}{{spage.url}}{% endif %}</b>
+                  {% if backlink.spageid == null %}
+                  <div id="spassignbutton">
+                  <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assignsitemodal-lg">Assign Site Page</button>
+                  </div>
+                  {% endif %}
                 </p>
                 <p class="text">Keyword
                   <b class="d-block">Some Keyword</b>
@@ -110,6 +116,48 @@
         </div>
         <!-- /.card-body -->
       </div>
+{% endblock %}
+{% block ModalArea %}
+<div class="modal fade" id="assignsitemodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Site Page</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>User</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for sp in spages %}
+                    <tr>
+                      <td>{{sp.url}}</td>
+                      <td>John Doe</td>
+                      <td>11-7-2014</td>
+                      <td><button id="assignsitepage-{{sp.id}}" data-dismiss="modal" class="btn btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
 {% endblock %}
 {% block pageJS %}
    <script language = "javascript">  
@@ -153,10 +201,30 @@
                }  
                
             });  
-         });   
+         });
+         {% for sp in spages %}
+         $("#assignsitepage-{{sp.id}}").on("click", function(event){
+            $('#spassignbutton').html(''); 
+            $('#spassign').html('');  
+            $('#spassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/assignsitepage/{{sp.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#spassign').html('');  
+                  $('#spassign').append(data['spageurl']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %}   
       });  
    </script>
-{% endblock %}
-{% block ModalArea %}
-
 {% endblock %}
