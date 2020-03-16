@@ -134,12 +134,10 @@
             </div>
             <div class="modal-body">
                 <div class="card-body table-responsive p-0" style="height: 300px;">
-                <table class="table table-head text-nowrap">
+                <table class="table table-head table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
                       <th>Site Page</th>
-                      <th>User</th>
-                      <th>Date</th>
                       <th>Assign</th>
                     </tr>
                   </thead>
@@ -147,9 +145,7 @@
                   {% for sp in spages %}
                     <tr>
                       <td>{{sp.url}}</td>
-                      <td>John Doe</td>
-                      <td>11-7-2014</td>
-                      <td><button id="assignsitepage-{{sp.id}}" data-dismiss="modal" class="btn btn-info">Assign</button></td>
+                      <td><button id="assignsitepage-{{sp.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -175,12 +171,11 @@
             </div>
             <div class="modal-body">
                 <div class="card-body table-responsive p-0" style="height: 300px;">
-                <table class="table table-head text-nowrap">
+                <table class="table table-head table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
                       <th>Keyword</th>
-                      <th>User</th>
-                      <th>Date</th>
+
                       <th>Assign</th>
                     </tr>
                   </thead>
@@ -188,9 +183,7 @@
                   {% for kw in keywords %}
                     <tr>
                       <td>{{kw.keyword}}</td>
-                      <td>John Doe</td>
-                      <td>11-7-2014</td>
-                      <td><button id="assignkeyword-{{kw.id}}" data-dismiss="modal" class="btn btn-info">Assign</button></td>
+                      <td><button id="assignkeyword-{{kw.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
                     </tr>
                     {% endfor %}
                   </tbody>
