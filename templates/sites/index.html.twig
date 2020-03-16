@@ -145,7 +145,7 @@
                       <td>{{ np.domain }}</td>
                       <td>53</td>
                       <td>
-                        <a href="" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('prospect_view', {'id': np.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>
                     </tr>
                     {% endfor %}
@@ -153,6 +153,7 @@
                 </table>
               </div>
               <!-- /.card-body -->
+              
             </div>
             <!-- /.card -->
           </div>

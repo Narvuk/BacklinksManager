@@ -3,27 +3,26 @@
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Backlink Information
+    Keyword Information
 {% endblock %}
 {% block tcright %}
     <button class="btn btn-success"><i class="fas fa-sync"></i></button>
                         <button type="button" class="btn btn-info" data-toggle="dropdown">
-                      <i class="fas fa-link"></i>
+                      <i class="fas fa-handshake"></i>
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="{{ backlink.backlink }}" target="_blank">Check Active</a>
-                      <div id="lostbutton">
-                       <button class="dropdown-item" id="updatestatus-lost">Lost Backlink</button>
+                      <div id="inactivebutton">
+                       <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
                        </div>
                         <div id="activebutton">
-                       <button class="dropdown-item" id="updatestatus-active">Active Backlink</button>  
+                       <button class="dropdown-item" id="updatestatus-active">Active</button>  
                        </div>
                     </div>
 {% endblock %}
 {% block body %}
     <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Backlink Details</h3>
+          <h3 class="card-title">{{keyword.keyword}}</h3>
         </div>
         <div class="card-body">
           <div class="row">
@@ -33,7 +32,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{backlink.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{keyword.created|date('d-m-Y')}}</span>
                     </div>
                   </div>
                 </div>
@@ -41,7 +40,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{backlink.lastchecked|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{keyword.lastchecked|date('d-m-Y')}}</span>
                     </div>
                   </div>
                 </div>
@@ -49,7 +48,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{backlink.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{{keyword.updated|date('d-m-Y')}}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -58,7 +57,7 @@
                 <div class="col-12">
                     <div class="card card-info">
                         <div class="card-header">
-                            <h3 class="card-title">Backlink - Notes</h3>
+                            <h3 class="card-title">Keyword - Notes</h3>
                             <div class="card-tools">
                                 <button class="btn btn-tool btn-info">Add Note</button>
                             </div>
@@ -86,23 +85,23 @@
               </div>
             </div>
             <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
-              <h3 class="text-primary">Backlink Details</h3>
+              <h3 class="text-primary">Keyword Details</h3>
               <p class="text-muted">Description here</p>
               <br>
               <div class="text-muted">
               <p class="text">Status
-                  <b class="d-block" id="bstatus">
-                      {{backlink.status}}
+                  <b class="d-block" id="kstatus">
+                      {{keyword.status}}
                   </b>
                 </p>
-                <p class="text">Backlink
-                  <b class="d-block">{{backlink.backlink}}</b>
+                <p class="text">Backlinks
+                  <b class="d-block">25</b>
                 </p>
-                <p class="text">Links To
-                  <b class="d-block">https://stormdevelopers.com/somepage</b>
+                <p class="text">Linked Pages
+                  <b class="d-block">10</b>
                 </p>
-                <p class="text">Keyword
-                  <b class="d-block">Some Keyword</b>
+                <p class="text">Prospects Sites
+                  <b class="d-block">100</b>
                 </p>
               </div>
             </div>
@@ -114,19 +113,19 @@
 {% block pageJS %}
    <script language = "javascript">  
       $(document).ready(function(){   
-         $("#updatestatus-lost").on("click", function(event){ 
-            $('#bstatus').html('');  
-            $('#bstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+         $("#updatestatus-inactive").on("click", function(event){ 
+            $('#kstatus').html('');  
+            $('#kstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
             $.ajax({ 
 
-               url:        '/backlink/{{backlink.id}}/updatestatus/Lost',  
+               url:        '/keyword/{{keyword.id}}/updatestatus/Inactive',  
                type:       'POST',   
                dataType:   'json',  
                async:      true,  
 
                success: function(data, status) {  
-                  $('#bstatus').html('');  
-                  $('#bstatus').append(data['statuschange']);
+                  $('#kstatus').html('');  
+                  $('#kstatus').append(data['statuschange']);
                },  
                error : function(xhr, textStatus, errorThrown) {  
                   alert('Ajax request failed.');  
@@ -135,18 +134,18 @@
             });  
          }); 
          $("#updatestatus-active").on("click", function(event){ 
-            $('#bstatus').html('');  
-            $('#bstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $('#kstatus').html('');  
+            $('#kstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
             $.ajax({ 
 
-               url:        '/backlink/{{backlink.id}}/updatestatus/Active',  
+               url:        '/keyword/{{keyword.id}}/updatestatus/Active',  
                type:       'POST',   
                dataType:   'json',  
                async:      true,  
 
                success: function(data, status) {  
-                  $('#bstatus').html('');  
-                  $('#bstatus').append(data['statuschange']);
+                  $('#kstatus').html('');  
+                  $('#kstatus').append(data['statuschange']);
                },  
                error : function(xhr, textStatus, errorThrown) {  
                   alert('Ajax request failed.');  

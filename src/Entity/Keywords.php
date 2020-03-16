@@ -42,6 +42,11 @@ class Keywords
      */
     private $updated;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $lastchecked;
+
 
     //Getters
 
@@ -75,6 +80,11 @@ class Keywords
         return $this->updated;
     }
 
+    public function getLastChecked()
+    {
+        return $this->lastchecked;
+    }
+
     //Setters
 
     public function setSiteId($siteid)
@@ -100,6 +110,11 @@ class Keywords
     public function setUpdated($updated)
     {
         $this->updated = $updated;
+    }
+
+    public function setLastChecked($lastchecked)
+    {
+        $this->lastchecked = $lastchecked;
     }
     
 }

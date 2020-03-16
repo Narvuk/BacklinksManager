@@ -32,9 +32,7 @@
                       <td>{{ p.updated|date('Y-m-d') }}</td>
                       <td><span class="tag tag-success">{{ p.status }}</span></td>
                       <td>
-                        <a href="" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
-                        <button class="btn btn-info btn-sm"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                        <a href="{{ path('prospect_view', {'id': p.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                     <button type="button" class="btn btn-sm btn-default" data-toggle="dropdown">
                       <i class="fas fa-arrow-down"></i>
                     </button>
