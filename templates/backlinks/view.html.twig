@@ -108,7 +108,12 @@
                   {% endif %}
                 </p>
                 <p class="text">Keyword
-                  <b class="d-block">Some Keyword</b>
+                  <b class="d-block" id="kwassign">{% if backlink.keywordid != null %}{{kword.keyword}}{% endif %}</b>
+                  {% if backlink.keywordid == null %}
+                  <div id="kwassignbutton">
+                  <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assignkeywordmodal-lg">Assign Keyword</button>
+                  </div>
+                  {% endif %}
                 </p>
               </div>
             </div>
@@ -132,10 +137,10 @@
                 <table class="table table-head text-nowrap">
                   <thead>
                     <tr>
-                      <th>ID</th>
+                      <th>Site Page</th>
                       <th>User</th>
                       <th>Date</th>
-                      <th>Status</th>
+                      <th>Assign</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -145,6 +150,47 @@
                       <td>John Doe</td>
                       <td>11-7-2014</td>
                       <td><button id="assignsitepage-{{sp.id}}" data-dismiss="modal" class="btn btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+      <div class="modal fade" id="assignkeywordmodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Keyword</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Keyword</th>
+                      <th>User</th>
+                      <th>Date</th>
+                      <th>Assign</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for kw in keywords %}
+                    <tr>
+                      <td>{{kw.keyword}}</td>
+                      <td>John Doe</td>
+                      <td>11-7-2014</td>
+                      <td><button id="assignkeyword-{{kw.id}}" data-dismiss="modal" class="btn btn-info">Assign</button></td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -217,6 +263,29 @@
                success: function(data, status) {  
                   $('#spassign').html('');  
                   $('#spassign').append(data['spageurl']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %} 
+         {% for kw in keywords %}
+         $("#assignkeyword-{{kw.id}}").on("click", function(event){
+            $('#kwassignbutton').html(''); 
+            $('#kwassign').html('');  
+            $('#kwassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/assignkeyword/{{kw.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#kwassign').html('');  
+                  $('#kwassign').append(data['kword']);
                },  
                error : function(xhr, textStatus, errorThrown) {  
                   alert('Ajax request failed.');  

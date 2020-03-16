@@ -173,6 +173,10 @@ class SitesController extends AbstractController
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
         $backlinks = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
 
+        // Get Site Pages
+        
+        // Get Keywords
+
         // 1) build the form
         $addbacklink = new Backlinks();
         $form = $this->createForm(AddBacklinkType::class, $addbacklink);

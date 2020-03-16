@@ -9,6 +9,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Sitepages;
+use App\Entity\Keywords;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
@@ -35,11 +36,20 @@ class BacklinksController extends AbstractController
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
 
+        // Show all & Get Assigned Site Page for Backlink
         $sitepages = $this->getDoctrine()->getRepository(Sitepages::class)->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
         if ($backlink->getSpageId() != Null){
             $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($backlink->getSpageId());
         } else {
             $spage = "";
+        }
+
+        // Show all & Get Assigned Keyword for Backlink
+        $keywords = $this->getDoctrine()->getRepository(Keywords::class)->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
+        if ($backlink->getKeywordId() != Null){
+            $kword = $this->getDoctrine()->getRepository(Keywords::class)->find($backlink->getKeywordId());
+        } else {
+            $kword = "";
         }
 
 
@@ -49,6 +59,8 @@ class BacklinksController extends AbstractController
                 'backlink' => $backlink,
                 'spages' => $sitepages,
                 'spage' => $spage,
+                'keywords' => $keywords,
+                'kword' => $kword,
             ]
         );
     }
@@ -130,6 +142,40 @@ class BacklinksController extends AbstractController
         
             $temp = array(
                'spageurl' => $spageurl, 
+            );   
+            $jsonData = $temp;  
+         
+        return new JsonResponse($jsonData);
+        
+        }
+
+    }
+
+    /**
+     * @Route("/backlink/{id}/assignkeyword/{keywordid}", name="backlink_assignkeyword")
+     */
+    public function KeywordAssignPage($id, $keywordid, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+
+        $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+        $kword = $this->getDoctrine()->getRepository(Keywords::class)->find($keywordid);
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $backlink->setKeywordId($keywordid);
+
+        $backlink->setUpdated(new \DateTime());
+        $entityManager->persist($backlink);
+        $entityManager->flush();
+
+        $getkword = $kword->getKeyword();
+        
+            $temp = array(
+               'kword' => $getkword, 
             );   
             $jsonData = $temp;  
          
