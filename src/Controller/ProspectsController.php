@@ -13,6 +13,9 @@ use App\Form\Sites\AddBacklinkType;
 use App\Form\Sites\AddPageType;
 use App\Form\Sites\AddKeywordType;
 use App\Form\Sites\AddProspectType;
+use App\Entity\Notes\ProspectsNotes;
+use App\Form\Prospects\AddNoteType;
+
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
@@ -42,10 +45,14 @@ class ProspectsController extends AbstractController
         //count stats
         $bcount = count($backlinks = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
 
+        // Get Notes
+        $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
+
         return $this->render('prospects/view.html.twig',
             [
                 'site' => $site,
                 'prospect' => $prospect,
+                'pnotes' => $pnotes,
                 'bcount' => $bcount,
             ]
         );
@@ -104,6 +111,54 @@ class ProspectsController extends AbstractController
             ]
         );
     }
+
+    /**
+     * @Route("/prospect/{id}/notes", name="prospect_notes")
+     */
+    public function ProspectNotes($id, Request $request)
+    {
+        if ($id == NULL){
+            return $this->redirectToRoute('core');
+        }
+        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
+        $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId()]);
+
+        // 1) build the form
+        $addnote = new ProspectsNotes();
+        $form = $this->createForm(AddNoteType::class, $addnote);
+
+        // 2) handle the submit (will only happen on POST)
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // 4) save the site!
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $addnote->setSiteId($prospect->getSiteId());
+            $addnote->setProspectId($id);
+            $addnote->setStatus('Unread');
+            $addnote->setCreated(new \DateTime());
+
+            $entityManager->persist($addnote);
+            $entityManager->flush();
+
+            // ... do any other work - like sending them an email, etc
+            // maybe set a "flash" success message for the user
+
+            return $this->redirectToRoute('prospect_notes', ['id' => $id]);
+        }
+
+        return $this->render('prospects/notes/list.html.twig',
+            [
+                'site' => $site,
+                'prospect' => $prospect,
+                'pnotes' => $pnotes,
+                'form' => $form->createView(),
+            ]
+        );
+    } 
 
 
     /**

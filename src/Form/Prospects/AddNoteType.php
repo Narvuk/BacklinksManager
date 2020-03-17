@@ -1,5 +1,5 @@
 <?php
-namespace App\Form\Backlinks;
+namespace App\Form\Prospects;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sites;
-use App\Entity\Notes\BacklinksNotes;
+use App\Entity\Notes\ProspectsNotes;
 
 class AddNoteType extends AbstractType
 {
@@ -34,7 +34,7 @@ class AddNoteType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => BacklinksNotes::class,
+            'data_class' => ProspectsNotes::class,
         ));
     }
 }

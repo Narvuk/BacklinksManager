@@ -23,13 +23,13 @@
                     </tr>
                   </thead>
                   <tbody>
-                  {% for n in blnotes %}
+                  {% for n in pnotes %}
                     <tr>
                       <td>{{ n.title }}</td>
                       <td>{{ n.created|date('Y-m-d') }}</td>
                       <td><span class="tag tag-success">{{ n.status }}</span></td>
                       <td>
-                        <a href="{{ path('backlinks_note_view', {'id': n.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('prospects_note_view', {'id': n.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                     <button type="button" class="btn btn-sm btn-default" data-toggle="dropdown">
                       <i class="fas fa-arrow-down"></i>
                     </button>
