@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/sitesmenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+    Site Page Note
+{% endblock %}
+{% block tcright %}
+    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
+{% endblock %}
+{% block body %}
+    <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+              <div class="row">
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Created</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{note.created|date('d-m-Y')}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">Updated</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{note.updated|date('d-m-Y')}}<span>
+                    </span></span></div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">somthing</span>
+                      <span class="info-box-number text-center text-muted mb-0">somthing</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="post">
+                    <strong>{{note.title}}</strong>
+                    <p>
+                        {{ note.description }}
+                    </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+              <h3 class="text-primary">Note Details</h3>
+              <br>
+              <div class="text-muted">
+              <p class="text">Status
+                  <b class="d-block" id="bstatus">
+                      {{note.status}}
+                  </b>
+                </p>
+                <p class="text">Site Page <a href="{{ path('sitepage_view', {'id': spage.id}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>
+                  <b class="d-block">{{spage.url}}</b>
+                </p>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+{% endblock %}
+{% block ModalArea %}
+
+{% endblock %}
+{% block pageJS %}
+   
+{% endblock %}

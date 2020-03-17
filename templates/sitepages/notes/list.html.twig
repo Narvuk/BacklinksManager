@@ -3,36 +3,33 @@
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    {{site.name}} - Pages
+    Site Page Notes
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-info" data-toggle="modal" data-target="#modal-lg">Add Page</button>
-    <button class="btn btn-secondary"><i class="fas fa-sync"></i></button>
+    <button class="btn btn-info" data-toggle="modal" data-target="#modal-lg">Add Note</button>
 {% endblock %}
 {% block body %}
-<div class="row">
+    <div class="row">
         <div class="col-12">
             <div class="card">
               <div class="card-body p-0">
                 <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
-                      <th>Site Page</th>
-                      <th>Backlinks</th>
-                      <th>Last Updated</th>
+                      <th>Note</th>
+                      <th>Created</th>
                       <th>Status</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                  {% for page in sitepages %}
+                  {% for n in spnotes %}
                     <tr>
-                      <td>{{ page.url }}</td>
-                      <td>123</td>
-                      <td>{{ page.updated|date('Y-m-d') }}</td>
-                      <td><span class="tag tag-success">{{ page.status }}</span></td>
+                      <td>{{ n.title }}</td>
+                      <td>{{ n.created|date('Y-m-d') }}</td>
+                      <td><span class="tag tag-success">{{ n.status }}</span></td>
                       <td>
-                        <a href="{{ path('sitepage_view', {'id': page.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('sitepages_note_view', {'id': n.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                     <button type="button" class="btn btn-sm btn-default" data-toggle="dropdown">
                       <i class="fas fa-arrow-down"></i>
                     </button>
@@ -54,14 +51,14 @@
         </div>
 {% endblock %}
 {% block pageJS %}
-    <!-- Additional Javascript or Jquery  -->
+   
 {% endblock %}
 {% block ModalArea %}
 <div class="modal fade" id="modal-lg">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Add Site Page</h4>
+              <h4 class="modal-title">Add Note</h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -70,11 +67,31 @@
             <div class="modal-body">
                 <div class="row clearfix">
                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label>Page Url</label>
+                        <label>Note Title</label>
                     </div>
                     <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
                         <div class="form-group">
-                            {{ form_widget(form.Url, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_widget(form.Title, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Note Type</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Type, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Description</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Description, {'attr': {'class': 'form-control'}}) }}
                         </div>
                     </div>
                 </div>
@@ -82,7 +99,7 @@
             </div>
             <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" id="form-submit" class="btn btn-primary">Add Page</button>
+              <button type="submit" id="form-submit" class="btn btn-primary">Add Note</button>
             </div>
              {{ form_end(form) }}
           </div>

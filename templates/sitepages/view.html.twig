@@ -3,13 +3,11 @@
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Keyword Information
+    Site Page Information
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                        <button type="button" class="btn btn-info" data-toggle="dropdown">
-                      <i class="fas fa-magic"></i>
-                    </button>
+                    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-handshake"></i></button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -22,7 +20,7 @@
 {% block body %}
     <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{keyword.keyword}}</h3>
+          <h3 class="card-title">{{spage.url}}</h3>
         </div>
         <div class="card-body">
           <div class="row">
@@ -32,15 +30,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{keyword.created|date('d-m-Y')}}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-sm-4">
-                  <div class="info-box bg-light">
-                    <div class="info-box-content">
-                      <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{keyword.lastchecked|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{spage.created|date('d-m-Y')}}</span>
                     </div>
                   </div>
                 </div>
@@ -48,8 +38,16 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{keyword.updated|date('d-m-Y')}}<span>
-                    </span></span></div>
+                      <span class="info-box-number text-center text-muted mb-0">{{spage.updated|date('d-m-Y')}}<span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-4">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center text-muted">somthing</span>
+                      <span class="info-box-number text-center text-muted mb-0">somthing</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -60,22 +58,22 @@
               </div>
             </div>
             <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
-              <h3 class="text-primary">Keyword Details</h3>
+              <h3 class="text-primary">Site Page Details</h3>
               <p class="text-muted">Description here</p>
               <br>
               <div class="text-muted">
               <p class="text">Status
-                  <b class="d-block" id="kstatus">
-                      {{keyword.status}}
+                  <b class="d-block" id="spstatus">
+                      {{spage.status}}
                   </b>
                 </p>
-                <p class="text">Backlinks
-                  <b class="d-block">25</b>
+                <p class="text">Backlinks <a href="" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>
+                  <b class="d-block">123</b>
                 </p>
-                <p class="text">Linked Pages
+                <p class="text">Linked Pages <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
                   <b class="d-block">10</b>
                 </p>
-                <p class="text">Prospects Sites
+                <p class="text">Keywords Used <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
                   <b class="d-block">100</b>
                 </p>
               </div>
@@ -105,17 +103,17 @@
           <div class="col-md-6">
             <div class="card card-info">
               <div class="card-header">
-                            <h3 class="card-title">Keyword - Unread Notes</h3>
+                            <h3 class="card-title">Site Page - Unread Notes</h3>
                             <div class="card-tools">
-                                <a href="{{ path('keyword_notes', {'id': keyword.id}) }}" class="btn btn-tool btn-info">View Notes</a>
+                                <a href="{{ path('sitepage_notes', {'id': spage.id}) }}" class="btn btn-tool btn-info">View Notes</a>
                             </div>
                         </div>
               <!-- /.card-header -->
               <div class="card-body">
-                {% if not knotes %}
+                {% if not spnotes %}
                   Nice Work - No New Notes
                 {% endif %}
-                {% for note in knotes %}
+                {% for note in spnotes %}
                 <div class="post">
                     <strong>{{ note.title }}</strong>
                     <p>
@@ -135,18 +133,18 @@
    <script language = "javascript">  
       $(document).ready(function(){   
          $("#updatestatus-inactive").on("click", function(event){ 
-            $('#kstatus').html('');  
-            $('#kstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $('#spstatus').html('');  
+            $('#spstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
             $.ajax({ 
 
-               url:        '/keyword/{{keyword.id}}/updatestatus/Inactive',  
+               url:        '/sitepage/{{spage.id}}/updatestatus/Inactive',  
                type:       'POST',   
                dataType:   'json',  
                async:      true,  
 
                success: function(data, status) {  
-                  $('#kstatus').html('');  
-                  $('#kstatus').append(data['statuschange']);
+                  $('#spstatus').html('');  
+                  $('#spstatus').append(data['statuschange']);
                },  
                error : function(xhr, textStatus, errorThrown) {  
                   alert('Ajax request failed.');  
@@ -155,18 +153,18 @@
             });  
          }); 
          $("#updatestatus-active").on("click", function(event){ 
-            $('#kstatus').html('');  
-            $('#kstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $('#spstatus').html('');  
+            $('#spstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
             $.ajax({ 
 
-               url:        '/keyword/{{keyword.id}}/updatestatus/Active',  
+               url:        '/sitepage/{{spage.id}}/updatestatus/Active',  
                type:       'POST',   
                dataType:   'json',  
                async:      true,  
 
                success: function(data, status) {  
-                  $('#kstatus').html('');  
-                  $('#kstatus').append(data['statuschange']);
+                  $('#spstatus').html('');  
+                  $('#spstatus').append(data['statuschange']);
                },  
                error : function(xhr, textStatus, errorThrown) {  
                   alert('Ajax request failed.');  
