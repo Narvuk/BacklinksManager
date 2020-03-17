@@ -11,6 +11,7 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
+use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Sites\AddBacklinkType;
 use App\Form\Sites\AddPageType;
 use App\Form\Sites\AddKeywordType;
@@ -215,26 +216,6 @@ class SitesController extends AbstractController
         );
     }
 
-
-    /**
-     * @Route("/site/{id}/linkingdomains", name="site_linking_domains")
-     */
-    public function LinkingDomains($id, Request $request)
-    {
-        if ($id == NULL){
-            return $this->redirectToRoute('core');
-        }
-
-        $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-
-        return $this->render('sites/index.html.twig',
-            [
-                'site' => $site,
-            ]
-        );
-    }
-
-
     /**
      * @Route("/site/{id}/keywords", name="site_keywords")
      */
@@ -332,6 +313,26 @@ class SitesController extends AbstractController
                 'site' => $site,
                 'sitepages' => $sitepages,
                 'form' => $form->createView(),
+            ]
+        );
+    }
+
+     /**
+     * @Route("/site/{id}/linktracking", name="site_link_tracking")
+     */
+    public function LinkTracking($id, Request $request)
+    {
+        if ($id == NULL){
+            return $this->redirectToRoute('core');
+        }
+
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
+        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
+
+        return $this->render('sites/linktracking.html.twig',
+            [
+                'site' => $site,
+                'tcampaigns' => $tcampaigns,
             ]
         );
     }

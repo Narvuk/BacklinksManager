@@ -9,7 +9,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
-use App\Entity\Linktracking\TrackingCampaign;
+use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
 use App\Form\Sites\AddPageType;
@@ -50,10 +50,10 @@ class ProspectsController extends AbstractController
         // Get Notes
         $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
 
-        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaign::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit = 5);
+        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit = 5);
 
         // 1) build the form
-        $addtcampaign = new TrackingCampaign();
+        $addtcampaign = new TrackingCampaigns();
         $form = $this->createForm(AddTrackingCampaignType::class, $addtcampaign);
 
         // 2) handle the submit (will only happen on POST)

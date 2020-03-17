@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="lt_trackingcampaign")
  * @ORM\Entity(repositoryClass="App\Repository\Linktracking\TrackingCampaignRepository")
  */
-class TrackingCampaign
+class TrackingCampaigns
 {
 
     /**

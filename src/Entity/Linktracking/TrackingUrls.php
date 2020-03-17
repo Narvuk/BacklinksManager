@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="lt_trackingurl")
  * @ORM\Entity(repositoryClass="App\Repository\Linktracking\TrackingUrlRepository")
  */
-class TrackingUrl
+class TrackingUrls
 {
 
     /**

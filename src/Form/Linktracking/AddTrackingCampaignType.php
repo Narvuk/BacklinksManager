@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sites;
-use App\Entity\Linktracking\TrackingCampaign;
+use App\Entity\Linktracking\TrackingCampaigns;
 
 class AddTrackingCampaignType extends AbstractType
 {
@@ -25,7 +25,7 @@ class AddTrackingCampaignType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => TrackingCampaign::class,
+            'data_class' => TrackingCampaigns::class,
         ));
     }
 }
