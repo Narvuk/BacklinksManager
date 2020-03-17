@@ -11,6 +11,6 @@ We are starting to include areas on the website to help with feedback, suggestio
 
 Founder: Storm Developers
 
-Maintainers: Alan
+Maintainers: Alan (Gh0st4unt3r)
 
 Contributors: Jean-Marie Clement
