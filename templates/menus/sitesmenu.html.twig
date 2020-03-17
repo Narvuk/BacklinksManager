@@ -27,21 +27,15 @@
 </li>
 <li class="nav-header">Workflow</li>
 <li class="nav-item">
-    <a href="{{ path('site_backlinks', {'id': site.id}) }}" class="nav-link">
-        <i class="nav-icon far fa-circle text-info"></i>
-        <p>Backlinks</p>
-    </a>
-</li>
-<li class="nav-item">
     <a href="{{ path('site_prospects', {'id': site.id}) }}" class="nav-link">
         <i class="nav-icon far fa-circle text-info"></i>
         <p>Prospects</p>
     </a>
 </li>
 <li class="nav-item">
-    <a href="" class="nav-link">
+    <a href="{{ path('site_backlinks', {'id': site.id}) }}" class="nav-link">
         <i class="nav-icon far fa-circle text-info"></i>
-        <p>Linking Domains</p>
+        <p>Backlinks</p>
     </a>
 </li>
 <li class="nav-item">
@@ -54,5 +48,12 @@
     <a href="{{ path('site_pages', {'id': site.id}) }}" class="nav-link">
         <i class="nav-icon far fa-circle text-info"></i>
         <p>Site Pages</p>
+    </a>
+</li>
+<li class="nav-header">Tools</li>
+<li class="nav-item">
+    <a href="" class="nav-link">
+        <i class="nav-icon far fa-circle text-green"></i>
+        <p>Link Tracking</p>
     </a>
 </li>

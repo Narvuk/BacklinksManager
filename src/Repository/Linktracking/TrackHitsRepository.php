@@ -1,12 +1,12 @@
 <?PHP
-namespace App\Repository;
+namespace App\Repository\Linktracking;
 
 use Doctrine\ORM\EntityRepository;
-use App\Entity\Linkingdomains;
+use App\Entity\Linktracking\TrackHits;
 
-class LinkingdomainsRepository extends EntityRepository
+class TrackHitsRepository extends EntityRepository
 {
-    public function loadlinkingDomainsByID($id)
+    public function loadHitsByID($id)
     {
         $qb = $this->createQueryBuilder('a')
             ->andWhere('a.id > :id')

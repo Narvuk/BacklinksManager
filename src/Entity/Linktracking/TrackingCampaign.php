@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Linktracking;
 
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="linkingdomains")
- * @ORM\Entity(repositoryClass="App\Repository\LinkingdomainsRepository")
+ * @ORM\Table(name="lt_trackingcampaign")
+ * @ORM\Entity(repositoryClass="App\Repository\Linktracking\TrackingCampaignRepository")
  */
-class Linkingdomains
+class TrackingCampaign
 {
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -20,19 +21,29 @@ class Linkingdomains
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $siteid;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
     private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $domain;
+    private $siteid;
 
-     /**
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $prospectid;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $title;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $totalhits;
+
+    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $created;
@@ -42,21 +53,11 @@ class Linkingdomains
      */
     private $updated;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $lastchecked;
-
-    //Getters
+    // Getters
 
     public function getId()
     {
         return $this->id;
-    }
-
-    public function getSiteId()
-    {
-        return $this->siteid;
     }
 
     public function getStatus()
@@ -64,9 +65,24 @@ class Linkingdomains
         return $this->status;
     }
 
-    public function getDomain()
+    public function getSiteId()
     {
-        return $this->domain;
+        return $this->siteid;
+    }
+
+    public function getProspectId()
+    {
+        return $this->prospectid;
+    }
+
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    public function getTotalHits()
+    {
+        return $this->totalhits;
     }
 
     public function getCreated()
@@ -79,27 +95,31 @@ class Linkingdomains
         return $this->updated;
     }
 
-    public function getLastChecked()
+    // Setters
+
+    public function setStatus($status)
     {
-        return $this->lastchecked;
+        $this->status = $status;
     }
-
-
-    //Setters
 
     public function setSiteId($siteid)
     {
         $this->siteid = $siteid;
     }
 
-    public function setStatus($status)
+    public function setProspectId($prospectid)
     {
-        $this->status = $status;
+        $this->prospectid = $prospectid;
     }
-    
-    public function setDomain($domain)
+
+    public function setTitle($title)
     {
-        $this->domain = domain;
+        $this->title = $title;
+    }
+
+    public function setTotalHits($totalhits)
+    {
+        $this->totalhits = $totalhits;
     }
 
     public function setCreated($created)
@@ -112,8 +132,4 @@ class Linkingdomains
         $this->updated = $updated;
     }
 
-    public function setLastChecked($lastchecked)
-    {
-        $this->lastchecked = $lastchecked;
-    }
 }

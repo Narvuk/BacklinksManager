@@ -9,6 +9,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
+use App\Entity\Linktracking\TrackingCampaign;
+use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
 use App\Form\Sites\AddPageType;
 use App\Form\Sites\AddKeywordType;
@@ -48,12 +50,44 @@ class ProspectsController extends AbstractController
         // Get Notes
         $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
 
+        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaign::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit = 5);
+
+        // 1) build the form
+        $addtcampaign = new TrackingCampaign();
+        $form = $this->createForm(AddTrackingCampaignType::class, $addtcampaign);
+
+        // 2) handle the submit (will only happen on POST)
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // 4) save the site!
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $addtcampaign->setSiteId($prospect->getSiteId());
+            $addtcampaign->setProspectId($prospect->getId());
+            $addtcampaign->setTotalHits('0');
+            $addtcampaign->setStatus('New');
+            $addtcampaign->setCreated(new \DateTime());
+
+            $entityManager->persist($addtcampaign);
+            $entityManager->flush();
+
+            // ... do any other work - like sending them an email, etc
+            // maybe set a "flash" success message for the user
+
+            return $this->redirectToRoute('prospect_view', ['id' => $id]);
+        }
+
+
         return $this->render('prospects/view.html.twig',
             [
                 'site' => $site,
                 'prospect' => $prospect,
                 'pnotes' => $pnotes,
                 'bcount' => $bcount,
+                'tcampaigns' => $tcampaigns,
+                'form' => $form->createView(),
             ]
         );
     }
