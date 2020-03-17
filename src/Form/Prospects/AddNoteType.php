@@ -24,7 +24,7 @@ class AddNoteType extends AbstractType
                 'multiple' => false,
                 'expanded' => false,
                 'choices' => array(
-                    'ToDo' => 'ToDo',
+                    'Task' => 'Task',
                     'Issue' => 'Issue',
                 ),
             ))
