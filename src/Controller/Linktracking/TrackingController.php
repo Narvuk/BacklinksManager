@@ -28,7 +28,7 @@ class TrackingController extends AbstractController
     /**
      * @Route("/t={prospectid}{keywordid}{spageid}", name="ref_info")
      */
-    public function Trackincominglink($prospectid, $keywordid, $spageid, Request $request)
+    public function TrackIncominglink($prospectid, $keywordid, $spageid, Request $request)
     {
 
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
@@ -75,5 +75,26 @@ class TrackingController extends AbstractController
         //var_dump($getpage);
         return $this->redirect($getpage);
     }
+
+
+    /**
+     * @Route("/d={prospectid}{keywordid}{spageid}", name="refnotrack_info")
+     */
+    public function NoTrackIncominglink($prospectid, $keywordid, $spageid, Request $request)
+    {
+
+        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
+
+        // Do not need prospect or keyword
+        
+                
+        $page = $this->getDoctrine()->getRepository(Sitepages::class)->find($spageid);
+        $getpage = $page->getUrl();
+        // This return redirect allows referer to follow : yay
+        //var_dump($getpage);
+        return $this->redirect($getpage);
+    }
+
 
 }
