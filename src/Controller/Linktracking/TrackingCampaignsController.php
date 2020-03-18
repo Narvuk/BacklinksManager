@@ -41,7 +41,7 @@ class TrackingCampaignsController extends AbstractController
         }
 
         $tcamp = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->find($id);
-        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($tcamp->getSiteId());
 
          return $this->render('linktracking/view.html.twig',
             [

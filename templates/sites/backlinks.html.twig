@@ -6,7 +6,6 @@
     {{site.name}} - Backlinks
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-info" data-toggle="modal" data-target="#modal-lg">Add Backlink</button>
     <button class="btn btn-secondary"><i class="fas fa-sync"></i></button>
 {% endblock %}
 {% block body %}
@@ -105,38 +104,4 @@
    {% endfor %} 
 {% endblock %}
 {% block ModalArea %}
-<div class="modal fade" id="modal-lg">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Add Backlink</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            {{ form_start(form) }}
-            <div class="modal-body">
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label>Backlink Url</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            {{ form_widget(form.Backlink, {'attr': {'class': 'form-control'}}) }}
-                        </div>
-                    </div>
-                </div>
-       
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" id="form-submit" class="btn btn-primary">Add Site</button>
-            </div>
-             {{ form_end(form) }}
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
-      <!-- /.modal -->
 {% endblock %}
