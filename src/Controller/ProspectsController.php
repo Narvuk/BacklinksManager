@@ -92,6 +92,52 @@ class ProspectsController extends AbstractController
         );
     }
 
+    /**
+     * @Route("/prospect/{id}/tcampaigns", name="prospect_tcampaigns_view")
+     */
+    public function ProspectTrackingCampaigns($id, Request $request)
+    {
+        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
+        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']);
+
+        // 1) build the form
+        $addtcampaign = new TrackingCampaigns();
+        $form = $this->createForm(AddTrackingCampaignType::class, $addtcampaign);
+
+        // 2) handle the submit (will only happen on POST)
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // 4) save the site!
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $addtcampaign->setSiteId($prospect->getSiteId());
+            $addtcampaign->setProspectId($prospect->getId());
+            $addtcampaign->setTotalHits('0');
+            $addtcampaign->setStatus('New');
+            $addtcampaign->setCreated(new \DateTime());
+
+            $entityManager->persist($addtcampaign);
+            $entityManager->flush();
+
+            // ... do any other work - like sending them an email, etc
+            // maybe set a "flash" success message for the user
+
+            return $this->redirectToRoute('prospect_tcampaigns_view', ['id' => $id]);
+        }
+
+        return $this->render('prospects/tcampaigns.html.twig',
+            [
+                'site' => $site,
+                'prospect' => $prospect,
+                'tcampaigns' => $tcampaigns,
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
 
     /**
      * @Route("/prospect/{id}/backlinks", name="prospect_backlinks_view")

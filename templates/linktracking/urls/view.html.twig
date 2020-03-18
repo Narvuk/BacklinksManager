@@ -3,11 +3,11 @@
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Tracking Campaign Information
+    Tracking Url Information
 {% endblock %}
 {% block tcright %}
                     <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-handshake"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-link"></i></button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -20,7 +20,7 @@
 {% block body %}
     <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{tcamp.title}}</h3>
+          <h3 class="card-title">{{turl.title}}</h3>
         </div>
         <div class="card-body">
           <div class="row">
@@ -30,7 +30,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{tcamp.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{{turl.created|date('d-m-Y')}}</span>
                     </div>
                   </div>
                 </div>
@@ -46,7 +46,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{tcamp.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{{turl.updated|date('d-m-Y')}}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -58,7 +58,7 @@
                 <div class="col-6">
                 <div class="float-sm-right">
                  <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#modal-lg"><i class="fas fa-plus"></i></button>
-                 <a href="{{ path('trackcamp_urls_view', {'id': tcamp.id}) }}" class="btn btn-sm btn-dark">View All</a>
+                 <a href="" class="btn btn-sm btn-dark">View All</a>
                  </div>
                  </div>
               </div>
@@ -66,31 +66,7 @@
                 <div class="col-12">
                     <div class="card">
               <div class="card-body p-0">
-                <table class="table table-sm table-hover">
-                  <thead>
-                    <tr>
-                      <th>Tracking Links</th>
-                      <th>Hits/Traffic</th>
-                      <th>Status</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {% for tu in turls  %}
-                    <tr>
-                      <td>{{tu.title}}</td>
-                      <td>{{tu.urlhits}}</td>
-                      <td><span class="tag tag-success">{{tu.status}}</span></td>
-                      <td>
-                        <a href="{{ path('trackingurl_view', {'id': tu.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                 {% if not turls %}
-                    <p style="text-align:center;">No Campaigns - Add one to Start Tracking Urls</p>
-                 {% endif %}
+                somthing here
               </div>
               <!-- /.card-body -->
             </div>
@@ -98,17 +74,20 @@
               </div>
             </div>
             <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
-              <h3 class="text-primary">Campaign Details</h3>
+              <h3 class="text-primary">Tracking Url Details</h3>
               <p class="text-muted">Description here</p>
               <br>
               <div class="text-muted">
               <p class="text">Status 
                   <b class="d-block" id="pstatus">
-                      {{tcamp.status}}
+                      {{turl.status}}
                   </b>
                 </p>
-                <p class="text">Campaign Hits
-                  <b class="d-block">{{tcamp.totalhits}}</b>
+                <p class="text">Link Hits
+                  <b class="d-block">{{turl.urlhits}}</b>
+                </p>
+                <p class="text">Site Page <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
+                  <b class="d-block">Link Here Soon</b>
                 </p>
               </div>
             </div>
@@ -157,38 +136,5 @@
    
 {% endblock %}
 {% block ModalArea %}
-<div class="modal fade" id="modal-lg">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Add Tracking Url</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            {{ form_start(form) }}
-            <div class="modal-body">
-                <div class="row clearfix">
-                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-5 form-control-label">
-                        <label>Url Title</label>
-                    </div>
-                    <div class="col-lg-9 col-md-9 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            {{ form_widget(form.Title, {'attr': {'class': 'form-control'}}) }}
-                        </div>
-                    </div>
-                </div>
-       
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" id="form-submit" class="btn btn-primary">Add Url</button>
-            </div>
-             {{ form_end(form) }}
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
-      <!-- /.modal -->
+
 {% endblock %}
