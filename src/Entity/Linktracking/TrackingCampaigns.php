@@ -5,8 +5,8 @@ namespace App\Entity\Linktracking;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(name="lt_trackingcampaign")
- * @ORM\Entity(repositoryClass="App\Repository\Linktracking\TrackingCampaignRepository")
+ * @ORM\Table(name="lt_trackingcampaigns")
+ * @ORM\Entity(repositoryClass="App\Repository\Linktracking\TrackingCampaignsRepository")
  */
 class TrackingCampaigns
 {

@@ -21,7 +21,7 @@ use App\Form\Prospects\AddNoteType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 
-class TrackingUrlController extends AbstractController
+class TrackingUrlsController extends AbstractController
 {
 
 }

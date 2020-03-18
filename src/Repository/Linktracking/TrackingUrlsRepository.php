@@ -2,11 +2,11 @@
 namespace App\Repository\Linktracking;
 
 use Doctrine\ORM\EntityRepository;
-use App\Entity\Linktracking\TrackingUrl;
+use App\Entity\Linktracking\TrackingUrls;
 
-class TrackingUrlRepository extends EntityRepository
+class TrackingUrlsRepository extends EntityRepository
 {
-    public function loadTrackingUrlByID($id)
+    public function loadTrackingUrlsByID($id)
     {
         $qb = $this->createQueryBuilder('a')
             ->andWhere('a.id > :id')

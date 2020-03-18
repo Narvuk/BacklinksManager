@@ -10,6 +10,7 @@ use App\Entity\Sites;
 use App\Entity\Sitepages;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
+use App\Entity\Keywords;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
@@ -25,7 +26,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class TrackingController extends AbstractController
 {
     /**
-     * @Route("/ref-{prospectid}-{keywordid}-{spageid}", name="ref_noinfo")
+     * @Route("/t={prospectid}{keywordid}{spageid}", name="ref_info")
      */
     public function Trackincominglink($prospectid, $keywordid, $spageid, Request $request)
     {
@@ -33,28 +34,45 @@ class TrackingController extends AbstractController
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
         
-        $addbacklink = new Backlinks();
         $referer = $request->server->get('HTTP_REFERER');
-        //$getdomain = parse_url($referer);
-        //$formatdomain = $getdomain['host'];
 
-        $entityManager = $this->getDoctrine()->getManager();
+        if ($referer === NULL){
+            $referer = 'Direct';
+        } else {
 
-        $addbacklink->setSiteId($prospect->getSiteId());
-        $addbacklink->setProspectId($prospect->getId());
-        $addbacklink->setBacklink($referer);
-        $addbacklink->setKeywordId($keywordid);
-        $addbacklink->setSpageId($spageid);
-        //$addbacklink->setDomain($formatdomain);
-        $addbacklink->setStatus('New');
-        $addbacklink->setCreated(new \DateTime());
+            $getdomain = parse_url($referer);
+            $formatdomain = $getdomain['host'];
 
-        $entityManager->persist($addbacklink);
-        $entityManager->flush();
+            $findrefbl =  $this->getDoctrine()->getRepository(Backlinks::class)->findOneBy(['backlink' => $referer, 'keywordid' => $keywordid]);
+
+            if ($findrefbl === NULL){
+
+                $addbacklink = new Backlinks();
+
+                $entityManager = $this->getDoctrine()->getManager();
+
+                $addbacklink->setSiteId($prospect->getSiteId());
+                $addbacklink->setProspectId($prospect->getId());
+                $addbacklink->setBacklink($referer);
+                $addbacklink->setKeywordId($keywordid);
+                $addbacklink->setSpageId($spageid);
+                $addbacklink->setDomain($formatdomain);
+                $addbacklink->setStatus('New');
+                $addbacklink->setCreated(new \DateTime());
+
+                $entityManager->persist($addbacklink);
+                $entityManager->flush();
+
+            } else {
+
+            }
+
+        }
         
         $page = $this->getDoctrine()->getRepository(Sitepages::class)->find($spageid);
         $getpage = $page->getUrl();
         // This return redirect allows referer to follow : yay
+        //var_dump($getpage);
         return $this->redirect($getpage);
     }
 

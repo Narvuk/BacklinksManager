@@ -58,7 +58,7 @@
                 <div class="col-6">
                 <div class="float-sm-right">
                  <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#modal-lg"><i class="fas fa-plus"></i></button>
-                 <button class="btn btn-sm btn-dark">View All</button>
+                 <a href="{{ path('trackcamp_urls_view', {'id': tcamp.id}) }}" class="btn btn-sm btn-dark">View All</a>
                  </div>
                  </div>
               </div>
@@ -76,17 +76,21 @@
                     </tr>
                   </thead>
                   <tbody>
+                  {% for tu in turls  %}
                     <tr>
-                      <td>link title</td>
-                      <td>0</td>
-                      <td><span class="tag tag-success">Active</span></td>
+                      <td>{{tu.title}}</td>
+                      <td>{{tu.urlhits}}</td>
+                      <td><span class="tag tag-success">{{tu.status}}</span></td>
                       <td>
                         <a href="" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>
                     </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
+                 {% if not turls %}
                     <p style="text-align:center;">No Campaigns - Add one to Start Tracking Urls</p>
+                 {% endif %}
               </div>
               <!-- /.card-body -->
             </div>
@@ -159,5 +163,38 @@
    
 {% endblock %}
 {% block ModalArea %}
-
+<div class="modal fade" id="modal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Add Tracking Url</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {{ form_start(form) }}
+            <div class="modal-body">
+                <div class="row clearfix">
+                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-5 form-control-label">
+                        <label>Url Title</label>
+                    </div>
+                    <div class="col-lg-9 col-md-9 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Title, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>
+       
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" id="form-submit" class="btn btn-primary">Add Url</button>
+            </div>
+             {{ form_end(form) }}
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
 {% endblock %}
