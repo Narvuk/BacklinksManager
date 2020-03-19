@@ -61,7 +61,8 @@ class TrackingController extends AbstractController
                 $addbacklink->setSpageId($spageid);
                 $addbacklink->setDomain($formatdomain);
                 $addbacklink->setStatus('Active');
-                $addbacklink->setCreated(new \DateTime());
+                $addbacklink->setCreated(new \DateTime('Now'));
+                $addbacklink->setLastChecked(new \DateTime('Now'));
 
                 $entityManager->persist($addbacklink);
                 $entityManager->flush();
@@ -73,7 +74,7 @@ class TrackingController extends AbstractController
                 $entityManager = $this->getDoctrine()->getManager();
 
                 $findrefbl->setStatus('Active');
-                $findrefbl->setLastChecked(new \DateTime());
+                $findrefbl->setLastChecked(new \DateTime('Now'));
 
                 $entityManager->persist($findrefbl);
                 $entityManager->flush();
