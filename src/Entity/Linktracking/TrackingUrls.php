@@ -36,6 +36,21 @@ class TrackingUrls
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $prospectid;
+
+     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $keywordid;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $spageid;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $title;
 
     /**
@@ -86,6 +101,21 @@ class TrackingUrls
         return $this->siteid;
     }
 
+    public function getProspectId()
+    {
+        return $this->prospectid;
+    }
+
+    public function getKeywordId()
+    {
+        return $this->keywordid;
+    }
+
+    public function getSpageId()
+    {
+        return $this->spageid;
+    }
+
     public function getTitle()
     {
         return $this->title;
@@ -131,6 +161,21 @@ class TrackingUrls
     public function setSiteId($siteid)
     {
         $this->siteid = $siteid;
+    }
+
+    public function setProspectId($prospectid)
+    {
+        $this->prospectid = $prospectid;
+    }
+
+    public function setKeywordId($keywordid)
+    {
+        $this->keywordid = $keywordid;
+    }
+
+    public function setSpageId($spageid)
+    {
+        $this->spageid = $spageid;
     }
 
     public function setTitle($title)

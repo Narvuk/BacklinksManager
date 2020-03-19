@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class TrackingController extends AbstractController
 {
     /**
-     * @Route("/t={prospectid}{keywordid}{spageid}", name="ref_info")
+     * @Route("/t={prospectid}{spageid}{keywordid}", name="ref_info")
      */
     public function TrackIncominglink($prospectid, $keywordid, $spageid, Request $request)
     {
@@ -78,7 +78,7 @@ class TrackingController extends AbstractController
 
 
     /**
-     * @Route("/d={prospectid}{keywordid}{spageid}", name="refnotrack_info")
+     * @Route("/d={prospectid}{spageid}{keywordid}", name="refnotrack_info")
      */
     public function NoTrackIncominglink($prospectid, $keywordid, $spageid, Request $request)
     {
@@ -95,6 +95,5 @@ class TrackingController extends AbstractController
         //var_dump($getpage);
         return $this->redirect($getpage);
     }
-
 
 }

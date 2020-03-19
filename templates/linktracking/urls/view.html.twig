@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% set assignitems = 'Assign all items to generate link' %}
 {% block AppMenu %}
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
@@ -57,8 +58,7 @@
                 </div>
                 <div class="col-6">
                 <div class="float-sm-right">
-                 <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#modal-lg"><i class="fas fa-plus"></i></button>
-                 <a href="" class="btn btn-sm btn-dark">View All</a>
+                 <button id="updatetlinks" class="btn btn-sm btn-info">Reload Links</buttons>
                  </div>
                  </div>
               </div>
@@ -67,7 +67,9 @@
                     <div class="card">
               <div class="card-body">
                 <div class="well">
-                    https://domain.com/t=45456
+                  <div id="generatelink-t">
+                    {% if turl.prospectid and turl.spageid and turl.keywordid %}  {{ app.request.getSchemeAndHttpHost() }}/t={{turl.prospectid}}{{turl.spageid}}{{turl.keywordid}} {% else %} {{assignitems}} {% endif %}
+                  </div>
                 </div>
               </div>
               <!-- /.card-body -->
@@ -85,7 +87,9 @@
                     <div class="card">
               <div class="card-body">
                 <div class="well">
-                    https://domain.com/d=45456
+                  <div id="generatelink-d">
+                    {% if turl.prospectid and turl.spageid and turl.keywordid %}  {{ app.request.getSchemeAndHttpHost() }}/d={{turl.prospectid}}{{turl.spageid}}{{turl.keywordid}} {% else %} {{assignitems}} {% endif %}
+                  </div>
                 </div>
               </div>
               <!-- /.card-body -->
@@ -99,19 +103,37 @@
               <br>
               <div class="text-muted">
               <p class="text">Status 
-                  <b class="d-block" id="pstatus">
+                  <b class="d-block" id="tustatus">
                       {{turl.status}}
                   </b>
                 </p>
                 <p class="text">Link Hits
                   <b class="d-block">{{turl.urlhits}}</b>
                 </p>
+                <p class="text">Prospect <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
+                  <b class="d-block" id="prospectassign">{% if turl.prospectid != null %}{{getprospect.name}}{% endif %}</b>
+                  {% if turl.prospectid == null %}
+                  <div id="prospectassignbutton">
+                  <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assignprospectmodal-lg">Assign Prospect</button>
+                  </div>
+                  {% endif %}
+                </p>
                 <p class="text">Site Page <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
-                  <b class="d-block">Link Here Soon</b>
+                  <b class="d-block" id="spassign">{% if turl.spageid != null %}{{ spage.url }}{% endif %}</b>
+                  {% if turl.spageid == null %}
+                  <div id="spassignbutton">
+                  <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assignsitemodal-lg">Assign Site Page</button>
+                  </div>
+                  {% endif %}
                 </p>
 
                 <p class="text">Keyword <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
-                  <b class="d-block">Link Here Soon</b>
+                  <b class="d-block" id="kwassign">{% if turl.keywordid != null %}{{ kword.keyword }}{% endif %}</b>
+                  {% if turl.keywordid == null %}
+                  <div id="kwassignbutton">
+                  <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assignkeywordmodal-lg">Assign Keyword</button>
+                  </div>
+                  {% endif %}
                 </p>
               </div>
             </div>
@@ -156,9 +178,253 @@
           <!-- ./col -->
         </div>
 {% endblock %}
-{% block pageJS %}
-   
-{% endblock %}
 {% block ModalArea %}
+<div class="modal fade" id="assignprospectmodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Prospect</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Prospect Name</th>
+                      <th>Assign</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for prosp in prospects %}
+                    <tr>
+                      <td>{{prosp.name}}</td>
+                      <td><button id="assignprosp-{{prosp.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+<div class="modal fade" id="assignsitemodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Site Page</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Site Page</th>
+                      <th>Assign</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for sp in spages %}
+                    <tr>
+                      <td>{{sp.url}}</td>
+                      <td><button id="assignsitepage-{{sp.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+      <div class="modal fade" id="assignkeywordmodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Keyword</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Keyword</th>
+
+                      <th>Assign</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for kw in keywords %}
+                    <tr>
+                      <td>{{kw.keyword}}</td>
+                      <td><button id="assignkeyword-{{kw.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+{% endblock %}
+{% block pageJS %}
+   <script language = "javascript">  
+      $(document).ready(function(){   
+         $("#updatestatus-inactive").on("click", function(event){ 
+            $('#tustatus').html('');  
+            $('#tustatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/linktrack/{{turl.id}}/updatestatus/Inactive',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#tustatus').html('');  
+                  $('#tustatus').append(data['statuschange']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         $("#updatestatus-active").on("click", function(event){ 
+            $('#tustatus').html('');  
+            $('#tustatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/linktrack/{{turl.id}}/updatestatus/Active',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#tustatus').html('');  
+                  $('#tustatus').append(data['statuschange']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });
+          {% for prosp in prospects %}
+         $("#assignprosp-{{prosp.id}}").on("click", function(event){
+            $('#prospectassignbutton').html(''); 
+            $('#prospectassign').html('');  
+            $('#prospectassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/linktrack/{{turl.id}}/assignprospect/{{prosp.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#prospectassign').html('');  
+                  $('#prospectassign').append(data['getprospect']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %} 
+         {% for sp in spages %}
+         $("#assignsitepage-{{sp.id}}").on("click", function(event){
+            $('#spassignbutton').html(''); 
+            $('#spassign').html('');  
+            $('#spassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/linktrack/{{turl.id}}/assignsitepage/{{sp.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#spassign').html('');  
+                  $('#spassign').append(data['spageurl']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %} 
+         {% for kw in keywords %}
+         $("#assignkeyword-{{kw.id}}").on("click", function(event){
+            $('#kwassignbutton').html(''); 
+            $('#kwassign').html('');  
+            $('#kwassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/linktrack/{{turl.id}}/assignkeyword/{{kw.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#kwassign').html('');  
+                  $('#kwassign').append(data['kword']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %} 
+         $("#updatetlinks").on("click", function(event){ 
+            $('#generatelink-t').html('');  
+            $('#generatelink-t').append('<i class="fas fa-spinner fa-pulse"></i>');
+            $('#generatelink-d').html('');  
+            $('#generatelink-d').append('<i class="fas fa-spinner fa-pulse"></i>');  
+            $.ajax({ 
+                url:        '/linktrack/url/{{turl.id}}/generateurl',  
+                type:       'POST',   
+                dataType:   'json',  
+                async:      true,    
+                success: function(data, status) {  
+                $('#generatelink-t').html('');  
+                $('#generatelink-t').append(data['prosp'],data['spage'],data['kword']);
+                $('#generatelink-d').html('');  
+                $('#generatelink-d').append(data['prosp'],data['spage'],data['kword']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });  
+      });  
+   </script>
 {% endblock %}
