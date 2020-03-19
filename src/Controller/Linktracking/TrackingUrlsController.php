@@ -235,20 +235,27 @@ class TrackingUrlsController extends AbstractController
 
         if ($request->isXmlHttpRequest()) { 
 
+            $rootdomain = $request->getSchemeAndHttpHost();
+            $tl = '/t=';
+            $dl = '/d=';
             $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($id);
             
+            if ($turl->getKeywordId() && $turl->getProspectId() && $turl->getSpageId()){
             
-            $temp = array(
-                'kword' => $turl->getKeywordId(), 
-                'prosp' => $turl->getProspectId(),
-                'spage' => $turl->getSpageId(),
-            );   
-            $jsonData = $temp;  
-             
-            return new JsonResponse($jsonData);
-            
+                $temp = array(
+                    'turl' =>  $rootdomain . $tl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId(),
+                    'durl' =>  $rootdomain . $dl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId(),
+                );   
+                $jsonData = $temp;  
+            } else {
+                $temp = array(
+                    'turl' => 'Please assign all Items to generate a valid tracking url',
+                    'durl' => 'Please assign all Items to generate a valid direct url',
+                );   
+                $jsonData = $temp;  
+            }
+            // var_dump($jsonData['turl']);
+            return new JsonResponse($jsonData);   
         }
-
     }
-
 }

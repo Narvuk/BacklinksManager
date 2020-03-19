@@ -11,6 +11,7 @@ use App\Entity\Sitepages;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
 use App\Entity\Keywords;
+use App\Entity\Linktracking\TrackingUrls;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
@@ -26,11 +27,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class TrackingController extends AbstractController
 {
     /**
-     * @Route("/t={prospectid}{spageid}{keywordid}", name="ref_info")
+     * @Route("/t={turlid}{prospectid}{spageid}{keywordid}", name="ref_info")
      */
-    public function TrackIncominglink($prospectid, $keywordid, $spageid, Request $request)
+    public function TrackIncominglink($turlid, $prospectid, $spageid, $keywordid, Request $request)
     {
 
+        $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($turlid);
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
         
@@ -78,11 +80,11 @@ class TrackingController extends AbstractController
 
 
     /**
-     * @Route("/d={prospectid}{spageid}{keywordid}", name="refnotrack_info")
+     * @Route("/d={turlid}{prospectid}{spageid}{keywordid}", name="refnotrack_info")
      */
-    public function NoTrackIncominglink($prospectid, $keywordid, $spageid, Request $request)
+    public function NoTrackIncominglink($turlid, $prospectid, $spageid, $keywordid, Request $request)
     {
-
+        $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($turlid);
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
 
