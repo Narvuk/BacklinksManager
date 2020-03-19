@@ -28,7 +28,7 @@
                     <tr>
                       <td>{{ page.url }}</td>
                       <td>(coming soon)</td>
-                      <td>{% if page.updated %}{{ page.updated|date('d-m-Y / H:m') }}{% else %} Not Updated {% endif %}</td>
+                      <td>{% if page.updated %}{{ page.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
                       <td><span class="tag tag-success">{{ page.status }}</span></td>
                       <td>
                         <a href="{{ path('sitepage_view', {'id': page.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>

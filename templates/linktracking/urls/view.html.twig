@@ -30,7 +30,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if turl.lasthit %}{{turl.created|date('d-m-Y / H:i:s')}}{% else %} No Created Date {% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if turl.lasthit %}{{turl.created|date('d-m-Y / H:i')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -38,7 +38,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Visited</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if turl.lasthit %} {{turl.lasthit|date('d-m-Y / H:i:s')}}{% else %} Not Visited Yet {% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if turl.lasthit %} {{turl.lasthit|date('d-m-Y / H:i')}}{% else %} Not Visited Yet {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -46,7 +46,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if turl.updated %}{{turl.updated|date('d-m-Y / H:i:s')}}{% else %} Not Updated {% endif %}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if turl.updated %}{{turl.updated|date('d-m-Y / H:i')}}{% else %} Not Updated {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>

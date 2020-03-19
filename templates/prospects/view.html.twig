@@ -29,7 +29,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.created %}{{prospect.created|date('d-m-Y / H:m')}}{% else %} Create Date Not Set{% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.created %}{{prospect.created|date('d-m-Y / H:i')}}{% else %} Create Date Not Set{% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -37,7 +37,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.lastchecked %}{{prospect.lastchecked|date('d-m-Y / H:m')}}{% else %} Not Checked Yet {% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.lastchecked %}{{prospect.lastchecked|date('d-m-Y / H:i')}}{% else %} Not Checked Yet {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -45,7 +45,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.updated %}{{prospect.updated|date('d-m-Y / H:m')}}{% else %} Not Updated Yet {% endif %}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.updated %}{{prospect.updated|date('d-m-Y / H:i')}}{% else %} Not Updated Yet {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>

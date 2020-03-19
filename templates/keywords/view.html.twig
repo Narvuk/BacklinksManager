@@ -29,7 +29,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.created %}{{keyword.created|date('d-m-Y / H:m')}}{% else %} No Created Date {% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.created %}{{keyword.created|date('d-m-Y / H:i')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -37,7 +37,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.lastchecked %}{{keyword.lastchecked|date('d-m-Y / H:m')}}{% else %} Not Checked {% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.lastchecked %}{{keyword.lastchecked|date('d-m-Y / H:i')}}{% else %} Not Checked {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -45,7 +45,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.updated %}{{keyword.updated|date('d-m-Y / H:m')}}{% else %} Not Updated {% endif %}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.updated %}{{keyword.updated|date('d-m-Y / H:i')}}{% else %} Not Updated {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>

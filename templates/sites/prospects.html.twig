@@ -28,7 +28,7 @@
                     <tr>
                       <td>{{ p.name }}</td>
                       <td>{{ p.domain }}</td>
-                      <td>{% if p.updated %}{{ p.updated|date('d-m-Y / H:m') }}{% else %} Not Updated {% endif %}</td>
+                      <td>{% if p.updated %}{{ p.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
                       <td><span class="tag tag-success">{{ p.status }}</span></td>
                       <td>
                         <a href="{{ path('prospect_view', {'id': p.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>

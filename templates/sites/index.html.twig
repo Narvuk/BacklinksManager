@@ -102,7 +102,7 @@
                   {% for nb in newbls %}
                     <tr>
                       <td>{{ nb.backlink }}</td>
-                      <td>{% if nb.created %}{{ nb.created|date('d-m-Y / H:m') }}{% else %} No Created Date {% endif %}</td>
+                      <td>{% if nb.created %}{{ nb.created|date('d-m-Y / H:i') }}{% else %} No Created Date {% endif %}</td>
                       <td>
                         <a href="{{ path('backlink_view', {'id': nb.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>

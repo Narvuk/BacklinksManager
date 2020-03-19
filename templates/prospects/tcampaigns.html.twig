@@ -28,7 +28,7 @@
                     <tr>
                       <td>{{ tc.title }}</td>
                       <td>{{ tc.totalhits }}</td>
-                      <td>{% if tc.updated %}{{ tc.updated|date('Y-m-d / H:m') }}{% else %}Not Updated{% endif %}</td>
+                      <td>{% if tc.updated %}{{ tc.updated|date('d-m-Y / H:i') }}{% else %}Not Updated{% endif %}</td>
                       <td><span class="tag tag-success">{{ tc.status }}</span></td>
                       <td>
                         <a href="{{ path('trackcamp_view', {'id': tc.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
