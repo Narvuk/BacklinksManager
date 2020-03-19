@@ -72,8 +72,8 @@ class TrackingController extends AbstractController
 
                 $entityManager = $this->getDoctrine()->getManager();
 
-                $addbacklink->setStatus('Active');
-                $addbacklink->setLastChecked(new \DateTime());
+                $findrefbl->setStatus('Active');
+                $findrefbl->setLastChecked(new \DateTime());
 
                 $entityManager->persist($findrefbl);
                 $entityManager->flush();
