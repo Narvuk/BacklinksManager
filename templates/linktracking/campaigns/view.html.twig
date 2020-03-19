@@ -6,8 +6,7 @@
     Tracking Campaign Information
 {% endblock %}
 {% block tcright %}
-                    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-handshake"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -30,14 +29,14 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{tcamp.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if tcamp.created %}{{tcamp.created|date('d-m-Y / H:m')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
                 <div class="col-12 col-sm-4">
                   <div class="info-box bg-light">
                     <div class="info-box-content">
-                      <span class="info-box-text text-center text-muted">Last Checked</span>
+                      <span class="info-box-text text-center text-muted">somthing here</span>
                       <span class="info-box-number text-center text-muted mb-0"></span>
                     </div>
                   </div>
@@ -46,7 +45,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{tcamp.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if tcamp.updated %}{{tcamp.updated|date('d-m-Y / H:m')}}{% else %} Not Updated {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -144,7 +143,7 @@
                         </div>
               <!-- /.card-header -->
               <div class="card-body">
-                notes here
+                Coming Soon
               </div>
               <!-- /.card-body -->
             </div>

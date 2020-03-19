@@ -6,8 +6,7 @@
     Site Page Information
 {% endblock %}
 {% block tcright %}
-                    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-handshake"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -30,7 +29,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{spage.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if spage.created %}{{spage.created|date('d-m-Y / H:m')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -38,7 +37,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{spage.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if spage.updated %}{{spage.updated|date('d-m-Y / H:m')}}{% else %} Not Updated {% endif %}<span>
                     </div>
                   </div>
                 </div>
@@ -67,14 +66,14 @@
                       {{spage.status}}
                   </b>
                 </p>
-                <p class="text">Backlinks <a href="" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>
-                  <b class="d-block">123</b>
+                <p class="text">Backlinks (work in progress)
+                  <b class="d-block">0</b>
                 </p>
-                <p class="text">Linked Pages <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
-                  <b class="d-block">10</b>
+                <p class="text">Linked Pages (work in progress)
+                  <b class="d-block">0</b>
                 </p>
-                <p class="text">Keywords Used <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
-                  <b class="d-block">100</b>
+                <p class="text">Keywords Used (work in progress)
+                  <b class="d-block">0</b>
                 </p>
               </div>
             </div>
@@ -118,6 +117,10 @@
                     <strong>{{ note.title }}</strong>
                     <p>
                       {{ note.description }}
+                    </p>
+                    <p>
+                      <button class="btn btn-sm btn-info">Mark Read</button>
+                      <button class="btn btn-sm btn-success">View</button>
                     </p>
                 </div>
                 {% endfor %}

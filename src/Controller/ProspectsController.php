@@ -9,6 +9,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
+use App\Entity\Sitepages;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
@@ -239,7 +240,6 @@ class ProspectsController extends AbstractController
             ]
         );
     } 
-
 
     /**
      * @Route("/prospect/{id}/edit", name="prospect_edit")

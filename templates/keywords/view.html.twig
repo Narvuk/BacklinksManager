@@ -6,10 +6,7 @@
     Keyword Information
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                        <button type="button" class="btn btn-info" data-toggle="dropdown">
-                      <i class="fas fa-magic"></i>
-                    </button>
+              <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -32,7 +29,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{keyword.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.created %}{{keyword.created|date('d-m-Y / H:m')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -40,7 +37,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{keyword.lastchecked|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.lastchecked %}{{keyword.lastchecked|date('d-m-Y / H:m')}}{% else %} Not Checked {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -48,7 +45,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{keyword.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if keyword.updated %}{{keyword.updated|date('d-m-Y / H:m')}}{% else %} Not Updated {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -69,14 +66,14 @@
                       {{keyword.status}}
                   </b>
                 </p>
-                <p class="text">Backlinks
-                  <b class="d-block">25</b>
+                <p class="text">Backlinks (work in progress)
+                  <b class="d-block">0</b>
                 </p>
-                <p class="text">Linked Pages
-                  <b class="d-block">10</b>
+                <p class="text">Linked Pages (work in progress)
+                  <b class="d-block">0</b>
                 </p>
-                <p class="text">Prospects Sites
-                  <b class="d-block">100</b>
+                <p class="text">Prospects Sites (work in progress)
+                  <b class="d-block">0</b>
                 </p>
               </div>
             </div>
@@ -120,6 +117,11 @@
                     <strong>{{ note.title }}</strong>
                     <p>
                       {{ note.description }}
+                    </p>
+                    <hr />
+                    <p>
+                      <button class="btn btn-sm btn-info">Mark Read</button>
+                      <button class="btn btn-sm btn-success">View</button>
                     </p>
                 </div>
                 {% endfor %}

@@ -6,7 +6,7 @@
     Site Page Note
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
+    <button class="btn btn-success">Mark Read</button>
 {% endblock %}
 {% block body %}
     <div class="card">
@@ -18,7 +18,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{note.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if note.created %}{{note.created|date('d-m-Y / H:m')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -26,7 +26,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{note.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if note.updated %}{{note.updated|date('d-m-Y / H:m')}}{% else %} Not Updated {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>

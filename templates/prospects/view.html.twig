@@ -6,8 +6,7 @@
     Prospect Information
 {% endblock %}
 {% block tcright %}
-                    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-handshake"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -30,7 +29,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{prospect.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.created %}{{prospect.created|date('d-m-Y / H:m')}}{% else %} Create Date Not Set{% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -38,7 +37,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{prospect.lastchecked|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.lastchecked %}{{prospect.lastchecked|date('d-m-Y / H:m')}}{% else %} Not Checked Yet {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -46,7 +45,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{prospect.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if prospect.updated %}{{prospect.updated|date('d-m-Y / H:m')}}{% else %} Not Updated Yet {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -110,12 +109,6 @@
                 <p class="text">Backlinks <a href="{{ path('prospect_backlinks_view', {'id': prospect.id}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>
                   <b class="d-block">{{bcount}}</b>
                 </p>
-                <p class="text">Linked Pages <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
-                  <b class="d-block">10</b>
-                </p>
-                <p class="text">Keywords Used <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
-                  <b class="d-block">100</b>
-                </p>
               </div>
             </div>
           </div>
@@ -158,6 +151,10 @@
                     <strong>{{ note.title }}</strong>
                     <p>
                       {{ note.description }}
+                    </p>
+                    <p>
+                      <button class="btn btn-sm btn-info">Mark Read</button>
+                      <button class="btn btn-sm btn-success">View</button>
                     </p>
                 </div>
                 {% endfor %}

@@ -35,6 +35,7 @@ class TrackingController extends AbstractController
         $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($turlid);
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($prospectid);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
+        $tcamp = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->find($turl->getTcampaignId());
         
         $referer = $request->server->get('HTTP_REFERER');
 
@@ -70,6 +71,31 @@ class TrackingController extends AbstractController
             }
 
         }
+        
+        $entityManager = $this->getDoctrine()->getManager();
+        
+        // Tracking Url
+        $turl->setUrlHits($turl->getUrlHits() + 1);
+        $turl->setLastHit(new \DateTime('Now'));
+        $turl->setStatus('Active');
+
+        // Tracking Campaign
+        $tcamp->setTotalHits($tcamp->getTotalHits() + 1);
+        $tcamp->setStatus('Active');
+
+        // Prospect
+        $prospstatus = $prospect->getStatus();
+        if ($prospstatus === 'New'){
+            $prospect->setStatus('Active');
+        }
+        if ($prospstatus === 'Inactive'){
+            $prospect->setStatus('Active');
+        }
+
+        $entityManager->persist($turl);
+        $entityManager->persist($tcamp);
+        $entityManager->persist($prospect);
+        $entityManager->flush();
         
         $page = $this->getDoctrine()->getRepository(Sitepages::class)->find($spageid);
         $getpage = $page->getUrl();

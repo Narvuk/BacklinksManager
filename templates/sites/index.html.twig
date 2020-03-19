@@ -102,7 +102,7 @@
                   {% for nb in newbls %}
                     <tr>
                       <td>{{ nb.backlink }}</td>
-                      <td>{{ nb.created|date('d/m/Y') }}</td>
+                      <td>{% if nb.created %}{{ nb.created|date('d-m-Y / H:m') }}{% else %} No Created Date {% endif %}</td>
                       <td>
                         <a href="{{ path('backlink_view', {'id': nb.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>
@@ -143,7 +143,7 @@
                   {% for np in newprosp %}
                     <tr>
                       <td>{{ np.domain }}</td>
-                      <td>53</td>
+                      <td>(coming soon)</td>
                       <td>
                         <a href="{{ path('prospect_view', {'id': np.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>

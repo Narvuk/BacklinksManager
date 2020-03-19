@@ -7,8 +7,7 @@
     Tracking Url Information
 {% endblock %}
 {% block tcright %}
-                    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-                    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-link"></i></button>
+                    <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
                     <div class="dropdown-menu">
                       <div id="inactivebutton">
                        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>
@@ -31,15 +30,15 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{turl.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if turl.lasthit %}{{turl.created|date('d-m-Y / H:i:s')}}{% else %} No Created Date {% endif %}</span>
                     </div>
                   </div>
                 </div>
                 <div class="col-12 col-sm-4">
                   <div class="info-box bg-light">
                     <div class="info-box-content">
-                      <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0"></span>
+                      <span class="info-box-text text-center text-muted">Last Visited</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if turl.lasthit %} {{turl.lasthit|date('d-m-Y / H:i:s')}}{% else %} Not Visited Yet {% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -47,7 +46,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{turl.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if turl.updated %}{{turl.updated|date('d-m-Y / H:i:s')}}{% else %} Not Updated {% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -110,7 +109,7 @@
                 <p class="text">Link Hits
                   <b class="d-block">{{turl.urlhits}}</b>
                 </p>
-                <p class="text">Prospect <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
+                <p class="text">Prospect {% if turl.prospectid != null %}<a href="{{ path('prospect_view', {'id': turl.prospectid}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
                   <b class="d-block" id="prospectassign">{% if turl.prospectid != null %}{{getprospect.name}}{% endif %}</b>
                   {% if turl.prospectid == null %}
                   <div id="prospectassignbutton">
@@ -118,7 +117,7 @@
                   </div>
                   {% endif %}
                 </p>
-                <p class="text">Site Page <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
+                <p class="text">Site Page {% if turl.spageid != null %}<a href="{{ path('sitepage_view', {'id': turl.spageid}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
                   <b class="d-block" id="spassign">{% if turl.spageid != null %}{{ spage.url }}{% endif %}</b>
                   {% if turl.spageid == null %}
                   <div id="spassignbutton">
@@ -127,7 +126,7 @@
                   {% endif %}
                 </p>
 
-                <p class="text">Keyword <button class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></button>
+                <p class="text">Keyword {% if turl.keywordid != null %}<a href="{{ path('keyword_view', {'id': turl.keywordid}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
                   <b class="d-block" id="kwassign">{% if turl.keywordid != null %}{{ kword.keyword }}{% endif %}</b>
                   {% if turl.keywordid == null %}
                   <div id="kwassignbutton">
@@ -162,14 +161,14 @@
           <div class="col-md-6">
             <div class="card card-info">
               <div class="card-header">
-                            <h3 class="card-title">Campaign - Unread Notes</h3>
+                            <h3 class="card-title">Tracking Url - Unread Notes</h3>
                             <div class="card-tools">
                                 <a href="" class="btn btn-tool btn-info">View Notes</a>
                             </div>
                         </div>
               <!-- /.card-header -->
               <div class="card-body">
-                notes here
+                Coming Soon
               </div>
               <!-- /.card-body -->
             </div>

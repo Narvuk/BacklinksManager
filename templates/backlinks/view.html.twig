@@ -6,8 +6,7 @@
     Backlink Information
 {% endblock %}
 {% block tcright %}
-    <button class="btn btn-success"><i class="fas fa-sync"></i></button>
-    <button type="button" class="btn btn-info" data-toggle="dropdown"><i class="fas fa-link"></i></button>
+    <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
     <div class="dropdown-menu">
       <a class="dropdown-item" href="{{ backlink.backlink }}" target="_blank">Check Active</a>
       <div id="lostbutton">
@@ -17,7 +16,6 @@
         <button class="dropdown-item" id="updatestatus-active">Active Backlink</button>  
       </div>
     </div>
-    <button class="btn btn-secondary"><i class="fas fa-cog"></i></button>
 {% endblock %}
 {% block body %}
     <div class="card">
@@ -29,7 +27,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Created</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{backlink.created|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if backlink.created %}{{backlink.created|date('d-m-Y / H:m')}}{% else %} No Created Date{% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -37,7 +35,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{backlink.lastchecked|date('d-m-Y')}}</span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if backlink.lastchecked %}{{backlink.lastchecked|date('d-m-Y / H:m')}}{% else %} Not Checked Yet{% endif %}</span>
                     </div>
                   </div>
                 </div>
@@ -45,7 +43,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Updated</span>
-                      <span class="info-box-number text-center text-muted mb-0">{{backlink.updated|date('d-m-Y')}}<span>
+                      <span class="info-box-number text-center text-muted mb-0">{% if backlink.updated %}{{backlink.updated|date('d-m-Y / H:m')}}{% else %} Not Updated{% endif %}<span>
                     </span></span></div>
                   </div>
                 </div>
@@ -67,7 +65,7 @@
                 <p class="text">Backlink
                   <b class="d-block">{{backlink.backlink}}</b>
                 </p>
-                <p class="text">Prospect
+                <p class="text">Prospect {% if backlink.prospectid %}<a href="{{ path('prospect_view', {'id': backlink.prospectid}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
                   <b class="d-block" id="prospectassign">{% if backlink.prospectid != null %}{{getprospect.name}}{% endif %}</b>
                   {% if backlink.prospectid == null %}
                   <div id="prospectassignbutton">
@@ -75,7 +73,7 @@
                   </div>
                   {% endif %}
                 </p>
-                <p class="text">Links To
+                <p class="text">Links To {% if backlink.spageid %}<a href="{{ path('sitepage_view', {'id': backlink.spageid}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
                   <b class="d-block" id="spassign">{% if backlink.spageid != null %}{{spage.url}}{% endif %}</b>
                   {% if backlink.spageid == null %}
                   <div id="spassignbutton">
@@ -83,7 +81,7 @@
                   </div>
                   {% endif %}
                 </p>
-                <p class="text">Keyword
+                <p class="text">Keyword {% if backlink.keywordid %}<a href="{{ path('keyword_view', {'id': backlink.keywordid}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
                   <b class="d-block" id="kwassign">{% if backlink.keywordid != null %}{{kword.keyword}}{% endif %}</b>
                   {% if backlink.keywordid == null %}
                   <div id="kwassignbutton">
@@ -133,6 +131,11 @@
                     <strong>{{ note.title }}</strong>
                     <p>
                       {{ note.description }}
+                    </p>
+                    <hr />
+                    <p>
+                      <button class="btn btn-sm btn-info">Mark Read</button>
+                      <button class="btn btn-sm btn-success">View</button>
                     </p>
                 </div>
                 {% endfor %}
