@@ -60,13 +60,23 @@ class TrackingController extends AbstractController
                 $addbacklink->setKeywordId($keywordid);
                 $addbacklink->setSpageId($spageid);
                 $addbacklink->setDomain($formatdomain);
-                $addbacklink->setStatus('New');
+                $addbacklink->setStatus('Active');
                 $addbacklink->setCreated(new \DateTime());
 
                 $entityManager->persist($addbacklink);
                 $entityManager->flush();
 
             } else {
+
+                $findrefbl =  $this->getDoctrine()->getRepository(Backlinks::class)->findOneBy(['backlink' => $referer, 'keywordid' => $keywordid]);
+
+                $entityManager = $this->getDoctrine()->getManager();
+
+                $addbacklink->setStatus('Active');
+                $addbacklink->setLastChecked(new \DateTime());
+
+                $entityManager->persist($findrefbl);
+                $entityManager->flush();
 
             }
 
