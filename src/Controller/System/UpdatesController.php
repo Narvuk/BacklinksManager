@@ -24,41 +24,5 @@ use Symfony\Component\Security\Core\Role\Role;
 
 class UpdatesController extends AbstractController
 {
-    /**
-     * @Route("/update/system", name="update_system")
-     */
-    public function MainSystemUpdate(KernelInterface $kernel)
-    {
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-
-        $input = new ArrayInput([
-            'command' => 'doctrine:schema:update --force',
-
-        ]);
-
-        $output = new BufferedOutput();
-        $application->run($input, $output);
-
-        return $this->redirectToRoute('update_clearcache');
-    }
-
-    /**
-     * @Route("/update/clearcache", name="update_clearcache")
-     */
-    public function UpdateClearCache(KernelInterface $kernel)
-    {
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-
-        $input = new ArrayInput([
-            'command' => 'cache:clear',
-
-        ]);
-
-        $output = new BufferedOutput();
-        $application->run($input, $output);
-
-        return $this->redirectToRoute('core');
-    }
+    
 }
