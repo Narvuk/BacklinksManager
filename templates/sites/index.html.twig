@@ -89,7 +89,7 @@
                 </div>
               </div>
               <!-- /.card-header -->
-              <div class="card-body p-0">
+              <div class="card-body table-responsive p-0">
                 <table class="table table-sm table-hover">
                   <thead>
                     <tr>
@@ -101,7 +101,7 @@
                   <tbody>
                   {% for nb in newbls %}
                     <tr>
-                      <td>{{ nb.backlink }}</td>
+                      <td>{{ nb.backlink|striptags|slice(0, 60) }}...</td>
                       <td>{% if nb.created %}{{ nb.created|date('d-m-Y / H:i') }}{% else %} No Created Date {% endif %}</td>
                       <td>
                         <a href="{{ path('backlink_view', {'id': nb.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
@@ -130,7 +130,7 @@
                 </div>
               </div>
               <!-- /.card-header -->
-              <div class="card-body p-0">
+              <div class="card-body table-responsive p-0">
                 <table class="table table-sm table-hover">
                   <thead>
                     <tr>

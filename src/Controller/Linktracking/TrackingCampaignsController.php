@@ -52,7 +52,7 @@ class TrackingCampaignsController extends AbstractController
 
         $tcamp = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($tcamp->getSiteId());
-
+        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($tcamp->getProspectId());
         $turls = $this->getDoctrine()->getRepository(TrackingUrls::class)->findBy(['tcampaignid' => $id], ['id' => 'DESC'], $limit = 5);
 
 
@@ -88,6 +88,7 @@ class TrackingCampaignsController extends AbstractController
                 'site' => $site,
                 'tcamp' => $tcamp,
                 'turls' => $turls,
+                'prospect' => $prospect,
                 'form' => $form->createView(),
             ]
         );

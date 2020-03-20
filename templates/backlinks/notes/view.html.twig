@@ -52,9 +52,14 @@
               <h3 class="text-primary">Note Details</h3>
               <br>
               <div class="text-muted">
-              <p class="text">Status
+                <p class="text">Status
                   <b class="d-block" id="bstatus">
                       {{note.status}}
+                  </b>
+                </p>
+                <p class="text">Note Type
+                  <b class="d-block">
+                      {{note.type}}
                   </b>
                 </p>
                 <p class="text">Backlink <a href="{{ path('backlink_view', {'id': backlink.id}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>

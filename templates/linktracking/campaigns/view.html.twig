@@ -106,6 +106,9 @@
                       {{tcamp.status}}
                   </b>
                 </p>
+                <p class="text">Prospect {% if prospect %}<a href="{{ path('prospect_view', {'id': prospect.id}) }}" class="btn btn-xs btn-default"><i class="fas fa-external-link-alt"></i></a>{% endif %}
+                  <b class="d-block">{{prospect.name}}</b>
+                </p>
                 <p class="text">Campaign Hits
                   <b class="d-block">{{tcamp.totalhits}}</b>
                 </p>
