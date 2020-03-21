@@ -39,11 +39,19 @@ class ToolsController extends AbstractController
         }else{
             $updatelock = 'Unlocked';
         }
+
+        $islivemode = $fileSystem->exists('../.env.local');
+        if ($islivemode === True){
+            $sysmode = 'Developer Mode';
+        }else{
+            $sysmode = 'Live Mode';
+        }
         
 
         return $this->render('system/tools/index.html.twig',
             [
                 'updatelock' => $updatelock,
+                'sysmode' => $sysmode,
             ]
         );
 
@@ -117,6 +125,76 @@ class ToolsController extends AbstractController
             }
         }
 
+    }
+
+    /**
+     * @Route("/system/tools/devmode", name="system_tools_devmode")
+     */
+    public function SystemToolsDevMode(KernelInterface $kernel, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+           
+            $fileSystem = new Filesystem();
+            $isfile = $fileSystem->exists('../.env.local');
+
+            if ($isfile === False){
+                $fileSystem->appendToFile('../.env.local', "\nAPP_ENV=dev");
+
+                $completed = 'Developer Mode';
+                $temp = array(
+                'devmode' => $completed, 
+                 );   
+                $jsonData = $temp;  
+
+                return new JsonResponse($jsonData);
+            } else {
+
+                $completed = 'Developer Mode';
+                $temp = array(
+                    'devmode' => $completed, 
+                );   
+                $jsonData = $temp;  
+
+                return new JsonResponse($jsonData);
+            }
+        }
+        
+    }
+
+    /**
+     * @Route("/system/tools/livemode", name="system_tools_livemode")
+     */
+    public function SystemToolsLiveMode(KernelInterface $kernel, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+           
+            $fileSystem = new Filesystem();
+            $isfile = $fileSystem->exists('../.env.local');
+
+            if ($isfile === True){
+                $fileSystem->remove('../.env.local');
+
+                $completed = 'Live Mode';
+                $temp = array(
+                'livemode' => $completed, 
+                 );   
+                $jsonData = $temp;  
+
+                return new JsonResponse($jsonData);
+            } else {
+
+                $completed = 'Live Mode';
+                $temp = array(
+                    'livemode' => $completed, 
+                );   
+                $jsonData = $temp;  
+
+                return new JsonResponse($jsonData);
+            }
+        }
+        
     }
 
     

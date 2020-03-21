@@ -22,6 +22,15 @@
                     </tr>
                   </thead>
                   <tbody>
+                     <tr>
+                        <td>System Mode</td>
+                        <td>This is so you can activate Developer mode with additional debug tools (advised not to use on production)</td>
+                        <td>
+                            <button id="livemodebutton" class="btn btn-xs btn-success" role="button">Live Mode</button>
+                            <button id="devmodebutton" class="btn btn-xs btn-warning" role="button">Dev Mode</button>
+                        </td>
+                        <td><div id="modestatus">{{sysmode}}</div></td>
+                    </tr>
                     <tr>
                         <td>System Update</td>
                         <td>Updates the core system to the latest version to keep you upto date with the latest features</td>
@@ -133,7 +142,47 @@
                }  
                
             });  
-         });   
+         });
+         $("#devmodebutton").on("click", function(event){ 
+            $('#modestatus').html('');  
+            $('#modestatus').append('<i class="fas fa-spinner fa-pulse"></i> Please Wait..');
+            $.ajax({  
+               url:        '/system/tools/devmode',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#modestatus').html('');  
+                  $('#modestatus').append(data['devmode']);
+                  
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         $("#livemodebutton").on("click", function(event){ 
+            $('#modestatus').html('');  
+            $('#modestatus').append('<i class="fas fa-spinner fa-pulse"></i> Please Wait..');
+            $.ajax({  
+               url:        '/system/tools/livemode',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#modestatus').html('');  
+                  $('#modestatus').append(data['livemode']);
+                  
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });           
       }); 
     </script> 
 {% endblock %}
