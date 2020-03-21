@@ -133,8 +133,8 @@ class UpdatesController extends AbstractController
     {
         if ($request->isXmlHttpRequest()) {
             $fileSystem = new Filesystem();
-            $url = "https://stormdevelopers.com/test/test.zip";
-            $zipFile = "../test.zip"; // Local Zip File Path
+            $url = "https://update.stormdevelopers.com/BacklinksManager/latest.zip";
+            $zipFile = "../latest.zip"; // Local Zip File Path
             $zipResource = fopen($zipFile, "w");
             // Get The Zip File From Server
             $ch = curl_init();
@@ -163,7 +163,7 @@ class UpdatesController extends AbstractController
             /* Extract Zip File */
             $zip->extractTo($extractPath);
             $zip->close();
-            $fileSystem->remove('../test.zip');
+            $fileSystem->remove('../latest.zip');
         }
 
         $completed = 'Updated System Files';
