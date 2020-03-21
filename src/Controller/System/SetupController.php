@@ -110,7 +110,6 @@ class SetupController extends AbstractController
 
         }
 
-        $theme = 'core';
         return $this->render('system/setup/step1.html.twig',
             [
                 'form' => $form->createView(),
@@ -276,6 +275,9 @@ class SetupController extends AbstractController
      */
     public function Step5()
     {
+        $fileSystem = new Filesystem();
+        $fileSystem->appendToFile('../UPDATELOCK', "\n Update is locked");
+
         $theme = 'core';
         return $this->render('system/setup/step5.html.twig',
             [

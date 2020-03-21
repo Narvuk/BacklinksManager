@@ -1,0 +1,176 @@
+{% extends 'system/updates/base.html.twig' %}
+{% block AppMenu %}
+    <li class="nav-header">System Update</li>
+    <div id="leftstatus">
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Update System</p>
+        </a>
+    </li>
+    </div>
+{% endblock %}
+{% block bodytitle %} 
+
+{% endblock %}
+{% block body %}
+<div class="row clearfix">
+                <div class="col-lg-9 col-md-9 col-sm-6 col-xs-12">
+                    <div class="card card-blue">
+                        <div class="card-header">
+                            <div class="card-title">
+                                Backlinks Manager Updates
+                            </div>
+                        </div>
+                        <div class="card-body">
+                        <b>1) Update Files </b><button id="updatefilesbutton" class="btn btn-sm btn-success float-right">Update Files</button>
+                          <hr />
+                           <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <div class="form-line">
+                                            <div class="form-control no-resize" placeholder="" disabled="">
+                                            <div id="filesupdate">Please Update files first</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                          <b>2) Clear Cache </b><button id="cacheupdatebutton" class="btn btn-sm btn-success float-right">Clear Cache</button>
+                          <hr />
+                           <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <div class="form-line">
+                                            <div class="form-control no-resize" placeholder="" disabled="">
+                                            <div id="cacheupdate">Please Clear Cache</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <b>3) Update Database</b><button id="updatedatabasebutton" class="btn btn-sm btn-success float-right">Update Databse</button>
+                            <hr />
+                           <div class="row clearfix">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <div class="form-line">
+                                            <div class="form-control no-resize" placeholder="" disabled="">
+                                            <div id="databaseupdate">Please Clear Cache First</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                         <div class="text-center mb-3">
+                        <a href="{{path('core')}}" type="button" class="btn bg-blue waves-effect">
+                                    <i class="fas fa-user-shield"></i>
+                                    <span>Return To Backlinks Manager</span>
+                                </a>
+                         </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="card card-red">
+                        <div class="card-header">
+                            <div class="card-title">
+                              System Updates Information
+                            </div>
+                        </div>
+                        <div class="card-body">
+                        <p>
+                            <b>Backup:</b><br />
+                            Please ensure you have made a back up of your files and database
+                            </p>
+                            <p>
+                            <b>Update Files:</b><br />
+                            This downloads the latest files to the current version and updates them.
+                            </p>
+                            <p>
+                            <b>Clear Cache:</b><br />
+                            Clear the cache once you have downloaded the files when the cache has completed you can move onto the next step.
+                            </p>
+                            <p>
+                            <b>Update Database:</b><br />
+                            Make sure you have cleared the cache before you run the update database, this prevents errors and problems with cached files before you have uploaded the updated files.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}
+{% block pageJS %}
+<script language = "javascript">  
+      $(document).ready(function(){
+          $("#updatefilesbutton").on("click", function(event){ 
+            $('#filesupdate').html('');  
+            $('#filesupdate').append('<i class="fas fa-spinner fa-pulse"></i> Please Wait Updating Files ......'); 
+            $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Updating Files</p></a></li> ');
+            $.ajax({  
+               url:        '/updates/download/latest',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#filesupdate').html('');  
+                  $('#filesupdate').append(data['filesupdated']);
+                  $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Files Updated</p></a></li> ');
+                  
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });      
+         $("#cacheupdatebutton").on("click", function(event){ 
+            $('#cacheupdate').html('');  
+            $('#cacheupdate').append('<i class="fas fa-spinner fa-pulse"></i> Please Wait Clearing Cache ......');
+            $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Updating Cache</p></a></li> ');
+            $.ajax({  
+               url:        '/updates/clearcache',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#cacheupdate').html('');  
+                  $('#cacheupdate').append(data['cachecleared']);
+                  $('#databaseupdate').html('');  
+                  $('#databaseupdate').append('Cache Cleared - Update Database');
+                  $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Cache Updated</p></a></li> ');
+                  
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         $("#updatedatabasebutton").on("click", function(event){ 
+            $('#databaseupdate').html('');  
+            $('#databaseupdate').append('<i class="fas fa-spinner fa-pulse"></i> Please Wait Updating Database ......'); 
+            $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Updating Database</p></a></li> ');
+            $.ajax({  
+               url:        '/updates/databaseupdate',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#databaseupdate').html('');  
+                  $('#databaseupdate').append(data['updatecomplete']);
+                  $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Database Updated</p></a></li> ');
+                  $('#leftstatus').append('<li class="nav-item"><a href="#" class="nav-link"><span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span><p> Update Complete</p></a></li> ');
+                  
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });   
+      });  
+   </script> 
+{% endblock %}
