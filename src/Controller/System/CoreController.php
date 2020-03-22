@@ -186,22 +186,6 @@ class CoreController extends AbstractController
     }
 
     /**
-     * @Route("/system/credits", name="system_credits")
-     */
-    public function SystemAboutCredits(Request $request)
-    {       
-
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-    
-
-        return $this->render('system/credits.html.twig',
-            [
-
-            ]
-        );
-    }
-
-    /**
      * @Route("/system/sponsers", name="system_sponsers")
      */
     public function SystemAboutSponsers(Request $request)
