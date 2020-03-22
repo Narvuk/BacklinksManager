@@ -201,22 +201,6 @@ class CoreController extends AbstractController
 
 
     /**
-     * @Route("/system/version", name="system_version")
-     */
-    public function SystemAboutVersion(Request $request)
-    {       
-
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        
-        return $this->render('system/version.html.twig',
-            [
-                'version' => $this->version,
-            ]
-        );
-    }
-
-
-    /**
      * @Route("/system/license", name="system_license")
      */
     public function SystemAboutLicense(Request $request)

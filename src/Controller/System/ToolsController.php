@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ToolsController extends AbstractController
 {
+    private $version = '0.0.2';
 
     /**
      * @Route("/system/tools", name="system_tools")
@@ -46,6 +47,21 @@ class ToolsController extends AbstractController
         }else{
             $sysmode = 'Live Mode';
         }
+
+        try{
+            $currentversion = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/currentversion');
+            }
+            catch(\Exception $e){
+                $currentversion = '0.0.0 - Unavailable';
+            }
+            
+            $sysversion = $this->version;
+    
+            if ($sysversion < $currentversion){
+                $isupdate = 'yes';
+            } else {
+                $isupdate = 'no';
+            }
 
         $phpversion = phpversion();
 
@@ -70,6 +86,9 @@ class ToolsController extends AbstractController
                 'phpversion' => $phpversion,
                 'iscurl' => $iscurl,
                 'isaufopen' => $isaufopen,
+                'currentversion' => $currentversion,
+                'sysversion' => $sysversion,
+                'isupdate' => $isupdate,
             ]
         );
 
@@ -215,5 +234,5 @@ class ToolsController extends AbstractController
         
     }
 
-    
+
 }

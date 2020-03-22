@@ -35,9 +35,9 @@
                         <td>System Update</td>
                         <td>Updates the core system to the latest version to keep you upto date with the latest features</td>
                         <td>
-                            <a href="{{ path('updates_index') }}" class="btn btn-xs btn-success" role="button">Upto Date</a>
+                        {% if isupdate == 'yes' %}<a href="{{ path('updates_index') }}" class="btn btn-xs btn-success">Update Avaliable</a>{% else %}System Upto Date{% endif %}
                         </td>
-                        <td>V1.5.0</td>
+                        <td>{{sysversion}}</td>
                     </tr>
                     <tr>
                         <td>Clear Cache</td>
@@ -94,9 +94,9 @@
                   <tbody>
                     <tr>
                         <td>PHP</td>
-                        <td>PHP information and version</td>
+                        <td>PHP information and version (Recomended version 7.4 and Above)</td>
                         <td>
-                            <button class="btn btn-xs btn-success" role="button">PHP Info</button>
+                           {% if phpversion < 7.3 %}<button class="btn btn-xs btn-danger" role="button">Upgrade PHP</button>{% else %} Version Ok {% endif %}
                         </td>
                         <td>{{phpversion}}</td>
                     </tr>
@@ -104,7 +104,7 @@
                         <td>Curl</td>
                         <td>Check to see if curl is active as the system requires it on some features</td>
                         <td>
-                            {% if iscurl %}<button class="btn btn-xs btn-success" role="button">Active</button>{% else %} <button class="btn btn-xs btn-danger" role="button">System Needs Curl</button> {% endif %}
+                            {% if iscurl %}Active{% else %} <button class="btn btn-xs btn-danger" role="button">System Needs Curl</button> {% endif %}
                         </td>
                         <td>{{iscurl}}</td>
                     </tr>
@@ -112,7 +112,7 @@
                         <td>allow_url_fopen</td>
                         <td>Check to see if allow_url_fopen is active as the system requires it on some features</td>
                         <td>
-                            {% if isaufopen %}<button class="btn btn-xs btn-success" role="button">Active</button>{% else %} <button class="btn btn-xs btn-danger" role="button">System Needs This</button> {% endif %}
+                            {% if isaufopen %}Active{% else %} <button class="btn btn-xs btn-danger" role="button">System Needs This</button> {% endif %}
                         </td>
                         <td>{{isaufopen}}</td>
                     </tr>
