@@ -46,12 +46,15 @@ class ToolsController extends AbstractController
         }else{
             $sysmode = 'Live Mode';
         }
+
+        $phpversion = phpversion();
         
 
         return $this->render('system/tools/index.html.twig',
             [
                 'updatelock' => $updatelock,
                 'sysmode' => $sysmode,
+                'phpversion' => $phpversion,
             ]
         );
 

@@ -1,68 +1,19 @@
-{% extends 'system/setup/base.html.twig' %}
+{% extends 'base.html.twig' %}
 {% block AppMenu %}
-    <li class="nav-header">Setup</li>
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <span style="color: #4db7ee"> <i class="nav-icon fas fa-cogs"></i></span>
-            <p>Setup Introduction</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
-            <p>Database Details</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
-            <p>Set Up Tables</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
-            <p>Tables Created</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
-            <p>Setup Admin Account</p>
-        </a>
-    </li>
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <span style="color: #ff0b00"> <i class="nav-icon fas fa-power-off"></i></span>
-            <p>Installation Complete</p>
-        </a>
-    </li>
+    {{ include('menus/settingsmenu.html.twig') }}
 {% endblock %}
-{% block bodytitle %} 
-<div class="progress">
-    <div class="progress-bar bg-success progress-bar-striped" role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width: 1%">
-        <span class="sr-only"></span>
-    </div>
-</div>
+{% block bodytitle %}
+    System License
 {% endblock %}
 {% block body %}
-<div class="row clearfix">
-                <div class="col-lg-9 col-md-9 col-sm-6 col-xs-12">
-                    <div class="card card-blue">
-                        <div class="card-header">
-                            <div class="card-title">
-                                Backlinks Manager Installation
-                            </div>
-                        </div>
-                        <div class="card-body">
-                          <b> Backlinks Manager is a full featured system that will help you with Backlinking and keeping track of what links back to your websites and campaigns </b>
-                            <br /><br />
-                           <div class="row clearfix">
-                                <div class="col-sm-12">
-                                    <div class="form-group">
-                                        <div class="form-line">
-                                            <textarea rows="20" class="form-control no-resize" placeholder="" disabled="">
-                                           <p>GNU LESSER GENERAL PUBLIC LICENSE Version 3, 29 June 2007</p>
+   <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Backlinks Manager License</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-md-12">
+    <p>GNU LESSER GENERAL PUBLIC LICENSE Version 3, 29 June 2007</p>
 
 <p>Copyright &copy; 2020 Storm Developers. <a href="https://stormdevelopers.com">https://stormdevelopers.com</a></p>
 
@@ -97,64 +48,12 @@
 <p>Each version is given a distinguishing version number. If the Library as you received it specifies that a certain numbered version of the GNU Lesser General Public License &ldquo;or any later version&rdquo; applies to it, you have the option of following the terms and conditions either of that published version or of any later version published by the Free Software Foundation. If the Library as you received it does not specify a version number of the GNU Lesser General Public License, you may choose any version of the GNU Lesser General Public License ever published by the Free Software Foundation.</p>
 
 <p>If the Library as you received it specifies that a proxy can decide whether future versions of the GNU Lesser General Public License shall apply, that proxy's public statement of acceptance of any version is permanent authorization for you to choose that version for the Library.</p>
-       </textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                         <div class="text-center mb-3">
-                        <a href="{{path('setup_step1dbcheck')}}" type="button" class="btn bg-blue waves-effect">
-                                    <i class="fas fa-user-shield"></i>
-                                    <span>Agree & Start Install</span>
-                                </a>
-                         </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                    <div class="card card-red">
-                        <div class="card-header">
-                            <div class="card-title">
-                               System Requirements
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            Please check before installing
-                            <ul>
-                                <li><b>PHP</b> 7.3 or Above (Recommended 7.4)</li>
-                                <li>
-                                    <b>Database Versions</b>
-                                    <ul>
-                                        <li>Mysql 5.7 or Above</li>
-                                        <li>MariaDB 10.2 or Above (Recommended)</li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <b>PHP extensions:</b><br /> (Most are enabled by default in PHP 7+)
-                                    <ul>
-                                        <li>Ctype</li>
-                                        <li>iconv</li>
-                                        <li>JSON</li>
-                                        <li>PCRE</li>
-                                        <li>Session</li>
-                                        <li>SimpleXML</li>
-                                        <li>Tokenizer</li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <b>Writable directories:</b>
-                                    <br />(must be writable by the web server)
-                                    <ul>
-                                        <li>The cache directory (var/cache)</li>
-                                        <li>The log directory (var/log)</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      </div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
 {% endblock %}
 {% block pageJS %}
-<!-- Additional Javascript or Jquery  -->
+    <!-- Additional Javascript or Jquery  -->
 {% endblock %}

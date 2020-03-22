@@ -18,7 +18,7 @@
                       <th style="width: 15%">System Tools</th>
                       <th>Description</th>
                       <th style="width: 15%">Action</th>
-                      <th style="width: 10%">Status</th>
+                      <th style="width: 10%">Info</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -61,7 +61,7 @@
                       <th style="width: 15%">Security Tools</th>
                       <th>Description</th>
                       <th style="width: 15%">Action</th>
-                      <th style="width: 10%">Status</th>
+                      <th style="width: 10%">Info</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -73,6 +73,32 @@
                             <button id="updateunlockbutton" class="btn btn-xs btn-danger" role="button">Unlock</button>
                         </td>
                         <td><div id="lockstatus">{{updatelock}}</div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+
+            <div class="card">
+              <div class="card-body p-0">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th style="width: 15%">System Enviroment</th>
+                      <th>Description</th>
+                      <th style="width: 15%">Action</th>
+                      <th style="width: 10%">Info</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                        <td>PHP</td>
+                        <td>PHP information and version</td>
+                        <td>
+                            <button class="btn btn-xs btn-success" role="button">PHP Info</button>
+                        </td>
+                        <td>{{phpversion}}</td>
                     </tr>
                   </tbody>
                 </table>

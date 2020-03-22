@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/settingsmenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+    System Information
+{% endblock %}
+{% block body %}
+    <div class="row">
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-info"><i class="fas fa-code-branch"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">System Version</span>
+                <span class="info-box-number">{{sysversion}} {% if isupdate == 'yes' %}<a href="{{path('system_tools')}}" class="btn btn-xs btn-success">Update Avaliable</a>{% endif %}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-success"><i class="fas fa-code"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">Current Release</span>
+                <span class="info-box-number">{{currentversion}}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-danger"><i class="fas fa-server"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">In Development</span>
+                <span class="info-box-number">{{nextversion}}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+          <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box">
+              <span class="info-box-icon bg-warning"><i class="fas fa-server"></i></span>
+
+              <div class="info-box-content">
+                <span class="info-box-text">System Mode</span>
+                <span class="info-box-number">{{sysmode}}</span>
+              </div>
+              <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+          </div>
+          <!-- /.col -->
+        </div>
+
+        <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+              <div class="row">
+                 <div class="col-md-12">
+            <div class="card card-dark">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-user-shield"></i>
+                    In Planning / Whats Next
+                </h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+               {{inplanning|raw}}
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- ./col -->
+              </div>
+            </div>
+            
+            <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
+              <h3 class="text-primary">Backlinks Manager</h3>
+              <p class="text-muted">
+                The Backlinks Manager has been developed to help those who need an extra tool to support your marketing campaigns and keep track of prospected sites, monitoring backlinks and tracking traffic and keywords.
+              </p>
+              <div class="text-muted">
+              <p class="text-sm">Software License
+                  <b class="d-block">GNU GPL v3</b>
+                </p>
+                <p class="text-sm">Company
+                  <b class="d-block">Storm Developers</b>
+                </p>
+                <p class="text-sm">Official Webiste
+                  <b class="d-block">https://stormdevelopers.com</b>
+                </p>
+                <p class="text-sm">Project Leader
+                  <b class="d-block">Alan Byrne</b>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-users-cog"></i>
+                  Change Log
+                </h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+               {{changelog|raw}}
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- ./col -->
+        </div>
+{% endblock %}
+{% block pageJS %}
+    <!-- Additional Javascript or Jquery  -->
+{% endblock %}
