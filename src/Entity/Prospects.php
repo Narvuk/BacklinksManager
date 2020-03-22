@@ -37,6 +37,11 @@ class Prospects
      */
     private $domain;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $description;
+
      /**
      * @ORM\Column(type="datetime", nullable=true)
      */
@@ -79,6 +84,11 @@ class Prospects
         return $this->domain;
     }
 
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
     public function getCreated()
     {
         return $this->created;
@@ -114,6 +124,11 @@ class Prospects
     public function setDomain($domain)
     {
         $this->domain = $domain;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
     public function setCreated($created)

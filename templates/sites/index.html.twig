@@ -6,7 +6,9 @@
     {{site.name}}
 {% endblock %}
 {% block tcright %}
-    <button id="blupdate" class="btn btn-info"><div id="bspin"><i class="fas fa-sync"></i></div></button>
+    <button id="blupdate" class="btn btn-success"><div id="bspin"><i class="fas fa-sync"></i></div></button>
+    <a href="{{ path('site_edit', {'id': site.id}) }}" class="btn btn-info"><i class="fas fa-pen"></i></a>
+    
 {% endblock %}
 {% block body %}
 <div class="row">

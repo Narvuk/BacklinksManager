@@ -32,6 +32,7 @@
                       <td><span class="tag tag-success">{{ p.status }}</span></td>
                       <td>
                         <a href="{{ path('prospect_view', {'id': p.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('prospect_edit', {'id': p.id}) }}" class="btn btn-info btn-sm"><i class="fas fa-pen"></i></a>
                       </td>
                     </tr>
                     {% endfor %}
@@ -79,7 +80,17 @@
                             {{ form_widget(form.Domain, {'attr': {'class': 'form-control'}}) }}
                         </div>
                     </div>
-                </div>       
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Description</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Description, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>          
             </div>
             <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

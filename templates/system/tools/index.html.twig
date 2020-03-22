@@ -100,6 +100,22 @@
                         </td>
                         <td>{{phpversion}}</td>
                     </tr>
+                    <tr>
+                        <td>Curl</td>
+                        <td>Check to see if curl is active as the system requires it on some features</td>
+                        <td>
+                            {% if iscurl %}<button class="btn btn-xs btn-success" role="button">Active</button>{% else %} <button class="btn btn-xs btn-danger" role="button">System Needs Curl</button> {% endif %}
+                        </td>
+                        <td>{{iscurl}}</td>
+                    </tr>
+                    <tr>
+                        <td>allow_url_fopen</td>
+                        <td>Check to see if allow_url_fopen is active as the system requires it on some features</td>
+                        <td>
+                            {% if isaufopen %}<button class="btn btn-xs btn-success" role="button">Active</button>{% else %} <button class="btn btn-xs btn-danger" role="button">System Needs This</button> {% endif %}
+                        </td>
+                        <td>{{isaufopen}}</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>

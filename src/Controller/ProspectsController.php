@@ -16,6 +16,7 @@ use App\Form\Sites\AddBacklinkType;
 use App\Form\Sites\AddPageType;
 use App\Form\Sites\AddKeywordType;
 use App\Form\Sites\AddProspectType;
+use App\Form\Prospects\EditProspectType;
 use App\Entity\Notes\ProspectsNotes;
 use App\Form\Prospects\AddNoteType;
 
@@ -88,6 +89,50 @@ class ProspectsController extends AbstractController
                 'pnotes' => $pnotes,
                 'bcount' => $bcount,
                 'tcampaigns' => $tcampaigns,
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @Route("/prospect/{id}/edit", name="prospect_edit")
+     */
+    public function ProspectEdit($id, Request $request)
+    {
+        if ($id == NULL){
+            return $this->redirectToRoute('core');
+        }
+
+        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
+
+        // 1) build the form
+        $form = $this->createForm(EditProspectType::class, $prospect);
+
+        // 2) handle the submit (will only happen on POST)
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // 4) save the site!
+            $entityManager = $this->getDoctrine()->getManager();
+
+           
+            $prospect->setUpdated(new \DateTime());
+
+            $entityManager->persist($prospect);
+            $entityManager->flush();
+
+            // ... do any other work - like sending them an email, etc
+            // maybe set a "flash" success message for the user
+
+            return $this->redirectToRoute('prospect_view', ['id' => $id]);
+        }
+
+        return $this->render('prospects/edit.html.twig',
+            [
+                'site' => $site,
+                'prospect' => $prospect,
                 'form' => $form->createView(),
             ]
         );
@@ -237,25 +282,6 @@ class ProspectsController extends AbstractController
                 'prospect' => $prospect,
                 'pnotes' => $pnotes,
                 'form' => $form->createView(),
-            ]
-        );
-    } 
-
-    /**
-     * @Route("/prospect/{id}/edit", name="prospect_edit")
-     */
-    public function ProspectEdit($id, Request $request)
-    {
-        if ($id == NULL){
-            return $this->redirectToRoute('core');
-        }
-        $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
-        $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
-
-        return $this->render('backlinks/edit.html.twig',
-            [
-                'site' => $site,
-                'prospect' => $prospect,
             ]
         );
     } 

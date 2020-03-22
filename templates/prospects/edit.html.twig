@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/sitesmenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+    {{prospect.name}} - Edit
+{% endblock %}
+{% block tcright %}
+{{ form_start(form) }}
+    <button type="submit" id="form-submit" class="btn btn-success">Save</button>
+{% endblock %}
+{% block body %}
+<div class="row">
+          <div class="col-md-12">
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">Edit Prospect Details</h3>
+                <!-- /.card-tools -->
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Prospect Name</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Name, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Prospect Url</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Domain, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>  
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Description</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Description, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>           
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        
+        </div>
+      {{ form_end(form) }}
+
+{% endblock %}
+{% block pageJS %}
+ 
+{% endblock %}
+{% block ModalArea %}
+
+{% endblock %}

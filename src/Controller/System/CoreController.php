@@ -14,6 +14,7 @@ use App\Entity\Sites;
 use App\Entity\System\Users;
 use App\Repository\SitesRepository;
 use App\Form\Sites\AddSiteType;
+use App\Form\Sites\EditSiteType;
 
 class CoreController extends AbstractController
 {
@@ -60,6 +61,47 @@ class CoreController extends AbstractController
 
         return $this->render('index.html.twig',
             [
+                'sites' => $sites,
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+     /**
+     * @Route("/site/{id}/edit", name="site_edit")
+     */
+    public function SiteEdit($id, Request $request)
+    {
+        $sitename = "";
+        $sites = $this->getDoctrine()->getRepository(Sites::class)->findAll();
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
+        
+
+        // 1) build the form
+        $form = $this->createForm(EditSiteType::class, $site);
+
+        // 2) handle the submit (will only happen on POST)
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // 4) save the site!
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $site->setUpdated(new \DateTime());
+        
+            $entityManager->persist($site);
+            $entityManager->flush();
+
+            // ... do any other work - like sending them an email, etc
+            // maybe set a "flash" success message for the user
+
+            return $this->redirectToRoute('site_dashboard', ['id' => $id]);
+        }
+
+        return $this->render('sites/editsite.html.twig',
+            [
+                'site' => $site,
                 'sites' => $sites,
                 'form' => $form->createView(),
             ]
@@ -125,11 +167,16 @@ class CoreController extends AbstractController
             $sysmode = 'Live Mode';
         }
 
-        
-        $changelog = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/changelog');
+        try{
         $inplanning = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/inplanning');         
         $nextversion = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/nextversion');
         $currentversion = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/currentversion');
+        }
+        catch(\Exception $e){
+            $inplanning = 'Unavailable';         
+            $nextversion = 'Unavailable';
+            $currentversion = '0.0.0 - Unavailable';
+        }
         
         $sysversion = $this->version;
 
@@ -142,7 +189,6 @@ class CoreController extends AbstractController
 
         return $this->render('system/sysinfo.html.twig',
             [
-                'changelog' => $changelog,
                 'inplanning' => $inplanning,
                 'sysmode' => $sysmode,
                 'nextversion' => $nextversion,

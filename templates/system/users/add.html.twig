@@ -3,95 +3,86 @@
     {{ include('menus/settingsmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Add User
+    Edit User
+{% endblock %}
+{% block tcright %}
+{{ form_start(form) }}
+    <button type="submit" id="form-submit" class="btn btn-success">Add User</button>
 {% endblock %}
 {% block body %}
-<div class="row clearfix">
-    <div class="col-lg-12 col-md-12 col-sm-6 col-xs-12">
-        <div class="card">
-            <div class="header bg-red">
-                <h2>
-                   Add User <small></small>
-                </h2>
+<div class="row">
+          <div class="col-md-12">
+            <div class="card card-primary">
+              <div class="card-header">
+                <h3 class="card-title">Edit User Account</h3>
+                <!-- /.card-tools -->
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Username</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                           {{ form_widget(form.username, {'attr': {'class': 'form-control', 'placeholder' : 'Username'}}) }}
+                            </div>
+                    </div>
+                </div>
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>User Email</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder' : 'Enter Email'}}) }}
+                            </div>
+                    </div>
+                </div>  
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>User Roles</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                             {{ form_widget(form.roles, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            </div>
+                    </div>
+                </div>   
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>User Password</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                             {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder' : 'Enter Password'}}) }}
+                            </div>
+                    </div>
+                </div>   
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Confirm Password</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                             {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder' : 'Repeat Password'}}) }}
+                            </div>
+                    </div>
+                </div>   
+                        
+              </div>
+              <!-- /.card-body -->
             </div>
-            <div class="body">
+            <!-- /.card -->
+          </div>
+          <!-- /.col -->
+        
+        </div>
+      {{ form_end(form) }}
 
-                {{ form_start(form) }}
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label for="email_address_2">Username</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            <div class="form-line">
-                                {{ form_widget(form.username, {'attr': {'class': 'form-control', 'placeholder' : 'Username'}}) }}
-                            </div>
-                            Username to login to the system
-                        </div>
-                    </div>
-                </div>
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label for="email_address_2">Email</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            <div class="form-line">
-                                {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder' : 'Enter Email'}}) }}
-                            </div>
-                            Users Email
-                        </div>
-                    </div>
-                </div>
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label >Roles</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            <div class="form-line">
-                                {{ form_widget(form.roles, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
-                            </div>
-                            Ensure check all roles that apply
-                        </div>
-                    </div>
-                </div>
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label >User Password</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            <div class="form-line">
-                                {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control', 'placeholder' : 'Enter Password'}}) }}
-                            </div>
-                            Enter login Password
-                        </div>
-                    </div>
-                </div>
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label for="password_2">Confirm Password</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            <div class="form-line">
-                                {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control', 'placeholder' : 'Repeat Password'}}) }}
-                            </div>
-                            Please confirm password chosen
-                        </div>
-                    </div>
-                </div>
-                <div class="row clearfix">
-                    <center>
-                        <button type="submit" id="form-submit" class="btn bg-blue waves-effect">
-                            <i class="material-icons">verified_user</i><span>Save and Continue</span></button>
-                    </center>
-                </div>
-                {{ form_end(form) }}
 {% endblock %}
 {% block pageJS %}
-    <!-- Additional Javascript or Jquery  -->
+ 
 {% endblock %}
 
 

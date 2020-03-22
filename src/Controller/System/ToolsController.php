@@ -48,6 +48,19 @@ class ToolsController extends AbstractController
         }
 
         $phpversion = phpversion();
+
+        if(in_array  ('curl', get_loaded_extensions())) {
+            $iscurl = 'Enabled';
+        }
+        else{
+            $iscurl = 'Need Curl';
+        }
+
+        if( ini_get('allow_url_fopen') ) {
+            $isaufopen = 'Enabled';
+         } else {
+             $isaufopen = 'Disabled';
+         }
         
 
         return $this->render('system/tools/index.html.twig',
@@ -55,6 +68,8 @@ class ToolsController extends AbstractController
                 'updatelock' => $updatelock,
                 'sysmode' => $sysmode,
                 'phpversion' => $phpversion,
+                'iscurl' => $iscurl,
+                'isaufopen' => $isaufopen,
             ]
         );
 

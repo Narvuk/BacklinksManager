@@ -1,12 +1,13 @@
 {% extends 'base.html.twig' %}
 {% block AppMenu %}
-    {{ include('menus/settingsmenu.html.twig') }}
+    {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Edit User
+    {{site.name}} - Edit
 {% endblock %}
 {% block tcright %}
 {{ form_start(form) }}
+    <a href="" class="btn btn-danger">Cancel</a>
     <button type="submit" id="form-submit" class="btn btn-success">Save</button>
 {% endblock %}
 {% block body %}
@@ -14,41 +15,47 @@
           <div class="col-md-12">
             <div class="card card-primary">
               <div class="card-header">
-                <h3 class="card-title">Edit User Account</h3>
+                <h3 class="card-title">Edit Site Details</h3>
                 <!-- /.card-tools -->
               </div>
               <!-- /.card-header -->
               <div class="card-body">
                 <div class="row clearfix">
                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label>Username</label>
+                        <label>Site Name</label>
                     </div>
                     <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
                         <div class="form-group">
-                           {{ form_widget(form.username, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            {{ form_widget(form.Name, {'attr': {'class': 'form-control'}}) }}
                         </div>
                     </div>
                 </div>
                 <div class="row clearfix">
                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label>User Email</label>
+                        <label for="email_address_2">Site Url</label>
                     </div>
                     <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
                         <div class="form-group">
-                            {{ form_widget(form.email, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            <div class="form-line">
+                                {{ form_widget(form.Url, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            </div>
+
                         </div>
                     </div>
-                </div>  
+                </div>
                 <div class="row clearfix">
                     <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label>User Roles</label>
+                        <label for="email_address_2">Description</label>
                     </div>
                     <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
                         <div class="form-group">
-                             {{ form_widget(form.roles, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            <div class="form-line">
+                                {{ form_widget(form.Description, {'attr': {'class': 'form-control', 'placeholder' : ''}}) }}
+                            </div>
+
                         </div>
                     </div>
-                </div>           
+                </div>      
               </div>
               <!-- /.card-body -->
             </div>
@@ -63,4 +70,6 @@
 {% block pageJS %}
  
 {% endblock %}
+{% block ModalArea %}
 
+{% endblock %}

@@ -1,5 +1,5 @@
 <?php
-namespace App\Form\Sites;
+namespace App\Form\Prospects;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\Sites;
 use App\Entity\Prospects;
 
-class AddProspectType extends AbstractType
+class EditProspectType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
