@@ -3,12 +3,16 @@
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    {{site.name}}
+    {{site.name}} <div id="sitestatus"><span class="badge badge-{% if site.status == 'Active' %}success{% endif %}{% if site.status == 'Inactive' %}danger{% endif %}{% if site.status == 'New' %}dark{% endif %}">{{site.status}}</span></div>
 {% endblock %}
 {% block tcright %}
     <button id="blupdate" class="btn btn-success"><div id="bspin"><i class="fas fa-sync"></i></div></button>
     <a href="{{ path('site_edit', {'id': site.id}) }}" class="btn btn-info"><i class="fas fa-pen"></i></a>
-    
+    <button type="button" class="btn btn-dark" data-toggle="dropdown">Status</button>
+    <div class="dropdown-menu">
+        <button class="dropdown-item" id="updatestatus-active">Active</button>
+        <button class="dropdown-item" id="updatestatus-inactive">Inactive</button>  
+    </div>
 {% endblock %}
 {% block body %}
 <div class="row">
@@ -22,9 +26,6 @@
               <div class="icon">
                 <i class="fas fa-chart-pie"></i>
               </div>
-              <a href="#" class="small-box-footer">
-                View Prospects <i class="fas fa-arrow-circle-right"></i>
-              </a>
             </div>
           </div>
           <div class="col-lg-3 col-6">
@@ -38,9 +39,6 @@
               <div class="icon">
                 <i class="fas fa-chart-bar"></i>
               </div>
-              <a href="#" class="small-box-footer">
-               View Backlinks <i class="fas fa-arrow-circle-right"></i>
-              </a>
             </div>
           </div>
           <div class="col-lg-3 col-6">
@@ -54,9 +52,6 @@
               <div class="icon">
                 <i class="fas fa-smile"></i>
               </div>
-              <a href="#" class="small-box-footer">
-                More info <i class="fas fa-arrow-circle-right"></i>
-              </a>
             </div>
           </div>
           <div class="col-lg-3 col-6">
@@ -70,9 +65,6 @@
               <div class="icon">
                 <i class="fas fa-times"></i>
               </div>
-              <a href="#" class="small-box-footer">
-                More info <i class="fas fa-arrow-circle-right"></i>
-              </a>
             </div>
           </div>
 </div>
@@ -80,7 +72,99 @@
         <div class="col-6">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">New BackLinks</h3>
+                <h3 class="card-title">Recently Active Tracking Link</h3>
+
+                <div class="card-tools">
+                  <div class="input-group input-group-sm">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body table-responsive p-0">
+                <table class="table table-sm table-hover">
+                  <thead>
+                    <tr>
+                      <th>Link Title</th>
+                      <th>Hits</th>
+                      <th>Last Visited</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for raurl in ratrackurls %}
+                    <tr>
+                      <td>{{raurl.title}}</td>
+                      <td>{{raurl.urlhits}}</td>
+                      <td>{% if raurl.lasthit %}{{ raurl.lasthit|date('d-m-Y / H:i') }}{% else %} No Hits Yet {% endif %}</td>
+                      <td>
+                        <a href="{{ path('trackingurl_view', {'id': raurl.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </div>
+
+        <div class="col-6">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Recently Updated Prospects</h3>
+
+                <div class="card-tools">
+                  <div class="input-group input-group-sm">
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body table-responsive p-0">
+                <table class="table table-sm table-hover">
+                  <thead>
+                    <tr>
+                      <th>Prospect</th>
+                      <th>Updated</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for rap in raprosps %}
+                    <tr>
+                      <td>{{ rap.domain }}</td>
+                      <td>{{ rap.updated|date('d-m-Y / H:i') }}</td>
+                      <td>{{ rap.status }}</td>
+                      <td>
+                        <a href="{{ path('prospect_view', {'id': rap.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('prospect_edit', {'id': rap.id}) }}" class="btn btn-info btn-sm"><i class="fas fa-pen"></i></a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+              
+            </div>
+            <!-- /.card -->
+          </div>
+
+        </div>
+
+
+<div class="row">
+        <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Recently Added Backlinks</h3>
 
                 <div class="card-tools">
                   <div class="input-group input-group-sm">
@@ -97,16 +181,18 @@
                     <tr>
                       <th>Backlink</th>
                       <th>Added</th>
+                      <th>Last Checked</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                  {% for nb in newbls %}
+                  {% for bl in rabls %}
                     <tr>
-                      <td>{{ nb.backlink|striptags|slice(0, 60) }}...</td>
-                      <td>{% if nb.created %}{{ nb.created|date('d-m-Y / H:i') }}{% else %} No Created Date {% endif %}</td>
+                      <td>{{ bl.backlink }}</td>
+                      <td>{% if bl.created %}{{ bl.created|date('d-m-Y / H:i') }}{% else %} No Created Date {% endif %}</td>
+                      <td>{% if bl.lastchecked %}{{ bl.lastchecked|date('d-m-Y / H:i') }}{% else %} Not Checked {% endif %}</td>
                       <td>
-                        <a href="{{ path('backlink_view', {'id': nb.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('backlink_view', {'id': bl.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>
                     </tr>
                     {% endfor %}
@@ -117,51 +203,7 @@
             </div>
             <!-- /.card -->
           </div>
-
-        <div class="col-6">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">New Prospects</h3>
-
-                <div class="card-tools">
-                  <div class="input-group input-group-sm">
-                    <div class="input-group-append">
-                      <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body table-responsive p-0">
-                <table class="table table-sm table-hover">
-                  <thead>
-                    <tr>
-                      <th>Prospect</th>
-                      <th>Backlinks</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {% for np in newprosp %}
-                    <tr>
-                      <td>{{ np.domain }}</td>
-                      <td>(coming soon)</td>
-                      <td>
-                        <a href="{{ path('prospect_view', {'id': np.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
-              <!-- /.card-body -->
-              
-            </div>
-            <!-- /.card -->
-          </div>
-
         </div>
-
 
 {% endblock %}
 {% block pageJS %}
@@ -197,6 +239,46 @@
                   $('#bspin').append('<i class="fas fa-sync"></i>');  
 
                   
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });  
+         $("#updatestatus-active").on("click", function(event){ 
+            $('#sitestatus').html('');  
+            $('#sitestatus').append('<i class="fas fa-sync fa-spin"></i>');
+            $.ajax({  
+               url:        '/site/{{site.id}}/changestatus/Active',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#sitestatus').html('');  
+                  $('#sitestatus').append('<span class="badge badge-success">Active</span>');
+                 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });  
+         $("#updatestatus-inactive").on("click", function(event){ 
+            $('#sitestatus').html('');  
+            $('#sitestatus').append('<i class="fas fa-sync fa-spin"></i>');
+            $.ajax({  
+               url:        '/site/{{site.id}}/changestatus/Inactive',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#sitestatus').html('');  
+                  $('#sitestatus').append('<span class="badge badge-danger">Inactive</span>');
+                 
                },  
                error : function(xhr, textStatus, errorThrown) {  
                   alert('Ajax request failed.');  

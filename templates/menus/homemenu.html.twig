@@ -1,19 +1,21 @@
 <!-- Add icons to the links using the .nav-icon class
      with font-awesome or any other icon font library -->
-<li class="nav-header">Options</li>
+<li class="nav-header">WebSites / Projects</li>
 <li class="nav-item">
-    <a href="" class="nav-link" data-toggle="modal" data-target="#modal-lg">
+    <a href="{{ path('websites_statuslist', {'status': 'Active'}) }}" class="nav-link">
         <i class="nav-icon far fa-circle text-success"></i>
-        <p>Add New</p>
+        <p>Active Sites</p>
     </a>
 </li>
-
-<li class="nav-header">Sites</li>
-{% for site in sites %}
 <li class="nav-item">
-    <a href="{{ path('site_dashboard', {'id': site.id}) }}" class="nav-link">
-        <i class="nav-icon far fa-circle text-info"></i>
-        <p>{{site.name}}</p>
+    <a href="{{ path('websites_statuslist', {'status': 'New'}) }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-orange"></i>
+        <p>New Sites</p>
     </a>
 </li>
-{% endfor %}
+<li class="nav-item">
+    <a href="{{ path('websites_statuslist', {'status': 'Inactive'}) }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-red"></i>
+        <p>Inactive Sites</p>
+    </a>
+</li>

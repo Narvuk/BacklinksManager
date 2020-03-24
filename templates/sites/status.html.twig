@@ -3,7 +3,7 @@
     {{ include('menus/homemenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Dashboard
+    Websites By Status
 {% endblock %}
 {% block tcright %}
    <!-- <button id="blupdate" class="btn btn-success"><div id="bspin"><i class="fas fa-sync"></i></div></button> -->
@@ -11,62 +11,9 @@
     
 {% endblock %}
 {% block body %}
-<div class="row">
-    <div class="col-lg-3 col-6">
-            <!-- small card -->
-            <div class="small-box bg-info">
-              <div class="inner">
-                <h3 id="newprosp">{{activesites}}</h3>
-                <p>Active Sites</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-chart-pie"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <!-- small card -->
-            <div class="small-box bg-green">
-              <div class="inner">
-                <h3 id="activebl">{{totalcamp}}</h3>
-
-                <p>Total Campaigns</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-chart-bar"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <!-- small card -->
-            <div class="small-box bg-purple">
-              <div class="inner">
-                <h3 id="newbl">{{totalpages}}</h3>
-
-                <p>Total Pages</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-smile"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <!-- small card -->
-            <div class="small-box bg-red">
-              <div class="inner">
-                <h3 id="lostbl">{{totalkeywords}}</h3>
-
-                <p>Total Keywords</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-times"></i>
-              </div>
-            </div>
-          </div>
-</div>
 <div class="card card-primary card-outline mb-1">
           <div class="card-header">
-            <h3 class="card-title">Latest Added Websites</h3>
+            <h3 class="card-title">{{ status }} Websites</h3>
           </div> 
 </div>
 <div class="row">

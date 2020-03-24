@@ -6,12 +6,13 @@ use App\Entity\Sites;
 
 class SitesRepository extends EntityRepository
 {
-    public function loadSitesByName($name)
+    public function loadLatestSitesHome($limit)
     {
         $qb = $this->createQueryBuilder('a')
-            ->andWhere('a.name > :name')
-            ->setParameter('name', $name)
-            ->orderBy('a.name', 'ASC')
+            ->andWhere('a.id > :id')
+            ->setParameter('id', 'a.id')
+            ->orderBy('a.id', 'DESC')
+            ->setMaxResults($limit)
             ->getQuery();
 
         return $qb->execute();

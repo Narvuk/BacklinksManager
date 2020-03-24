@@ -50,10 +50,14 @@ class TrackingCampaignsController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        $turlsrepo = $this->getDoctrine()->getRepository(TrackingUrls::class);
+
         $tcamp = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($tcamp->getSiteId());
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($tcamp->getProspectId());
-        $turls = $this->getDoctrine()->getRepository(TrackingUrls::class)->findBy(['tcampaignid' => $id], ['id' => 'DESC'], $limit = 5);
+        $turls = $turlsrepo->findBy(['tcampaignid' => $id], ['id' => 'DESC'], $limit = 5);
+
+        $counturls = count($turlsrepo->findBy(['tcampaignid' => $id], ['id' => 'DESC']));
 
 
         // 1) build the form
@@ -89,6 +93,7 @@ class TrackingCampaignsController extends AbstractController
                 'tcamp' => $tcamp,
                 'turls' => $turls,
                 'prospect' => $prospect,
+                'counturls' => $counturls,
                 'form' => $form->createView(),
             ]
         );

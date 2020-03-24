@@ -17,6 +17,11 @@ class Sites
      * @ORM\Column(type="integer")
      */
     private $id;
+    
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $status;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -59,6 +64,22 @@ class Sites
     private $lostbl;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $activesitepages;
+
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $activetrackcamps;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $activetracklinks;
+
+    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
@@ -79,6 +100,11 @@ class Sites
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     public function getName()
@@ -121,6 +147,21 @@ class Sites
         return $this->lostbl;
     }
 
+    public function getActiveSitePages()
+    {
+        return $this->activesitepages;
+    }
+
+    public function getActiveTrackCamps()
+    {
+        return $this->activetrackcamps;
+    }
+
+    public function getActiveTrackLinks()
+    {
+        return $this->activetracklinks;
+    }
+
     public function getDescription()
     {
         return $this->description;
@@ -141,6 +182,11 @@ class Sites
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 
     public function setUrl($url)
@@ -176,6 +222,21 @@ class Sites
     public function setLostBL($lostbl)
     {
         $this->lostbl = $lostbl;
+    }
+
+    public function setActiveSitePages($activesitepages)
+    {
+        $this->activesitepages = $activesitepages;
+    }
+
+    public function setActiveTrackCamps($activetrackcamps)
+    {
+        $this->activetrackcamps = $activetrackcamps;
+    }
+
+    public function setActiveTrackLinks($activetracklinks)
+    {
+        $this->activetracklinks = $activetracklinks;
     }
 
     public function setDescription($description)

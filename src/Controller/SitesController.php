@@ -12,6 +12,7 @@ use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
 use App\Entity\Linktracking\TrackingCampaigns;
+use App\Entity\Linktracking\TrackingUrls;
 use App\Form\Sites\AddBacklinkType;
 use App\Form\Sites\AddPageType;
 use App\Form\Sites\AddKeywordType;
@@ -38,17 +39,63 @@ class SitesController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $blrepo = $this->getDoctrine()->getRepository(Backlinks::class);
+        $trackurlsrepo = $this->getDoctrine()->getRepository(TrackingUrls::class);
+        $prosprepo = $this->getDoctrine()->getRepository(Prospects::class);
+
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-        $newbls = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['siteid' => $id, 'status' => 'New'], ['id' => 'DESC']);
-        $newprosp = $this->getDoctrine()->getRepository(Prospects::class)->findBy(['siteid' => $id, 'status' => 'New'], ['id' => 'DESC']);
+
+        // Recently Active
+        $ratrackurls = $trackurlsrepo->findBy(['siteid' => $id], ['lasthit' => 'DESC'], $limit = 10);
+        $raprosps = $prosprepo->findBy(['siteid' => $id], ['updated' => 'DESC'], $limit = 10);
+        $rabls = $blrepo->findBy(['siteid' => $id], ['created' => 'DESC'], $limit = 20 );
+
+        // New
+        $newbls = $blrepo->findBy(['siteid' => $id, 'status' => 'New'], ['id' => 'DESC']);
+        $newprosp = $prosprepo->findBy(['siteid' => $id, 'status' => 'New'], ['id' => 'DESC']);
+        
 
         return $this->render('sites/index.html.twig',
             [
                 'site' => $site,
+                'rabls' => $rabls,
                 'newbls' => $newbls,
                 'newprosp' => $newprosp,
+                'ratrackurls' => $ratrackurls,
+                'raprosps' => $raprosps,
             ]
         );
+    }
+
+    /**
+     * @Route("/site/{id}/changestatus/{status}", name="site_updatestatus")
+     */
+    public function SiteUpdateStatus($id, $status, Request $request)
+    {
+        if ($id == NULL){
+            return $this->redirectToRoute('core');
+        }
+
+        if ($request->isXmlHttpRequest()) { 
+            $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
+
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $site->setStatus($status);
+
+            $entityManager->persist($site);
+            $entityManager->flush();
+            
+            $siteupdated = 'updated';
+            $temp = array(
+                'siteupdated' => $siteupdated,  
+                 
+            );   
+            $jsonData = $temp;  
+        
+            return new JsonResponse($jsonData);
+        }
     }
 
 
@@ -59,52 +106,77 @@ class SitesController extends AbstractController
     {
         if ($request->isXmlHttpRequest()) { 
 
-        // Database Repos
-        $backlinkrepo = $this->getDoctrine()->getRepository(Backlinks::class);
-        $prospectrepo = $this->getDoctrine()->getRepository(Prospects::class);
+            // Database Repos
+            $backlinkrepo = $this->getDoctrine()->getRepository(Backlinks::class);
+            $prospectrepo = $this->getDoctrine()->getRepository(Prospects::class);
+            $spagesrepo = $this->getDoctrine()->getRepository(Sitepages::class);
+            $trackcampsrepo = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
+            $trackurlsrepo = $this->getDoctrine()->getRepository(TrackingUrls::class);
+            
 
-        $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
+            $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
 
-        // backlinks
-        $newbl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'New'] );
-        $activebl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
-        $lostbl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'Lost'] );
-        // prospects
-        $newprosp = $prospectrepo->findBy(['siteid' => $id, 'status' => 'New'] );
-        $activeprosp = $prospectrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
+            // backlinks
+            $newbl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'New'] );
+            $activebl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
+            $lostbl = $backlinkrepo->findBy(['siteid' => $id, 'status' => 'Lost'] );
+            // prospects
+            $newprosp = $prospectrepo->findBy(['siteid' => $id, 'status' => 'New'] );
+            $activeprosp = $prospectrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
+            // site pages
+            $activespages = $spagesrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
+            // tracking campaigns
+            $activetrackcamps = $trackcampsrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
+            // tracking urls
+            $activetrackurls = $trackurlsrepo->findBy(['siteid' => $id, 'status' => 'Active'] );
 
-        // Count Totals to update site info
-        // backlinks
-        $countnew = count($newbl);
-        $countactive = count($activebl);
-        $countlost = count($lostbl);
+            // Count Totals to update site info
+            // backlinks
+            $countnew = count($newbl);
+            $countactive = count($activebl);
+            $countlost = count($lostbl);
 
-        // Prospects
-        $cnprosp = count($newprosp);
-        $caprosp = count($activeprosp);
+            // Prospects
+            $cnprosp = count($newprosp);
+            $caprosp = count($activeprosp);
+
+            // Site Pages
+            $caspages = count($activespages);
+
+            // Tracking Campaigns
+            $catrackcamps = count($activetrackcamps);
+
+            // Tracking Urls
+            $catrackurls = count($activetrackurls);
 
 
-        $entityManager = $this->getDoctrine()->getManager();
+            $entityManager = $this->getDoctrine()->getManager();
 
-        $site->setNewBL($countnew);
-        $site->setActiveBL($countactive);
-        $site->setLostBL($countlost);
-        $site->setNewProsp($cnprosp);
-        $site->setActiveProsp($caprosp);
-        $site->setUpdated(new \DateTime());
-        $entityManager->persist($site);
-        $entityManager->flush();
-        
-            $temp = array(
-               'newbl' => $countnew,  
-               'activebl' => $countactive,
-               'lostbl' => $countlost,
-               'cnprosp' => $cnprosp,
-               'caprosp' => $caprosp,  
-            );   
-            $jsonData = $temp;  
-         
-        return new JsonResponse($jsonData);
+            $site->setNewBL($countnew);
+            $site->setActiveBL($countactive);
+            $site->setLostBL($countlost);
+            $site->setNewProsp($cnprosp);
+            $site->setActiveProsp($caprosp);
+            $site->setActiveSitePages($caspages);
+            $site->setActiveTrackCamps($catrackcamps);
+            $site->setActiveTrackLinks($catrackurls);
+            $site->setUpdated(new \DateTime());
+            $entityManager->persist($site);
+            $entityManager->flush();
+            
+                $temp = array(
+                'newbl' => $countnew,  
+                'activebl' => $countactive,
+                'lostbl' => $countlost,
+                'cnprosp' => $cnprosp,
+                'caprosp' => $caprosp,
+                'caspages'  => $caspages,
+                'catrackcamps' => $catrackcamps,
+                'catrackurls' => $catrackurls,
+                );   
+                $jsonData = $temp;  
+            
+            return new JsonResponse($jsonData);
         
         }
 

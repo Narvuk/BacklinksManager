@@ -46,8 +46,13 @@ class ProspectsController extends AbstractController
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
 
+        //Repos
+        $blrepo = $this->getDoctrine()->getRepository(Backlinks::class);
+        $trackcamprepo = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
+
         //count stats
-        $bcount = count($backlinks = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
+        $bcount = count($blrepo->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
+        $tcampcount = count($trackcamprepo->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
 
         // Get Notes
         $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
@@ -88,6 +93,7 @@ class ProspectsController extends AbstractController
                 'prospect' => $prospect,
                 'pnotes' => $pnotes,
                 'bcount' => $bcount,
+                'tcampcount' => $tcampcount,
                 'tcampaigns' => $tcampaigns,
                 'form' => $form->createView(),
             ]
