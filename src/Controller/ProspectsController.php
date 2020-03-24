@@ -43,8 +43,6 @@ class ProspectsController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
-        // Repos
-        $pnotesrepo = $this->getDoctrine()->getRepository(ProspectsNotes::class);
 
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
@@ -52,6 +50,7 @@ class ProspectsController extends AbstractController
         //Repos
         $blrepo = $this->getDoctrine()->getRepository(Backlinks::class);
         $trackcamprepo = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
+        $pnotesrepo = $this->getDoctrine()->getRepository(ProspectsNotes::class);
 
         //count stats
         $bcount = count($blrepo->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
