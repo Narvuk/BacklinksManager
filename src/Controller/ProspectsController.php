@@ -43,6 +43,9 @@ class ProspectsController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $pnotesrepo = $this->getDoctrine()->getRepository(ProspectsNotes::class);
+
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
 
@@ -55,7 +58,8 @@ class ProspectsController extends AbstractController
         $tcampcount = count($trackcamprepo->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
 
         // Get Notes
-        $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
+        $pnotestasks = $pnotesrepo->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
+        $pnotesissues = $pnotesrepo->findBy(['prospectid' => $prospect->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
 
         $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit = 5);
 
@@ -91,7 +95,8 @@ class ProspectsController extends AbstractController
             [
                 'site' => $site,
                 'prospect' => $prospect,
-                'pnotes' => $pnotes,
+                'pnotestasks' => $pnotestasks,
+                'pnotesissues' => $pnotesissues,
                 'bcount' => $bcount,
                 'tcampcount' => $tcampcount,
                 'tcampaigns' => $tcampaigns,

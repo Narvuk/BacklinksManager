@@ -52,8 +52,22 @@
               </div>
               <div class="row">
                 <div class="col-12">
-                    somthing here
+                  <div class="card card-dark">
+                    <div class="card-header">
+                      <h3 class="card-title">Extra Features Coming Soon</h3>
+                    </div>
+                  <div class="card-body">
+                      <p>
+                        We are working out extra feature that will fill this space,
+                        We are working hard to get as much features in as possible
+                      </p>
+                      <p>
+                        Overtime this space will be filled with extra information as we build the system,
+                        In the meantime if you have any ideas or suggestions please feel free to let us know and we will aim to implement them here
+                      </p>
+                  </div>
                 </div>
+              </div>
               </div>
             </div>
             <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2">
@@ -84,15 +98,32 @@
 
       <div class="row">
     <div class="col-md-6">
-            <div class="card">
+            <div class="card card-danger">
               <div class="card-header">
                 <h3 class="card-title">
-                 Somthing here
+                 <h3 class="card-title">Unread Issues Notes</h3>
+                            <div class="card-tools">
+                                <a href="{{ path('sitepage_notes', {'id': spage.id}) }}" class="btn btn-tool btn-danger">View Notes</a>
+                            </div>
                 </h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                body
+               {% if not spnotesissues %}
+                  Nice Work - No New Notes
+                {% endif %}
+                {% for note in spnotesissues %}
+                <div class="post">
+                    <strong>{{ note.title }}</strong>
+                    <p>
+                      {{ note.description }}
+                    </p>
+                    <p>
+                      <button class="btn btn-sm btn-info">Mark Read</button>
+                      <button class="btn btn-sm btn-success">View</button>
+                    </p>
+                </div>
+                {% endfor %}
               </div>
               <!-- /.card-body -->
             </div>
@@ -102,17 +133,17 @@
           <div class="col-md-6">
             <div class="card card-info">
               <div class="card-header">
-                            <h3 class="card-title">Site Page - Unread Notes</h3>
+                            <h3 class="card-title">Unread Task Notes</h3>
                             <div class="card-tools">
                                 <a href="{{ path('sitepage_notes', {'id': spage.id}) }}" class="btn btn-tool btn-info">View Notes</a>
                             </div>
                         </div>
               <!-- /.card-header -->
               <div class="card-body">
-                {% if not spnotes %}
+                {% if not spnotestasks %}
                   Nice Work - No New Notes
                 {% endif %}
-                {% for note in spnotes %}
+                {% for note in spnotestasks %}
                 <div class="post">
                     <strong>{{ note.title }}</strong>
                     <p>

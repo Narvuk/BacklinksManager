@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ToolsController extends AbstractController
 {
-    private $version = '0.0.2';
+    private $version = '0.5.2';
 
     /**
      * @Route("/system/tools", name="system_tools")

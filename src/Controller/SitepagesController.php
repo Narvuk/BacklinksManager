@@ -36,17 +36,21 @@ class SitepagesController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        $spnotesrepo = $this->getDoctrine()->getRepository(SitepagesNotes::class);
+
         $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($spage->getSiteId());
 
         // Get Notes
-        $spnotes = $this->getDoctrine()->getRepository(SitepagesNotes::class)->findBy(['spageid' => $spage->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
+        $spnotestasks = $spnotesrepo->findBy(['spageid' => $spage->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
+        $spnotesissues = $spnotesrepo->findBy(['spageid' => $spage->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
 
         return $this->render('sitepages/view.html.twig',
             [
                 'site' => $site,
                 'spage' => $spage,
-                'spnotes' => $spnotes,
+                'spnotestasks' => $spnotestasks,
+                'spnotesissues' => $spnotesissues,
             ]
         );
     }

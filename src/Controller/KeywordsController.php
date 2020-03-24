@@ -35,17 +35,22 @@ class KeywordsController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $knotesrepo = $this->getDoctrine()->getRepository(KeywordsNotes::class);
+
         $keyword = $this->getDoctrine()->getRepository(Keywords::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($keyword->getSiteId());
 
         // Get Notes
-        $knotes = $this->getDoctrine()->getRepository(KeywordsNotes::class)->findBy(['keywordid' => $keyword->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
+        $knotestasks = $knotesrepo->findBy(['keywordid' => $keyword->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
+        $knotesissues = $knotesrepo->findBy(['keywordid' => $keyword->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
 
         return $this->render('keywords/view.html.twig',
             [
                 'site' => $site,
                 'keyword' => $keyword,
-                'knotes' => $knotes,
+                'knotestasks' => $knotestasks,
+                'knotesissues' => $knotesissues,
             ]
         );
     }

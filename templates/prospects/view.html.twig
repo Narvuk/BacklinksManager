@@ -123,15 +123,32 @@
 
       <div class="row">
     <div class="col-md-6">
-            <div class="card">
+            <div class="card card-danger">
               <div class="card-header">
                 <h3 class="card-title">
-                 Somthing here
+                 Prospect - Unread Issue Notes
                 </h3>
+                <div class="card-tools">
+                                <a href="{{ path('prospect_notes', {'id': prospect.id}) }}" class="btn btn-tool btn-danger">View Notes</a>
+                            </div>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                body
+                {% if not pnotesissues %}
+                  Nice Work - No New Issues
+                {% endif %}
+                {% for note in pnotesissues %}
+                <div class="post">
+                    <strong>{{ note.title }}</strong>
+                    <p>
+                      {{ note.description }}
+                    </p>
+                    <p>
+                      <button class="btn btn-sm btn-info">Mark Read</button>
+                      <button class="btn btn-sm btn-success">View</button>
+                    </p>
+                </div>
+                {% endfor %}
               </div>
               <!-- /.card-body -->
             </div>
@@ -141,17 +158,17 @@
           <div class="col-md-6">
             <div class="card card-info">
               <div class="card-header">
-                            <h3 class="card-title">Prospect - Unread Notes</h3>
+                            <h3 class="card-title">Prospect - Unread Task Notes</h3>
                             <div class="card-tools">
                                 <a href="{{ path('prospect_notes', {'id': prospect.id}) }}" class="btn btn-tool btn-info">View Notes</a>
                             </div>
                         </div>
               <!-- /.card-header -->
               <div class="card-body">
-                {% if not pnotes %}
-                  Nice Work - No New Notes
+                {% if not pnotestasks %}
+                  Nice Work - No New Tasks
                 {% endif %}
-                {% for note in pnotes %}
+                {% for note in pnotestasks %}
                 <div class="post">
                     <strong>{{ note.title }}</strong>
                     <p>

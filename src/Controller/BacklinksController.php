@@ -46,6 +46,9 @@ class BacklinksController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $blnotesrepo = $this->getDoctrine()->getRepository(BacklinksNotes::class);
+
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
 
@@ -74,7 +77,8 @@ class BacklinksController extends AbstractController
         }
 
         // Get Notes
-        $blnotes = $this->getDoctrine()->getRepository(BacklinksNotes::class)->findBy(['backlinkid' => $backlink->getId(), 'status' => 'Unread'], ['id' => 'DESC']);
+        $blnotestasks = $blnotesrepo->findBy(['backlinkid' => $backlink->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
+        $blnotesissues = $blnotesrepo->findBy(['backlinkid' => $backlink->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
 
         return $this->render('backlinks/view.html.twig',
             [
@@ -86,7 +90,8 @@ class BacklinksController extends AbstractController
                 'spage' => $spage,
                 'keywords' => $keywords,
                 'kword' => $kword,
-                'blnotes' => $blnotes,
+                'blnotestasks' => $blnotestasks,
+                'blnotesissues' => $blnotesissues,
             ]
         );
     }
