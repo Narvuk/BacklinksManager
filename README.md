@@ -1,5 +1,5 @@
 # BacklinksManager
-![Backlinks Manager](https://stormdevelopers.com/uploads/monthly_2020_03/Backlinks-Manager.png.a3a38713cae52bb2e757f83350cf5c09.png)
+![Backlinks Manager](https://stormdevelopers.com/uploads/monthly_2020_03/BM-Dashboard.png.f63063fc31e972bfd6c5f346a5e6a550.png)
 
 # Description
 
