@@ -23,7 +23,7 @@ use App\Form\Sites\EditSiteType;
 
 class CoreController extends AbstractController
 {
-    private $version = '0.5.2';
+    private $version = '0.5.3';
 
      /**
      * @Route("/", name="core")

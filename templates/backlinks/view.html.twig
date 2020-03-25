@@ -6,9 +6,9 @@
     Backlink Information
 {% endblock %}
 {% block tcright %}
+    <button id="checkactive" class="btn btn-success"><div id="bspin"><i class="fa fa-sync"></i></div></button>
     <button type="button" class="btn btn-info" data-toggle="dropdown">Status</button>
     <div class="dropdown-menu">
-      <a class="dropdown-item" href="{{ backlink.backlink }}" target="_blank">Check Active</a>
       <div id="lostbutton">
         <button class="dropdown-item" id="updatestatus-lost">Lost Backlink</button>
       </div>
@@ -35,7 +35,7 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center text-muted">Last Checked</span>
-                      <span class="info-box-number text-center text-muted mb-0">{% if backlink.lastchecked %}{{backlink.lastchecked|date('d-m-Y / H:i')}}{% else %} Not Checked Yet{% endif %}</span>
+                      <span class="info-box-number text-center text-muted mb-0"><div id="blastchecked">{% if backlink.lastchecked %}{{backlink.lastchecked|date('d-m-Y / H:i')}}{% else %} Not Checked Yet{% endif %}</div></span>
                     </div>
                   </div>
                 </div>
@@ -47,6 +47,28 @@
                     </span></span></div>
                   </div>
                 </div>
+              </div>
+              <div class="row">
+                <div class="col-12">
+                  <div class="card card-dark">
+                    <div class="card-header">
+                      <h3 class="card-title">Tracking Url</h3>
+                      <div class="card-tools">
+                        <button class="btn btn-sm btn-primary" data-toggle="modal" data-target="#trackinglinkhelp-lg"><i class="fa fa-question"></i></button>
+                      </div>
+                    </div>
+                  <div class="card-body">
+                      <p id="tlassign">
+                      {% if backlink.turlid != null %}{{turl.tlink}}{% endif %}
+                      {% if backlink.turlid == null %}
+                      <div id="tlassignbutton">
+                      <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#assigntracklinkmodal-lg">Assign Tracking Url</button>
+                      </div>
+                      {% endif %}
+                      </p>
+                  </div>
+                </div>
+              </div>
               </div>
               <div class="row">
                 <div class="col-12">
@@ -293,10 +315,104 @@
         <!-- /.modal-dialog -->
       </div>
       <!-- /.modal -->
+      <div class="modal fade" id="assigntracklinkmodal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Assign Tracking Url</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body table-responsive p-0" style="height: 300px;">
+                <table class="table table-head table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                    <th>Tracking Title</th>
+                      <th>Tracking Url</th>
+
+                      <th>Assign</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for tl in tracklinks %}
+                    <tr>
+                      <td>{{tl.title}}</td>
+                      <td>{{tl.tlink}}</td>
+                      <td><button id="assigntracklink-{{tl.id}}" data-dismiss="modal" class="btn btn-sm btn-info">Assign</button></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
+
+      <div class="modal fade" id="trackinglinkhelp-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Help - Tracking Link</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <b>Manual Add</b><br />
+                Here you can assign a tracking link if you are manually adding a backlink, make sure you have fully setup the tracking link to form the correct tracking url.
+                <br /><br />
+                <b>Auto Add</b><br />
+                When a link gets clicked from a backlinked website it will auto be added into the system and automatically assigned to the tracking link used.
+                
+              </div>
+            </div>
+
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
 {% endblock %}
 {% block pageJS %}
    <script language = "javascript">  
-      $(document).ready(function(){   
+      $(document).ready(function(){
+        $("#checkactive").on("click", function(event){ 
+            $('#bspin').html('');  
+            $('#bspin').append('<i class="fas fa-sync fa-pulse"></i>'); 
+            $('#bstatus').html('');  
+            $('#bstatus').append('<i class="fas fa-spinner fa-pulse"></i> Checking Backlink....');
+            $('#blastchecked').html('');  
+            $('#blastchecked').append('<i class="fas fa-spinner fa-pulse"></i> Checking Backlink...');  
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/activechecker',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) { 
+                  $('#bspin').html('');  
+                  $('#bspin').append('<i class="fas fa-sync"></i>'); 
+                  $('#blastchecked').html('');  
+                  $('#blastchecked').append(data['lastchecked']);  
+                  $('#bstatus').html('');  
+                  $('#bstatus').append(data['isactive']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });    
          $("#updatestatus-lost").on("click", function(event){ 
             $('#bstatus').html('');  
             $('#bstatus').append('<i class="fas fa-spinner fa-pulse"></i>'); 
@@ -405,7 +521,30 @@
                
             });  
          }); 
-         {% endfor %}   
+         {% endfor %}  
+         {% for tl in tracklinks %}
+         $("#assigntracklink-{{tl.id}}").on("click", function(event){
+            $('#tlassignbutton').html(''); 
+            $('#tlassign').html('');  
+            $('#tlassign').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{backlink.id}}/assigntrackurl/{{tl.id}}',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#tlassign').html('');  
+                  $('#tlassign').append(data['tracklink']);
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         {% endfor %}    
       });  
    </script>
 {% endblock %}

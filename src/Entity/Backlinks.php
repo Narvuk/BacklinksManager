@@ -41,6 +41,11 @@ class Backlinks
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $turlid;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $status;
 
     /**
@@ -96,6 +101,11 @@ class Backlinks
         return $this->keywordid;
     }
 
+    public function getTurlId()
+    {
+        return $this->turlid;
+    }
+
     public function getStatus()
     {
         return $this->status;
@@ -146,6 +156,11 @@ class Backlinks
     public function setKeywordId($keywordid)
     {
         $this->keywordid = $keywordid;
+    }
+
+    public function setTurlId($turlid)
+    {
+        $this->turlid = $turlid;
     }
 
     public function setStatus($status)

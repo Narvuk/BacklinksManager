@@ -11,11 +11,14 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
+use App\Entity\Linktracking\TrackingUrls;
+use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Notes\BacklinksNotes;
 
 use App\Form\Backlinks\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\DomCrawler\Crawler;
 
 
 class BacklinksController extends AbstractController
@@ -48,9 +51,11 @@ class BacklinksController extends AbstractController
 
         // Repos
         $blnotesrepo = $this->getDoctrine()->getRepository(BacklinksNotes::class);
+        $turlrepo = $this->getDoctrine()->getRepository(TrackingUrls::class);
 
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+       // $turl = $turlrepo->find($backlink->getTurlId());
 
         // Show all & Get Assigned Prospect for Backlink
         $prospects = $this->getDoctrine()->getRepository(Prospects::class)->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
@@ -76,6 +81,14 @@ class BacklinksController extends AbstractController
             $kword = "";
         }
 
+        // Show all & Get Assigned Tracking Url for Backlink
+        $tracklinks = $turlrepo->findBy(['siteid' => $backlink->getSiteId()], ['id' => 'DESC']);
+        if ($backlink->getTurlId() != Null){
+            $turl = $turlrepo->find($backlink->getTurlId());
+        } else {
+            $turl = "";
+        }
+
         // Get Notes
         $blnotestasks = $blnotesrepo->findBy(['backlinkid' => $backlink->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
         $blnotesissues = $blnotesrepo->findBy(['backlinkid' => $backlink->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
@@ -90,6 +103,8 @@ class BacklinksController extends AbstractController
                 'spage' => $spage,
                 'keywords' => $keywords,
                 'kword' => $kword,
+                'tracklinks' => $tracklinks,
+                'turl' => $turl,
                 'blnotestasks' => $blnotestasks,
                 'blnotesissues' => $blnotesissues,
             ]
@@ -293,6 +308,114 @@ class BacklinksController extends AbstractController
             $jsonData = $temp;  
          
         return new JsonResponse($jsonData);
+        
+        }
+
+    }
+
+    /**
+     * @Route("/backlink/{id}/assigntrackurl/{turlid}", name="backlink_assigntrackurl")
+     */
+    public function TrackUrlAssignPage($id, $turlid, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+
+        $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+        $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+        $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($turlid);
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $backlink->setTurlId($turlid);
+
+        $backlink->setUpdated(new \DateTime());
+        $entityManager->persist($backlink);
+        $entityManager->flush();
+
+        $tracklink = $turl->getTlink();
+        
+            $temp = array(
+               'tracklink' => $tracklink, 
+            );   
+            $jsonData = $temp;  
+         
+        return new JsonResponse($jsonData);
+        
+        }
+
+    }
+
+    /**
+     * @Route("/backlink/{id}/activechecker", name="backlink_checker")
+     */
+    public function BacklinkChecker($id, Request $request)
+    {
+
+        if ($request->isXmlHttpRequest()) { 
+
+            $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
+            $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
+            $trackurl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($backlink->getTurlId());
+
+            $geturl = $backlink->getBacklink();
+            $getpage = $trackurl->getTlink();
+
+            // fetch url
+            $ch = curl_init($geturl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+
+            $content = curl_exec($ch);
+            curl_close($ch);
+
+            //new dom
+            $crawler = new Crawler($content);
+
+            //search target for link
+            //$cfilter = $crawler->filterXPath('//a');
+            $attributes = $crawler
+            ->filterXpath('//a')
+            ->extract(['href'])
+            ;
+            
+            if (in_array($getpage, $attributes))
+            {
+                $entityManager = $this->getDoctrine()->getManager();
+
+                $backlink->setStatus('Active');
+                $backlink->setLastChecked(new \DateTime('Now'));
+
+                $entityManager->persist($backlink);
+                $entityManager->flush();
+
+                $isactive = 'Active';
+
+            } else {
+
+                $entityManager = $this->getDoctrine()->getManager();
+
+                $backlink->setStatus('Lost');
+                $backlink->setLastChecked(new \DateTime('Now'));
+
+                $entityManager->persist($backlink);
+                $entityManager->flush();
+
+                $isactive = 'Lost';
+            }
+
+            $getlastchecked = $backlink->getLastChecked();
+            $formatlc = $getlastchecked->format('d-m-Y / H:i');
+        
+            $temp = array(
+                'lastchecked' => $formatlc,
+               'isactive' => $isactive, 
+            );   
+            $jsonData = $temp;  
+         
+            return new JsonResponse($jsonData);
         
         }
 

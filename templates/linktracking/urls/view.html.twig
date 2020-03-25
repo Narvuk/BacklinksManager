@@ -67,7 +67,7 @@
               <div class="card-body">
                 <div class="well">
                   <div id="generatelink-t">
-                    {% if turl.prospectid and turl.spageid and turl.keywordid %}  {{ app.request.getSchemeAndHttpHost() }}/t={{turl.id}}{{turl.prospectid}}{{turl.spageid}}{{turl.keywordid}} {% else %} {{assignitems}} {% endif %}
+                    {% if turl.prospectid and turl.spageid and turl.keywordid %}  {{turl.tlink}} {% else %} {{assignitems}} {% endif %}
                   </div>
                 </div>
               </div>
@@ -87,7 +87,7 @@
               <div class="card-body">
                 <div class="well">
                   <div id="generatelink-d">
-                    {% if turl.prospectid and turl.spageid and turl.keywordid %}  {{ app.request.getSchemeAndHttpHost() }}/d={{turl.id}}{{turl.prospectid}}{{turl.spageid}}{{turl.keywordid}} {% else %} {{assignitems}} {% endif %}
+                    {% if turl.prospectid and turl.spageid and turl.keywordid %}  {{turl.dlink}} {% else %} {{assignitems}} {% endif %}
                   </div>
                 </div>
               </div>

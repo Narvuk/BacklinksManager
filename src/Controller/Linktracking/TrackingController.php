@@ -59,6 +59,7 @@ class TrackingController extends AbstractController
                 $addbacklink->setBacklink($referer);
                 $addbacklink->setKeywordId($keywordid);
                 $addbacklink->setSpageId($spageid);
+                $addbacklink->setTurlId($turlid);
                 $addbacklink->setDomain($formatdomain);
                 $addbacklink->setStatus('Active');
                 $addbacklink->setCreated(new \DateTime('Now'));

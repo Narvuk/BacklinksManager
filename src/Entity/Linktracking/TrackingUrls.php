@@ -56,6 +56,16 @@ class TrackingUrls
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
+    private $tlink;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $dlink;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
     private $urldestination;
 
     /**
@@ -121,6 +131,16 @@ class TrackingUrls
         return $this->title;
     }
 
+    public function getTlink()
+    {
+        return $this->tlink;
+    }
+
+    public function getDlink()
+    {
+        return $this->dlink;
+    }
+
     public function getUrlDestination()
     {
         return $this->urldestination;
@@ -181,6 +201,16 @@ class TrackingUrls
     public function setTitle($title)
     {
         $this->title = $title;
+    }
+
+    public function setTlink($tlink)
+    {
+        $this->tlink = $tlink;
+    }
+
+    public function setDlink($dlink)
+    {
+        $this->dlink = $dlink;
     }
 
     public function setUrlDestination($urldestination)

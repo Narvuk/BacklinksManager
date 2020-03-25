@@ -239,12 +239,23 @@ class TrackingUrlsController extends AbstractController
             $tl = '/t=';
             $dl = '/d=';
             $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($id);
+
+            $fturl = $rootdomain . $tl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId();
+            $fdurl = $rootdomain . $dl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId();
+
+            $entityManager = $this->getDoctrine()->getManager();
+
+            $turl->setTlink($fturl);
+            $turl->setDlink($fdurl);
+            $turl->setUpdated(new \DateTime());
+            $entityManager->persist($turl);
+            $entityManager->flush();
             
             if ($turl->getKeywordId() && $turl->getProspectId() && $turl->getSpageId()){
             
                 $temp = array(
-                    'turl' =>  $rootdomain . $tl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId(),
-                    'durl' =>  $rootdomain . $dl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId(),
+                    'turl' =>  $fturl,
+                    'durl' =>  $fdurl,
                 );   
                 $jsonData = $temp;  
             } else {
