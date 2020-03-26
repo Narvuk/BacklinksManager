@@ -236,12 +236,14 @@ class TrackingUrlsController extends AbstractController
         if ($request->isXmlHttpRequest()) { 
 
             $rootdomain = $request->getSchemeAndHttpHost();
-            $tl = '/t=';
-            $dl = '/d=';
+            $tl = '/turl/';
+            $dl = '/durl/';
             $turl = $this->getDoctrine()->getRepository(TrackingUrls::class)->find($id);
+            $keyword = $this->getDoctrine()->getRepository(Keywords::class)->find($turl->getKeywordId());
+            $ktitle = str_replace(' ', '-', $keyword->getKeyword());
 
-            $fturl = $rootdomain . $tl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId();
-            $fdurl = $rootdomain . $dl . $turl->getId() . $turl->getProspectId() . $turl->getSpageId() . $turl->getKeywordId();
+            $fturl = $rootdomain . $tl . $turl->getId() . '-' . $ktitle;
+            $fdurl = $rootdomain . $dl . $turl->getId() . '-' . $ktitle;
 
             $entityManager = $this->getDoctrine()->getManager();
 

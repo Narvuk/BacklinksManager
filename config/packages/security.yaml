@@ -51,8 +51,8 @@ security:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/troubleshoot, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/setup, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/t=, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/d=, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/turl, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/durl, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: ROLE_USER }
         # - { path: ^/.*, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/profile, roles: ROLE_USER }
