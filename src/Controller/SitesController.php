@@ -301,8 +301,7 @@ class SitesController extends AbstractController
             $entityManager->persist($addbacklink);
             $entityManager->flush();
 
-            // ... do any other work - like sending them an email, etc
-            // maybe set a "flash" success message for the user
+            $this->addFlash('success', 'Backlink Successfully Added');
 
             return $this->redirectToRoute('site_backlinks', ['id' => $id]);
         }
@@ -355,8 +354,7 @@ class SitesController extends AbstractController
             $entityManager->persist($addkeyword);
             $entityManager->flush();
 
-            // ... do any other work - like sending them an email, etc
-            // maybe set a "flash" success message for the user
+            $this->addFlash('success', 'Keyword Successfully Added');
 
             return $this->redirectToRoute('site_keywords', ['id' => $id]);
         }

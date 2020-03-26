@@ -68,8 +68,7 @@ class CoreController extends AbstractController
             $entityManager->persist($addsite);
             $entityManager->flush();
 
-            // ... do any other work - like sending them an email, etc
-            // maybe set a "flash" success message for the user
+            $this->addFlash('success', 'New Site Project Created');
 
             return $this->redirectToRoute('core');
         }
@@ -165,8 +164,7 @@ class CoreController extends AbstractController
             $entityManager->persist($site);
             $entityManager->flush();
 
-            // ... do any other work - like sending them an email, etc
-            // maybe set a "flash" success message for the user
+            $this->addFlash('success', 'Site Project Saved');
 
             return $this->redirectToRoute('site_dashboard', ['id' => $id]);
         }

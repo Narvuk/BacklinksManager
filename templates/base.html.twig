@@ -11,6 +11,10 @@
             <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
             <!-- Ionicons -->
             <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+              <!-- SweetAlert2 -->
+            <link rel="stylesheet" href="{{ asset('plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+            <!-- Toastr -->
+            <link rel="stylesheet" href="{{ asset('plugins/toastr/toastr.min.css') }}">
             <!-- Tempusdominus Bbootstrap 4 -->
             <link rel="stylesheet" href="{{ asset('plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
             <!-- iCheck -->
@@ -122,6 +126,10 @@
             </script>
             <!-- Bootstrap 4 -->
             <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+            <!-- SweetAlert2 -->
+            <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+            <!-- Toastr -->
+            <script src="{{ asset('plugins/toastr/toastr.min.js') }}"></script>
             <!-- ChartJS -->
             <script src="{{ asset('plugins/chart.js/Chart.min.js') }}"></script>
             <!-- Sparkline -->
@@ -147,10 +155,23 @@
     {% endblock %}
     {% block ModalArea %}
     {% endblock %}
-    {% for message in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ message }}
-            </div>
+    <script>
+     $(document).ready(function() { 
+         const Toast = Swal.mixin({
+            toast: true,
+            position: 'top',
+            showConfirmButton: false,
+            timer: 3000,
+          });
+      {% for label, messages in app.flashes %}
+        {% for message in messages %}
+         Toast.fire({  
+         type: '{{ label }}',
+         title: '{{ message }}'
+      })
         {% endfor %}
+        {% endfor %}    
+        }); 
+    </script>
     </body>
 </html>

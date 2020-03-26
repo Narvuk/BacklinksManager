@@ -58,7 +58,7 @@ class SettingsController extends AbstractController
             $entityManager->persist($settings);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Successfully Saved Settings');
+            $this->addFlash('success', 'Settings Saved');
 
             return $this->redirectToRoute('system_settings_main');
         }
@@ -94,7 +94,7 @@ class SettingsController extends AbstractController
             $entityManager->persist($settings);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Successfully Saved Data Settings');
+            $this->addFlash('success', 'Settings Saved');
 
             return $this->redirectToRoute('system_settings_data');
         }
