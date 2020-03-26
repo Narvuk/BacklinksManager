@@ -26,15 +26,15 @@
                   {% for a in backlinks %}
                     <tr>
                       <td>{{ a.backlink }}</td>
-                      <td>{% if a.lastchecked %}{{ a.lastchecked|date('Y-m-d') }}{% else %} Not Checked {% endif %}</td>
+                      <td><div id="blastchecked-{{a.id}}">{% if a.lastchecked %}{{ a.lastchecked|date('d-m-Y / H:i') }}{% else %} Not Checked {% endif %}</div></td>
                       <td><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
                       <td>
                         <a href="{{ path('backlink_view', {'id': a.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <button class="btn btn-warning btn-sm" id="checkisactive-{{a.id}}"><div id="bspin-{{a.id}}"><i class="fas fa-sync"></i></div></button>
                     <button type="button" class="btn btn-sm btn-info" data-toggle="dropdown">
                       <i class="fas fa-link"></i>
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="{{ a.backlink }}" target="_blank">Check Active</a>
                       <div id="lostbutton">
                        <button class="dropdown-item" id="updatestatus-lost-{{a.id}}">Lost Backlink</button>
                        </div>
@@ -54,6 +54,42 @@
           </div>
 
         </div>
+{% endblock %}
+{% block ModalArea %}
+<div class="modal fade" id="modal-lg">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Add Backlink</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            {{ form_start(form) }}
+            <div class="modal-body">
+                <div class="row clearfix">
+                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                        <label>Backlink Url</label>
+                    </div>
+                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                        <div class="form-group">
+                            {{ form_widget(form.Backlink, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                    </div>
+                </div>
+       
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" id="form-submit" class="btn btn-primary">Add Site</button>
+            </div>
+             {{ form_end(form) }}
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
 {% endblock %}
 {% block pageJS %}
 {% for a in backlinks %}
@@ -98,44 +134,36 @@
                }  
                
             });  
-         });   
+         });
+         $("#checkisactive-{{a.id}}").on("click", function(event){ 
+            $('#bspin-{{a.id}}').html('');  
+            $('#bspin-{{a.id}}').append('<i class="fas fa-sync fa-pulse"></i>'); 
+            $('#bstatus-{{a.id}}').html('');  
+            $('#bstatus-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>');
+            $('#blastchecked-{{a.id}}').html('');  
+            $('#blastchecked-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{a.id}}/activechecker',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bspin-{{a.id}}').html('');  
+                  $('#bspin-{{a.id}}').append('<i class="fas fa-sync"></i>');
+                  $('#blastchecked-{{a.id}}').html('');  
+                  $('#blastchecked-{{a.id}}').append(data['lastchecked']);   
+                  $('#bstatus-{{a.id}}').html('');  
+                  $('#bstatus-{{a.id}}').append(data['isactive']); 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Tracking url has not been assigned, unable to finish scan');  
+               }  
+               
+            });  
+         });         
       });  
    </script>
    {% endfor %} 
-{% endblock %}
-{% block ModalArea %}
-<div class="modal fade" id="modal-lg">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Add Backlink</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            {{ form_start(form) }}
-            <div class="modal-body">
-                <div class="row clearfix">
-                    <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
-                        <label>Backlink Url</label>
-                    </div>
-                    <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
-                        <div class="form-group">
-                            {{ form_widget(form.Backlink, {'attr': {'class': 'form-control'}}) }}
-                        </div>
-                    </div>
-                </div>
-       
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" id="form-submit" class="btn btn-primary">Add Site</button>
-            </div>
-             {{ form_end(form) }}
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
-      <!-- /.modal -->
 {% endblock %}

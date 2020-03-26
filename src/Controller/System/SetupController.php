@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use App\Entity\System\Users;
 use App\Entity\System\Settings;
+use App\Entity\System\DataSettings;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Role\Role;
 
@@ -193,7 +194,13 @@ class SetupController extends AbstractController
 
         $setting = new Settings();
         $setting->setSystemName('Backlinks Manager');
+
+        $datasetting = new DataSettings();
+        $datasetting->setMaxPageRows('20');
+
         $entityManager->persist($setting);
+        $entityManager->persist($datasetting);
+        
         $entityManager->flush();
 
         return $this->redirectToRoute('setup_step3');

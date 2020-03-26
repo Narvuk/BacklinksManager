@@ -1,6 +1,18 @@
 <!-- Add icons to the links using the .nav-icon class
      with font-awesome or any other icon font library -->
-<li class="nav-header">System Settings</li>
+<li class="nav-header">System Configurations</li>
+<li class="nav-item">
+    <a href="{{ path('system_settings_main') }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-blue"></i>
+        <p>System Settings</p>
+    </a>
+</li>
+<li class="nav-item">
+    <a href="{{ path('system_settings_data') }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-pink"></i>
+        <p>Data Settings</p>
+    </a>
+</li>
 <li class="nav-item">
     <a href="{{ path('system_users') }}" class="nav-link">
         <i class="nav-icon far fa-circle text-green"></i>

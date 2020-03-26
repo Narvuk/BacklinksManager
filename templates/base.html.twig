@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Storm - BackLinks Manager{% endblock %}</title>
+        <title>{% block title %}BackLinks Manager{% endblock %}</title>
         <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
         {% block stylesheets %}
             <!-- Tell the browser to be responsive to screen width -->
@@ -147,5 +147,10 @@
     {% endblock %}
     {% block ModalArea %}
     {% endblock %}
+    {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
     </body>
 </html>

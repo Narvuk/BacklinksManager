@@ -11,6 +11,7 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
+use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Form\Sites\AddBacklinkType;
@@ -242,9 +243,36 @@ class SitesController extends AbstractController
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
+        
+        //repo
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-        $backlinks = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
+        //$backlinks = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($backlinks->findBy(['siteid' => $id], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $backlinks = $backlinks->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // Get Site Pages
         
@@ -283,6 +311,10 @@ class SitesController extends AbstractController
             [
                 'site' => $site,
                 'backlinks' => $backlinks,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );

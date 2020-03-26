@@ -3,10 +3,11 @@
     {{ include('menus/settingsmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Settings Dashboard
+    System Dashboard
 {% endblock %}
 {% block tcright %}
- 
+ {{ form_start(form) }}
+    <button type="submit" id="form-submit" class="btn btn-success">Save</button>
 {% endblock %}
 {% block body %}
 <div class="row clearfix">
@@ -14,11 +15,20 @@
                     <div class="card card-blue">
                         <div class="card-header">
                             <div class="card-title">
-                                Backlinks Manager Settings
+                                Settings
                             </div>
                         </div>
                         <div class="card-body">
-                          
+                            <div class="row clearfix">
+                                <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5 form-control-label">
+                                    <label>System Name</label>
+                                </div>
+                                <div class="col-lg-10 col-md-10 col-sm-8 col-xs-7">
+                                    <div class="form-group">
+                                        {{ form_widget(form.SystemName, {'attr': {'class': 'form-control'}}) }}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -35,6 +45,7 @@
                     </div>
                 </div>
             </div>
+               {{ form_end(form) }}
 {% endblock %}
 {% block pageJS %}
     <!-- Additional Javascript or Jquery  -->
