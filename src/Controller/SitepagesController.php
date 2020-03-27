@@ -10,6 +10,7 @@ use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Keywords;
 use App\Entity\Sitepages;
+use App\Entity\System\DataSettings;
 use App\Entity\Notes\SitepagesNotes;
 use App\Form\Sitepages\AddNoteType;
 
@@ -82,9 +83,36 @@ class SitepagesController extends AbstractController
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
+
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $spnotes = $this->getDoctrine()->getRepository(SitepagesNotes::class);
+
         $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($spage->getSiteId());
-        $spnotes = $this->getDoctrine()->getRepository(SitepagesNotes::class)->findBy(['spageid' => $spage->getId()]);
+
+         // Paginition
+         $page = isset($_GET['page']) ? $_GET['page'] : "1";
+         $limit = $datasettings->getMaxPageRows();
+         $countmax = count($spnotes->findBy(['spageid' => $spage->getId()], ['id' => 'DESC']));
+         $getmaxpages = ceil($countmax / $limit);
+         if ($getmaxpages < 1){
+             $maxpages = 1;
+         } else {
+             $maxpages = $getmaxpages;
+         }
+         if (isset($_GET['page']) && $_GET['page']!="")
+             {
+                 $currentpage = $_GET['page'];
+             } else {
+                 $currentpage = 1;
+             }
+         $previouspage = $currentpage - 1;
+         $nextpage = $currentpage + 1;
+         if ($page){
+             $offset = ($page - 1) * $limit;
+             $spnotes = $spnotes->findBy(['spageid' => $spage->getId()], ['id' => 'DESC'], $limit, $offset);
+         } 
 
         // 1) build the form
         $addnote = new SitepagesNotes();
@@ -117,6 +145,10 @@ class SitepagesController extends AbstractController
                 'site' => $site,
                 'spage' => $spage,
                 'spnotes' => $spnotes,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );

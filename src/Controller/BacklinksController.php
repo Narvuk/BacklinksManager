@@ -11,6 +11,7 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
+use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Notes\BacklinksNotes;
@@ -138,9 +139,36 @@ class BacklinksController extends AbstractController
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
+
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $blnotes = $this->getDoctrine()->getRepository(BacklinksNotes::class);
+
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($backlink->getSiteId());
-        $blnotes = $this->getDoctrine()->getRepository(BacklinksNotes::class)->findBy(['backlinkid' => $backlink->getId()]);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($blnotes->findBy(['backlinkid' => $backlink->getId()], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $blnotes = $blnotes->findBy(['backlinkid' => $backlink->getId()], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addnote = new BacklinksNotes();
@@ -173,6 +201,10 @@ class BacklinksController extends AbstractController
                 'site' => $site,
                 'backlink' => $backlink,
                 'blnotes' => $blnotes,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );

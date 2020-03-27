@@ -9,6 +9,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
+use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Form\Linktracking\AddTrackingCampaignType;
@@ -108,9 +109,35 @@ class TrackingCampaignsController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $turls = $this->getDoctrine()->getRepository(TrackingUrls::class);
+
         $tcamp = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($tcamp->getSiteId());
-        $turls = $this->getDoctrine()->getRepository(TrackingUrls::class)->findBy(['tcampaignid' => $id], ['id' => 'DESC']);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($turls->findBy(['tcampaignid' => $id], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $turls = $turls->findBy(['tcampaignid' => $id], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addturl = new TrackingUrls();
@@ -144,6 +171,10 @@ class TrackingCampaignsController extends AbstractController
                 'site' => $site,
                 'tcamp' => $tcamp,
                 'turls' => $turls,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );

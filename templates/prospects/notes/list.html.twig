@@ -3,7 +3,7 @@
     {{ include('menus/sitesmenu.html.twig') }}
 {% endblock %}
 {% block bodytitle %}
-    Backlink Notes
+    Prospect Notes
 {% endblock %}
 {% block tcright %}
     <button class="btn btn-info" data-toggle="modal" data-target="#modal-lg">Add Note</button>
@@ -38,6 +38,19 @@
               </div>
               <!-- /.card-body -->
             </div>
+            <div class="row">
+                  <div class="col-sm-12">
+                     <div class="dataTables_paginate float-right">
+                        <ul class="pagination">
+                           <li class="paginate_button page-item previous {% if currentpage < '2' %}disabled{% endif %}"><a href="?page=1" class="page-link">First</a></li>
+                           <li class="paginate_button page-item previous {% if currentpage < '2' %}disabled{% endif %}"><a href="?page={{previouspage}}" class="page-link"><i class="fa fa-angle-double-left"></i></a></li>
+                           <li class="paginate_button page-item disabled"><a href="" class="page-link">{{currentpage}} of {{maxpages}}</a></li>
+                           <li class="paginate_button page-item next {% if currentpage == maxpages %}disabled{% endif %}"><a href="?page={{nextpage}}" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
+                           <li class="paginate_button page-item next {% if currentpage == maxpages %}disabled{% endif %}"><a href="?page={{maxpages}}" class="page-link">Last</a></li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
             <!-- /.card -->
           </div>
 

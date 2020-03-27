@@ -10,6 +10,7 @@ use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
 use App\Entity\Sitepages;
+use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
@@ -153,9 +154,36 @@ class ProspectsController extends AbstractController
      */
     public function ProspectTrackingCampaigns($id, Request $request)
     {
+
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
+
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
-        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($tcampaigns->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $tcampaigns = $tcampaigns->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addtcampaign = new TrackingCampaigns();
@@ -189,6 +217,10 @@ class ProspectsController extends AbstractController
                 'site' => $site,
                 'prospect' => $prospect,
                 'tcampaigns' => $tcampaigns,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );
@@ -204,9 +236,35 @@ class ProspectsController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
+
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
-        $backlinks = $this->getDoctrine()->getRepository(Backlinks::class)->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($backlinks->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $backlinks = $backlinks->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addbacklink = new Backlinks();
@@ -243,6 +301,10 @@ class ProspectsController extends AbstractController
                 'site' => $site,
                 'prospect' => $prospect,
                 'backlinks' => $backlinks,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );
@@ -256,9 +318,36 @@ class ProspectsController extends AbstractController
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
+
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class);
+
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($prospect->getSiteId());
-        $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class)->findBy(['prospectid' => $prospect->getId()]);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($pnotes->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $pnotes = $pnotes->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addnote = new ProspectsNotes();
@@ -291,6 +380,10 @@ class ProspectsController extends AbstractController
                 'site' => $site,
                 'prospect' => $prospect,
                 'pnotes' => $pnotes,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );

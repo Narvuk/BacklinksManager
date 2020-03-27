@@ -193,8 +193,34 @@ class SitesController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        //Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $prospects = $this->getDoctrine()->getRepository(Prospects::class);
+
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-        $prospects = $this->getDoctrine()->getRepository(Prospects::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($prospects->findBy(['siteid' => $id], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $prospects = $prospects->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addprospect = new Prospects();
@@ -229,6 +255,10 @@ class SitesController extends AbstractController
             [
                 'site' => $site,
                 'prospects' => $prospects,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );
@@ -328,12 +358,40 @@ class SitesController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $sitekeywords = $this->getDoctrine()->getRepository(Keywords::class);
+
+
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-        $sitekeywords = $this->getDoctrine()->getRepository(Keywords::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
 
         // 1) build the form
         $addkeyword = new Keywords();
         $form = $this->createForm(AddKeywordType::class, $addkeyword);
+
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($sitekeywords->findBy(['siteid' => $id], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $sitekeywords = $sitekeywords->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 2) handle the submit (will only happen on POST)
         $form->handleRequest($request);
@@ -363,6 +421,10 @@ class SitesController extends AbstractController
             [
                 'site' => $site,
                 'sitekeywords' => $sitekeywords,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );
@@ -378,8 +440,35 @@ class SitesController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $sitepages = $this->getDoctrine()->getRepository(SitePages::class);
+
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-        $sitepages = $this->getDoctrine()->getRepository(SitePages::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
+
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($sitepages->findBy(['siteid' => $id], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $sitepages = $sitepages->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+        } 
 
         // 1) build the form
         $addpage = new SitePages();
@@ -414,6 +503,10 @@ class SitesController extends AbstractController
             [
                 'site' => $site,
                 'sitepages' => $sitepages,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
                 'form' => $form->createView(),
             ]
         );
@@ -428,13 +521,44 @@ class SitesController extends AbstractController
             return $this->redirectToRoute('core');
         }
 
+        // Repos
+        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
+        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
+
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
-        $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->findBy(['siteid' => $id], ['id' => 'DESC']);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = $datasettings->getMaxPageRows();
+        $countmax = count($tcampaigns->findBy(['siteid' => $id], ['id' => 'DESC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+            {
+                $currentpage = $_GET['page'];
+            } else {
+                $currentpage = 1;
+            }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $tcampaigns = $tcampaigns->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+        } 
+
 
         return $this->render('sites/linktracking.html.twig',
             [
                 'site' => $site,
                 'tcampaigns' => $tcampaigns,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
             ]
         );
     }
