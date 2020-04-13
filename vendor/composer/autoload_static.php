@@ -125,7 +125,6 @@ class ComposerStaticInit2810bd1ac7a68f121359017c75154794
         'E' => 
         array (
             'Egulias\\EmailValidator\\' => 23,
-            'EasyCorp\\EasyLog\\' => 17,
         ),
         'D' => 
         array (
@@ -480,10 +479,6 @@ class ComposerStaticInit2810bd1ac7a68f121359017c75154794
         'Egulias\\EmailValidator\\' => 
         array (
             0 => __DIR__ . '/..' . '/egulias/email-validator/EmailValidator',
-        ),
-        'EasyCorp\\EasyLog\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/easycorp/easy-log-handler/src',
         ),
         'Doctrine\\Persistence\\' => 
         array (

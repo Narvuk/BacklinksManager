@@ -42,15 +42,6 @@
                 <tag name="maker.command" />
             </service>
 
-<!--            Temporary disable make forgotten password pending refactor. Allow's for other MakerBundle releases. -->
-<!--            See https://github.com/symfony/maker-bundle/issues/537 -->
-<!--            <service id="maker.maker.make_forgotten_password" class="Symfony\Bundle\MakerBundle\Maker\MakeForgottenPassword">-->
-<!--                <argument type="service" id="maker.file_manager" />-->
-<!--                <argument type="service" id="maker.renderer.form_type_renderer" />-->
-<!--                <argument type="service" id="router" />-->
-<!--                <tag name="maker.command" />-->
-<!--            </service>-->
-
             <service id="maker.maker.make_form" class="Symfony\Bundle\MakerBundle\Maker\MakeForm">
                 <argument type="service" id="maker.doctrine_helper" />
                 <argument type="service" id="maker.renderer.form_type_renderer" />
@@ -61,10 +52,24 @@
                 <tag name="maker.command" />
             </service>
 
+            <service id="maker.maker.make_message" class="Symfony\Bundle\MakerBundle\Maker\MakeMessage">
+                <argument type="service" id="maker.file_manager" />
+                <tag name="maker.command" />
+            </service>
+
+            <service id="maker.maker.make_messenger_middleware" class="Symfony\Bundle\MakerBundle\Maker\MakeMessengerMiddleware">
+                <tag name="maker.command" />
+            </service>
+
             <service id="maker.maker.make_registration_form" class="Symfony\Bundle\MakerBundle\Maker\MakeRegistrationForm">
                 <argument type="service" id="maker.file_manager" />
                 <argument type="service" id="maker.renderer.form_type_renderer" />
                 <argument type="service" id="router" />
+                <tag name="maker.command" />
+            </service>
+
+            <service id="maker.maker.make_reset_password" class="Symfony\Bundle\MakerBundle\Maker\MakeResetPassword">
+                <argument type="service" id="maker.file_manager" />
                 <tag name="maker.command" />
             </service>
 
@@ -101,6 +106,7 @@
                 <argument type="service" id="maker.file_manager" />
                 <argument type="service" id="maker.user_class_builder" />
                 <argument type="service" id="maker.security_config_updater" />
+                <argument type="service" id="maker.doctrine_helper" />
                 <tag name="maker.command" />
             </service>
 

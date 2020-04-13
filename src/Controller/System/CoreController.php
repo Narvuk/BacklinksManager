@@ -236,11 +236,12 @@ class CoreController extends AbstractController
         }else{
             $sysmode = 'Live Mode';
         }
-
+        # Will open the in planning announcements again soon.
+        $inplanning = 'TBC';
         try{
-        $inplanning = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/inplanning');         
-        $nextversion = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/nextversion');
-        $currentversion = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/currentversion');
+        //$inplanning = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/inplanning');         
+        $nextversion = file_get_contents('https://stormdevelopers.com/sv/php/indev/backlinksmanager');
+        $currentversion = file_get_contents('https://stormdevelopers.com/sv/php/current/backlinksmanager');
         }
         catch(\Exception $e){
             $inplanning = 'Unavailable';         

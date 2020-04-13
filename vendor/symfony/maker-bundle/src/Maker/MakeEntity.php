@@ -137,7 +137,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 
         $classExists = class_exists($entityClassDetails->getFullName());
         if (!$classExists) {
-            $entityClassGenerator = new EntityClassGenerator($generator);
+            $entityClassGenerator = new EntityClassGenerator($generator, $this->doctrineHelper);
             $entityPath = $entityClassGenerator->generateEntityClass(
                 $entityClassDetails,
                 $input->getOption('api-resource')
@@ -256,7 +256,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 
         $this->writeSuccessMessage($io);
         $io->text([
-            'Next: When you\'re ready, create a migration with <comment>make:migration</comment>',
+            'Next: When you\'re ready, create a migration with <info>php bin/console make:migration</info>',
             '',
         ]);
     }
