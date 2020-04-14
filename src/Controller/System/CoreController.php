@@ -20,10 +20,10 @@ use App\Entity\Linktracking\TrackingCampaigns;
 use App\Repository\SitesRepository;
 use App\Form\Sites\AddSiteType;
 use App\Form\Sites\EditSiteType;
+use App\Service\ReleaseInfo;
 
 class CoreController extends AbstractController
 {
-    private $version = '0.5.3';
 
      /**
      * @Route("/", name="core")
@@ -227,7 +227,7 @@ class CoreController extends AbstractController
     /**
      * @Route("/system/info", name="system_information")
      */
-    public function SystemAboutInformation(Request $request)
+    public function SystemAboutInformation(Request $request, ReleaseInfo $releaseinfo)
     {
         $fileSystem = new Filesystem();
         $islivemode = $fileSystem->exists('../.env.local');
@@ -249,7 +249,7 @@ class CoreController extends AbstractController
             $currentversion = '0.0.0 - Unavailable';
         }
         
-        $sysversion = $this->version;
+        $sysversion = $releaseinfo->CurrentVersion();
 
         if ($sysversion < $currentversion){
             $isupdate = 'yes';

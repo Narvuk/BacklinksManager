@@ -21,16 +21,16 @@ use App\Entity\System\Settings;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\ReleaseInfo;
 
 
 class ToolsController extends AbstractController
 {
-    private $version = '0.5.3';
-
+    
     /**
      * @Route("/system/tools", name="system_tools")
      */
-    public function SystemToolsIndex(KernelInterface $kernel, Request $request)
+    public function SystemToolsIndex(KernelInterface $kernel, Request $request, ReleaseInfo $releaseinfo)
     {
 
         $fileSystem = new Filesystem();
@@ -49,13 +49,13 @@ class ToolsController extends AbstractController
         }
 
         try{
-            $currentversion = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/currentversion');
+            $currentversion = file_get_contents('https://stormdevelopers.com/sv/php/current/backlinksmanager');
             }
             catch(\Exception $e){
                 $currentversion = '0.0.0 - Unavailable';
             }
             
-            $sysversion = $this->version;
+            $sysversion = $releaseinfo->CurrentVersion();
     
             if ($sysversion < $currentversion){
                 $isupdate = 'yes';
