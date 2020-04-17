@@ -70,7 +70,7 @@ class TrackingController extends AbstractController
 
             } else {
 
-                $findrefbl =  $this->getDoctrine()->getRepository(Backlinks::class)->findOneBy(['backlink' => $referer, 'keywordid' => $keywordid]);
+                $findrefbl =  $this->getDoctrine()->getRepository(Backlinks::class)->findOneBy(['backlink' => $referer, 'keywordid' => $turl->getKeywordId()]);
 
                 $entityManager = $this->getDoctrine()->getManager();
 
