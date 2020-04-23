@@ -236,17 +236,16 @@ class CoreController extends AbstractController
         }else{
             $sysmode = 'Live Mode';
         }
-        # Will open the in planning announcements again soon.
-        $inplanning = 'TBC';
+
         try{
-        //$inplanning = file_get_contents('https://stormdevelopers.com/projects/php/backlinksmanager/rsysinfo/inplanning');         
-        $nextversion = file_get_contents('https://stormdevelopers.com/sv/php/indev/backlinksmanager');
-        $currentversion = file_get_contents('https://stormdevelopers.com/sv/php/current/backlinksmanager');
+        $announcements = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/announcements');         
+        $nextversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/indev');
+        $currentversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/currentversion');
         }
         catch(\Exception $e){
-            $inplanning = 'Unavailable';         
+            $announcements = 'Unavailable';         
             $nextversion = 'Unavailable';
-            $currentversion = '0.0.0 - Unavailable';
+            $currentversion = 'Unavailable';
         }
         
         $sysversion = $releaseinfo->CurrentVersion();
@@ -260,7 +259,7 @@ class CoreController extends AbstractController
 
         return $this->render('system/sysinfo.html.twig',
             [
-                'inplanning' => $inplanning,
+                'announcements' => $announcements,
                 'sysmode' => $sysmode,
                 'nextversion' => $nextversion,
                 'currentversion' => $currentversion,

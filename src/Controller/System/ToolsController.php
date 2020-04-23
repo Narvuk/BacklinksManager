@@ -49,10 +49,10 @@ class ToolsController extends AbstractController
         }
 
         try{
-            $currentversion = file_get_contents('https://stormdevelopers.com/sv/php/current/backlinksmanager');
+            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/currentversion');
             }
             catch(\Exception $e){
-                $currentversion = '0.0.0 - Unavailable';
+                $currentversion = 'Unavailable';
             }
             
             $sysversion = $releaseinfo->CurrentVersion();

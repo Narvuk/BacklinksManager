@@ -37,7 +37,7 @@
                         <td>
                         {% if isupdate == 'yes' %}<a href="{{ path('updates_index') }}" class="btn btn-xs btn-success">Update Avaliable</a>{% else %}System Upto Date{% endif %}
                         </td>
-                        <td>{{sysversion}}</td>
+                        <td>{% if isupdate == 'yes' %}{{currentversion}} Avaliable{% else %}{{sysversion}}{% endif %}</td>
                     </tr>
                     <tr>
                         <td>Clear Cache</td>
