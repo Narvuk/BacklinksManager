@@ -237,24 +237,13 @@ class CoreController extends AbstractController
             $sysmode = 'Live Mode';
         }
 
-        try{
-        $announcements = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/announcements');         
-        $nextversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/indev');
-        $currentversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/currentversion');
-        }
-        catch(\Exception $e){
-            $announcements = 'Unavailable';         
-            $nextversion = 'Unavailable';
-            $currentversion = 'Unavailable';
-        }
         
-        $sysversion = $releaseinfo->CurrentVersion();
+        $announcements = $releaseinfo->Announcements();
 
-        if ($sysversion < $currentversion){
-            $isupdate = 'yes';
-        } else {
-            $isupdate = 'no';
-        }
+        $sysversion = $releaseinfo->SystemVersion();
+        $currentversion = $releaseinfo->CurrentVersion();          
+        $nextversion = $releaseinfo->DevelopmentVersion();
+        $isupdate = $releaseinfo->UpdateCheck();
 
 
         return $this->render('system/sysinfo.html.twig',

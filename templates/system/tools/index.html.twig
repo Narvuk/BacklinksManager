@@ -35,9 +35,9 @@
                         <td>System Update</td>
                         <td>Updates the core system to the latest version to keep you upto date with the latest features</td>
                         <td>
-                        {% if isupdate == 'yes' %}<a href="{{ path('updates_index') }}" class="btn btn-xs btn-success">Update Avaliable</a>{% else %}System Upto Date{% endif %}
+                        {% if isupdate == 'yes' %}<a href="{{ path('updates_index') }}" class="btn btn-xs btn-success">Update Now</a>{% else %}System Upto Date{% endif %}
                         </td>
-                        <td>{% if isupdate == 'yes' %}{{currentversion}} Avaliable{% else %}{{sysversion}}{% endif %}</td>
+                        <td>{% if isupdate == 'yes' %}Update Avaliable{% else %}{{sysversion}}{% endif %}</td>
                     </tr>
                     <tr>
                         <td>Clear Cache</td>

@@ -82,6 +82,18 @@
             <!-- Content Header (Page header) -->
             <div class="content-header">
                 <div class="container-fluid">
+                {% set system = releaseinfo.systemversion %}
+                {% set current = releaseinfo.currentversion %}
+                {% if system < current %}
+                <div class="alert alert-danger">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  <h5><i class="icon fas fa-ban"></i> New Update Avaliable - {{ current }}</h5>
+                  You are current running Backlinks Manager {{ system }} and there is a new update avaliable, To keep your installation as upto date and secure we have now released {{ current }}.
+                  Simply unlock the system updates via the tools in system configuration then click Avaliable Updates to take you to the updates screen and follow the intructions.
+                  <br /><br />
+                  <a href="{{ path('system_tools') }}" class="btn btn-dark">Update Now!</a>
+                </div>
+                {% endif %}  
                     <div class="row mb-0">
                         <div class="col-sm-6">
                             <h1 class="m-0 text-dark">{% block bodytitle %}Dashboard{% endblock %}</h1>
@@ -110,7 +122,7 @@
             <strong>Copyright &copy; <script type="text/javascript">document.write(new Date().getFullYear());</script> <a href="https://stormdevelopers.com">Storm Developers</a>.</strong>
             All rights reserved.
             <div class="float-right d-none d-sm-inline-block">
-                <b>Version</b> {{ include('system/version.html.twig') }}
+                <b>Version</b> {{ releaseinfo.SystemVersion }}
             </div>
         </footer>
     </div>
