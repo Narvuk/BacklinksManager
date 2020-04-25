@@ -18,6 +18,7 @@
                     <tr>
                       <th>Site Page</th>
                       <th>Backlinks</th>
+                      <th>Total Hits</th>
                       <th>Last Updated</th>
                       <th>Status</th>
                       <th>Action</th>
@@ -27,7 +28,8 @@
                   {% for page in sitepages %}
                     <tr>
                       <td>{{ page.url }}</td>
-                      <td>(coming soon)</td>
+                      <td>{{ totalbacklinks }}</td>
+                      <td>{{ totalhits }}</td>
                       <td>{% if page.updated %}{{ page.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
                       <td><span class="tag tag-success">{{ page.status }}</span></td>
                       <td>

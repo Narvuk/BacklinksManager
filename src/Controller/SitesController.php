@@ -361,7 +361,7 @@ class SitesController extends AbstractController
         // Repos
         $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $sitekeywords = $this->getDoctrine()->getRepository(Keywords::class);
-
+        $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
 
@@ -391,6 +391,15 @@ class SitesController extends AbstractController
         if ($page){
             $offset = ($page - 1) * $limit;
             $sitekeywords = $sitekeywords->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+
+            $countbls = 0;
+            foreach ($sitekeywords as $keyword)
+            {
+                $keywordid = $keyword->getId();
+                $getbls = $backlinks->findBy(['keywordid' => $keywordid]);
+                $countbls = count($getbls);
+            }
+            $totalbacklinks = $countbls;
         } 
 
         // 2) handle the submit (will only happen on POST)
@@ -426,6 +435,7 @@ class SitesController extends AbstractController
                 'nextpage' => $nextpage,
                 'maxpages' => $maxpages,
                 'form' => $form->createView(),
+                'totalbacklinks' => $totalbacklinks,
             ]
         );
     }
@@ -443,10 +453,12 @@ class SitesController extends AbstractController
         // Repos
         $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $sitepages = $this->getDoctrine()->getRepository(SitePages::class);
+        $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
+        $turls = $this->getDoctrine()->getRepository(TrackingUrls::class);
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
 
-
+        
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
         $limit = $datasettings->getMaxPageRows();
@@ -468,6 +480,25 @@ class SitesController extends AbstractController
         if ($page){
             $offset = ($page - 1) * $limit;
             $sitepages = $sitepages->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
+
+            $countbls = 0;
+            foreach ($sitepages as $page)
+            {
+                $pageid = $page->getId();
+                $getbls = $backlinks->findBy(['spageid' => $pageid]);
+                $countbls = count($getbls);
+
+                $pageturls = $turls->findBy(['spageid' => $pageid]);
+        
+                $counthits = 0;
+                foreach ($pageturls as $key=>$value)
+                {
+                    $counthits+= $value->getUrlHits();
+                }
+
+                $totalhits = $counthits;
+            }
+            $totalbacklinks = $countbls;
         } 
 
         // 1) build the form
@@ -508,6 +539,8 @@ class SitesController extends AbstractController
                 'nextpage' => $nextpage,
                 'maxpages' => $maxpages,
                 'form' => $form->createView(),
+                'totalbacklinks' => $totalbacklinks,
+                'totalhits' => $totalhits,
             ]
         );
     }

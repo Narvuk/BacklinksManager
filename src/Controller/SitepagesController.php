@@ -12,6 +12,8 @@ use App\Entity\Keywords;
 use App\Entity\Sitepages;
 use App\Entity\System\DataSettings;
 use App\Entity\Notes\SitepagesNotes;
+use App\Entity\Linktracking\TrackingUrls;
+use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Sitepages\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +40,8 @@ class SitepagesController extends AbstractController
         }
 
         $spnotesrepo = $this->getDoctrine()->getRepository(SitepagesNotes::class);
+        $blrepo = $this->getDoctrine()->getRepository(Backlinks::class);
+        $turls = $this->getDoctrine()->getRepository(TrackingUrls::class);
 
         $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($spage->getSiteId());
@@ -46,12 +50,32 @@ class SitepagesController extends AbstractController
         $spnotestasks = $spnotesrepo->findBy(['spageid' => $spage->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
         $spnotesissues = $spnotesrepo->findBy(['spageid' => $spage->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
 
+        // Latest Backlinks
+        $backlinks = $blrepo->findBy(['spageid' => $id],['id' => 'DESC'], $limit = 5);
+        # Count Backlinks
+        $getbl = $blrepo->findBy(['spageid' => $id]);
+        $totalbacklinks = count($getbl);
+
+        $pageturls = $turls->findBy(['spageid' => $id]);
+        
+        $counthits = 0;
+        foreach ($pageturls as $key=>$value)
+        {
+           $counthits+= $value->getUrlHits();
+        }
+
+        $totalhits = $counthits;
+
+
         return $this->render('sitepages/view.html.twig',
             [
                 'site' => $site,
                 'spage' => $spage,
                 'spnotestasks' => $spnotestasks,
                 'spnotesissues' => $spnotesissues,
+                'backlinks' => $backlinks,
+                'totalbacklinks' => $totalbacklinks,
+                'totalhits' => $totalhits
             ]
         );
     }

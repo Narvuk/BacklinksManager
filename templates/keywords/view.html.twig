@@ -50,21 +50,57 @@
                   </div>
                 </div>
               </div>
+              <div class="row mb-1">
+              <div class="col-6">
+                <h5 class="m-0 text-dark"></h5>
+                </div>
+                <div class="col-6">
+                <div class="float-sm-right">
+                 <a href="#" class="btn btn-sm btn-dark">View All (coming soon)</a>
+                 </div>
+                 </div>
+              </div>
               <div class="row">
                 <div class="col-12">
                   <div class="card card-dark">
                     <div class="card-header">
-                      <h3 class="card-title">Extra Features Coming Soon</h3>
+                      <h3 class="card-title">Latest Backlinks</h3>
                     </div>
-                  <div class="card-body">
-                      <p>
-                        We are working out extra feature that will fill this space,
-                        We are working hard to get as much features in as possible
-                      </p>
-                      <p>
-                        Overtime this space will be filled with extra information as we build the system,
-                        In the meantime if you have any ideas or suggestions please feel free to let us know and we will aim to implement them here
-                      </p>
+                  <div class="card-body p-0">
+                      <table class="table table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Backlink</th>
+                      <th>Last Checked</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for a in backlinks %}
+                    <tr>
+                      <td>{{ a.backlink|slice(0,75) ~ '...' }}</td>
+                      <td><div id="blastchecked-{{a.id}}">{% if a.lastchecked %}{{ a.lastchecked|date('d-m-Y / H:i') }}{% else %} Not Checked {% endif %}</div></td>
+                      <td><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
+                      <td>
+                        <a href="{{ path('backlink_view', {'id': a.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <button class="btn btn-warning btn-sm" id="checkisactive-{{a.id}}"><div id="bspin-{{a.id}}"><i class="fas fa-sync"></i></div></button>
+                    <button type="button" class="btn btn-sm btn-info" data-toggle="dropdown">
+                      <i class="fas fa-link"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                      <div id="lostbutton">
+                       <button class="dropdown-item" id="updatestatus-lost-{{a.id}}">Lost Backlink</button>
+                       </div>
+                        <div id="activebutton">
+                       <button class="dropdown-item" id="updatestatus-active-{{a.id}}">Active Backlink</button>  
+                       </div>
+                    </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
                   </div>
                 </div>
               </div>
@@ -80,14 +116,8 @@
                       {{keyword.status}}
                   </b>
                 </p>
-                <p class="text">Backlinks (work in progress)
-                  <b class="d-block">0</b>
-                </p>
-                <p class="text">Linked Pages (work in progress)
-                  <b class="d-block">0</b>
-                </p>
-                <p class="text">Prospects Sites (work in progress)
-                  <b class="d-block">0</b>
+                <p class="text">Backlinks
+                  <b class="d-block">{{ totalbacklinks }}</b>
                 </p>
               </div>
             </div>

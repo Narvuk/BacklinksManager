@@ -44,27 +44,63 @@
                 <div class="col-12 col-sm-4">
                   <div class="info-box bg-light">
                     <div class="info-box-content">
-                      <span class="info-box-text text-center text-muted">somthing</span>
-                      <span class="info-box-number text-center text-muted mb-0">somthing</span>
+                      <span class="info-box-text text-center text-muted">......</span>
+                      <span class="info-box-number text-center text-muted mb-0">Coming Soon</span>
                     </div>
                   </div>
                 </div>
+              </div>
+              <div class="row mb-1">
+              <div class="col-6">
+                <h5 class="m-0 text-dark"></h5>
+                </div>
+                <div class="col-6">
+                <div class="float-sm-right">
+                 <a href="#" class="btn btn-sm btn-dark">View All (coming soon)</a>
+                 </div>
+                 </div>
               </div>
               <div class="row">
                 <div class="col-12">
                   <div class="card card-dark">
                     <div class="card-header">
-                      <h3 class="card-title">Extra Features Coming Soon</h3>
+                      <h3 class="card-title">Latest Backlinks</h3>
                     </div>
-                  <div class="card-body">
-                      <p>
-                        We are working out extra feature that will fill this space,
-                        We are working hard to get as much features in as possible
-                      </p>
-                      <p>
-                        Overtime this space will be filled with extra information as we build the system,
-                        In the meantime if you have any ideas or suggestions please feel free to let us know and we will aim to implement them here
-                      </p>
+                  <div class="card-body p-0">
+                      <table class="table table-sm table-hover text-nowrap">
+                  <thead>
+                    <tr>
+                      <th>Backlink</th>
+                      <th>Last Checked</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for a in backlinks %}
+                    <tr>
+                      <td>{{ a.backlink|slice(0,75) ~ '...' }}</td>
+                      <td><div id="blastchecked-{{a.id}}">{% if a.lastchecked %}{{ a.lastchecked|date('d-m-Y / H:i') }}{% else %} Not Checked {% endif %}</div></td>
+                      <td><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
+                      <td>
+                        <a href="{{ path('backlink_view', {'id': a.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
+                        <button class="btn btn-warning btn-sm" id="checkisactive-{{a.id}}"><div id="bspin-{{a.id}}"><i class="fas fa-sync"></i></div></button>
+                    <button type="button" class="btn btn-sm btn-info" data-toggle="dropdown">
+                      <i class="fas fa-link"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                      <div id="lostbutton">
+                       <button class="dropdown-item" id="updatestatus-lost-{{a.id}}">Lost Backlink</button>
+                       </div>
+                        <div id="activebutton">
+                       <button class="dropdown-item" id="updatestatus-active-{{a.id}}">Active Backlink</button>  
+                       </div>
+                    </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
                   </div>
                 </div>
               </div>
@@ -80,14 +116,11 @@
                       {{spage.status}}
                   </b>
                 </p>
-                <p class="text">Backlinks (work in progress)
-                  <b class="d-block">0</b>
+                <p class="text">Backlinks
+                  <b class="d-block">{{ totalbacklinks }}</b>
                 </p>
-                <p class="text">Linked Pages (work in progress)
-                  <b class="d-block">0</b>
-                </p>
-                <p class="text">Keywords Used (work in progress)
-                  <b class="d-block">0</b>
+                <p class="text">Total Page Hits
+                  <b class="d-block">{{ totalhits }}</b>
                 </p>
               </div>
             </div>
@@ -208,6 +241,80 @@
          });   
       });  
    </script>
+   {% for a in backlinks %}
+    <script language = "javascript">  
+      $(document).ready(function(){   
+         $("#updatestatus-lost-{{a.id}}").on("click", function(event){ 
+            $('#bstatus-{{a.id}}').html('');  
+            $('#bstatus-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{a.id}}/updatestatus/Lost',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bstatus-{{a.id}}').html('');  
+                  $('#bstatus-{{a.id}}').append(data['statuschange']); 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         }); 
+         $("#updatestatus-active-{{a.id}}").on("click", function(event){ 
+            $('#bstatus-{{a.id}}').html('');  
+            $('#bstatus-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{a.id}}/updatestatus/Active',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bstatus-{{a.id}}').html('');  
+                  $('#bstatus-{{a.id}}').append(data['statuschange']); 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Ajax request failed.');  
+               }  
+               
+            });  
+         });
+         $("#checkisactive-{{a.id}}").on("click", function(event){ 
+            $('#bspin-{{a.id}}').html('');  
+            $('#bspin-{{a.id}}').append('<i class="fas fa-sync fa-pulse"></i>'); 
+            $('#bstatus-{{a.id}}').html('');  
+            $('#bstatus-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>');
+            $('#blastchecked-{{a.id}}').html('');  
+            $('#blastchecked-{{a.id}}').append('<i class="fas fa-spinner fa-pulse"></i>'); 
+            $.ajax({ 
+
+               url:        '/backlink/{{a.id}}/activechecker',  
+               type:       'POST',   
+               dataType:   'json',  
+               async:      true,  
+
+               success: function(data, status) {  
+                  $('#bspin-{{a.id}}').html('');  
+                  $('#bspin-{{a.id}}').append('<i class="fas fa-sync"></i>');
+                  $('#blastchecked-{{a.id}}').html('');  
+                  $('#blastchecked-{{a.id}}').append(data['lastchecked']);   
+                  $('#bstatus-{{a.id}}').html('');  
+                  $('#bstatus-{{a.id}}').append(data['isactive']); 
+               },  
+               error : function(xhr, textStatus, errorThrown) {  
+                  alert('Tracking url has not been assigned, unable to finish scan');  
+               }  
+               
+            });  
+         });      
+      });  
+   </script>
+   {% endfor %} 
 {% endblock %}
 {% block ModalArea %}
 

@@ -38,6 +38,7 @@ class KeywordsController extends AbstractController
 
         // Repos
         $knotesrepo = $this->getDoctrine()->getRepository(KeywordsNotes::class);
+        $blrepo = $this->getDoctrine()->getRepository(Backlinks::class);
 
         $keyword = $this->getDoctrine()->getRepository(Keywords::class)->find($id);
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($keyword->getSiteId());
@@ -46,12 +47,20 @@ class KeywordsController extends AbstractController
         $knotestasks = $knotesrepo->findBy(['keywordid' => $keyword->getId(), 'status' => 'Unread', 'type' => 'Task'], ['id' => 'DESC']);
         $knotesissues = $knotesrepo->findBy(['keywordid' => $keyword->getId(), 'status' => 'Unread', 'type' => 'Issue'], ['id' => 'DESC']);
 
+        // Latest Backlinks
+        $backlinks = $blrepo->findBy(['keywordid' => $id],['id' => 'DESC'], $limit = 5);
+        # Count Backlinks
+        $getbl = $blrepo->findBy(['keywordid' => $id]);
+        $totalbacklinks = count($getbl);
+
         return $this->render('keywords/view.html.twig',
             [
                 'site' => $site,
                 'keyword' => $keyword,
                 'knotestasks' => $knotestasks,
                 'knotesissues' => $knotesissues,
+                'backlinks' => $backlinks,
+                'totalbacklinks' => $totalbacklinks,
             ]
         );
     }
