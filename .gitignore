@@ -6,6 +6,7 @@
 /public/bundles/
 /var/cache/
 /var/log/
+/var/sessions/
 ###< symfony/framework-bundle ###
 
 ###> symfony/phpunit-bridge ###
