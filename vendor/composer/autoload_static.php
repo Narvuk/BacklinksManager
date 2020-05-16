@@ -132,6 +132,7 @@ class ComposerStaticInit2810bd1ac7a68f121359017c75154794
             'Doctrine\\ORM\\' => 13,
             'Doctrine\\Migrations\\' => 20,
             'Doctrine\\Instantiator\\' => 22,
+            'Doctrine\\Inflector\\' => 19,
             'Doctrine\\DBAL\\' => 14,
             'Doctrine\\Common\\Lexer\\' => 22,
             'Doctrine\\Common\\Inflector\\' => 26,
@@ -495,6 +496,10 @@ class ComposerStaticInit2810bd1ac7a68f121359017c75154794
         'Doctrine\\Instantiator\\' => 
         array (
             0 => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator',
+        ),
+        'Doctrine\\Inflector\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/inflector/lib/Doctrine/Inflector',
         ),
         'Doctrine\\DBAL\\' => 
         array (

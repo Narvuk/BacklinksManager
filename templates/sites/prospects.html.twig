@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-              <div class="card-body p-0">
+              <div id="no-more-tables" class="card-body p-0">
                 <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
@@ -26,11 +26,11 @@
                   <tbody>
                   {% for p in prospects %}
                     <tr>
-                      <td>{{ p.name }}</td>
-                      <td>{{ p.domain }}</td>
-                      <td>{% if p.updated %}{{ p.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
-                      <td><span class="tag tag-success">{{ p.status }}</span></td>
-                      <td>
+                      <td data-title="Prospect Name">{{ p.name }}</td>
+                      <td data-title="Domain">{{ p.domain }}</td>
+                      <td data-title="Last Updated">{% if p.updated %}{{ p.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
+                      <td data-title="Status"><span class="tag tag-success">{{ p.status }}</span></td>
+                      <td data-title="Action">
                         <a href="{{ path('prospect_view', {'id': p.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                         <a href="{{ path('prospect_edit', {'id': p.id}) }}" class="btn btn-info btn-sm"><i class="fas fa-pen"></i></a>
                       </td>

@@ -12,7 +12,7 @@
 <div class="row">
         <div class="col-12">
             <div class="card">
-              <div class="card-body p-0">
+              <div id="no-more-tables" class="card-body p-0">
                 <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
@@ -26,11 +26,11 @@
                   <tbody>
                   {% for kw in sitekeywords %}
                     <tr>
-                      <td>{{ kw.keyword }}</td>
-                      <td>{{ totalbacklinks }}</td>
-                      <td>{% if kw.updated %}{{ kw.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
-                      <td><span class="tag tag-success">{{ kw.status }}</span></td>
-                      <td>
+                      <td data-title="Keyword">{{ kw.keyword }}</td>
+                      <td data-title="Backlinks">{{ totalbacklinks }}</td>
+                      <td data-title="Last Updated">{% if kw.updated %}{{ kw.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
+                      <td data-title="Status"><span class="tag tag-success">{{ kw.status }}</span></td>
+                      <td data-title="Action">
                         <a href="{{ path('keyword_view', {'id': kw.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>
                     </tr>

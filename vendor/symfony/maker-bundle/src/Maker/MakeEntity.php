@@ -63,7 +63,7 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
         }
 
         if (null === $entityClassGenerator) {
-            @trigger_error(sprintf('Passing a "%s" instance as 5th argument is mandatory since version 1.15.1', Generator::class), E_USER_DEPRECATED);
+            @trigger_error(sprintf('Passing a "%s" instance as 5th argument is mandatory since version 1.15.1', EntityClassGenerator::class), E_USER_DEPRECATED);
             $this->entityClassGenerator = new EntityClassGenerator($generator, $this->doctrineHelper);
         } else {
             $this->entityClassGenerator = $entityClassGenerator;
@@ -270,8 +270,6 @@ final class MakeEntity extends AbstractMaker implements InputAwareMakerInterface
 
     public function configureDependencies(DependencyBuilder $dependencies, InputInterface $input = null)
     {
-        $dependencies->requirePHP71();
-
         if (null !== $input && $input->getOption('api-resource')) {
             $dependencies->addClassDependency(
                 ApiResource::class,

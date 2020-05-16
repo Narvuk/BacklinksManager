@@ -1,3 +1,15 @@
+1.18
+====
+
+* Reverted support for `doctrine/inflector` 2.0 - #611 thanks to @weaverryan
+
+1.17
+====
+
+* PHP 7.1 is now the required minimum version - #598 thanks to @weaverryan
+
+* MakerBundle now allows `doctrine/inflector` 2.0 - #600 thanks to @alcaeus
+
 1.16
 ====
 
