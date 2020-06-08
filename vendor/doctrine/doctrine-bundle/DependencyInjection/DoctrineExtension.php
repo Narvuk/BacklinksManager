@@ -4,13 +4,17 @@ namespace Doctrine\Bundle\DoctrineBundle\DependencyInjection;
 
 use Doctrine\Bundle\DoctrineBundle\Dbal\RegexSchemaAssetFilter;
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\ServiceRepositoryCompilerPass;
+use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface;
+use Doctrine\ORM\Proxy\Autoloader;
 use Doctrine\ORM\UnitOfWork;
 use LogicException;
 use Symfony\Bridge\Doctrine\DependencyInjection\AbstractDoctrineExtension;
 use Symfony\Bridge\Doctrine\Messenger\DoctrineClearEntityManagerWorkerSubscriber;
 use Symfony\Bridge\Doctrine\Messenger\DoctrineTransactionMiddleware;
 use Symfony\Bridge\Doctrine\PropertyInfo\DoctrineExtractor;
+use Symfony\Bridge\Doctrine\SchemaListener\MessengerTransportDoctrineSchemaSubscriber;
+use Symfony\Bridge\Doctrine\SchemaListener\PdoCacheAdapterDoctrineSchemaSubscriber;
 use Symfony\Bridge\Doctrine\Validator\DoctrineLoader;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\DoctrineProvider;
@@ -23,8 +27,8 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransportFactory;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransportFactory;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use function class_exists;
 use function sprintf;
@@ -128,7 +132,9 @@ class DoctrineExtension extends AbstractDoctrineExtension
             $profilingLoggerId = $profilingAbstractId . '.' . $name;
             $container->setDefinition($profilingLoggerId, new ChildDefinition($profilingAbstractId));
             $profilingLogger = new Reference($profilingLoggerId);
-            $container->getDefinition('data_collector.doctrine')->addMethodCall('addLogger', [$name, $profilingLogger]);
+            $container->getDefinition('data_collector.doctrine')
+                ->addMethodCall('addLogger', [$name, $profilingLogger])
+                ->replaceArgument(1, $connection['profiling_collect_schema_errors']);
 
             if ($logger !== null) {
                 $chainLogger = new ChildDefinition('doctrine.dbal.logger.chain');
@@ -141,7 +147,11 @@ class DoctrineExtension extends AbstractDoctrineExtension
                 $logger = $profilingLogger;
             }
         }
-        unset($connection['profiling'], $connection['profiling_collect_backtrace']);
+        unset(
+            $connection['profiling'],
+            $connection['profiling_collect_backtrace'],
+            $connection['profiling_collect_schema_errors']
+        );
 
         if (isset($connection['auto_commit'])) {
             $configuration->addMethodCall('setAutoCommit', [$connection['auto_commit']]);
@@ -332,6 +342,11 @@ class DoctrineExtension extends AbstractDoctrineExtension
             $container->getDefinition('form.type.entity')->addTag('kernel.reset', ['method' => 'reset']);
         }
 
+        // available in Symfony 5.1 and higher
+        if (! class_exists(PdoCacheAdapterDoctrineSchemaSubscriber::class)) {
+            $container->removeDefinition('doctrine.orm.listeners.pdo_cache_adapter_doctrine_schema_subscriber');
+        }
+
         $entityManagers = [];
         foreach (array_keys($config['entity_managers']) as $name) {
             $entityManagers[$name] = sprintf('doctrine.orm.%s_entity_manager', $name);
@@ -349,7 +364,7 @@ class DoctrineExtension extends AbstractDoctrineExtension
             $container->setParameter('doctrine.orm.' . $key, $config[$key]);
         }
 
-        $container->setAlias('doctrine.orm.entity_manager', sprintf('doctrine.orm.%s_entity_manager', $config['default_entity_manager']));
+        $container->setAlias('doctrine.orm.entity_manager', $defaultEntityManagerDefinitionId = sprintf('doctrine.orm.%s_entity_manager', $config['default_entity_manager']));
         $container->getAlias('doctrine.orm.entity_manager')->setPublic(true);
 
         $config['entity_managers'] = $this->fixManagersAutoMappings($config['entity_managers'], $container->getParameter('kernel.bundles'));
@@ -380,6 +395,17 @@ class DoctrineExtension extends AbstractDoctrineExtension
 
         $container->registerForAutoconfiguration(ServiceEntityRepositoryInterface::class)
             ->addTag(ServiceRepositoryCompilerPass::REPOSITORY_SERVICE_TAG);
+
+        $container->registerForAutoconfiguration(EventSubscriberInterface::class)
+            ->addTag('doctrine.event_subscriber');
+
+        /**
+         * @see DoctrineBundle::boot()
+         */
+        $container->getDefinition($defaultEntityManagerDefinitionId)
+            ->addTag('container.preload', [
+                'class' => Autoloader::class,
+            ]);
     }
 
     /**
@@ -727,10 +753,6 @@ class DoctrineExtension extends AbstractDoctrineExtension
                 $serviceId = $this->createPoolCacheDefinition($container, $cacheDriver['pool'] ?? $this->createArrayAdapterCachePool($container, $objectManagerName, $cacheName));
                 break;
 
-            case 'provider':
-                $serviceId = sprintf('doctrine_cache.providers.%s', $cacheDriver['cache_provider']);
-                break;
-
             default:
                 throw new \InvalidArgumentException(sprintf(
                     'Unknown cache of type "%s" configured for cache "%s" in entity manager "%s".',
@@ -836,11 +858,22 @@ class DoctrineExtension extends AbstractDoctrineExtension
             $container->removeDefinition('doctrine.orm.messenger.event_subscriber.doctrine_clear_entity_manager');
         }
 
-        if (! class_exists(DoctrineTransportFactory::class)) {
-            return;
+        // available in Symfony 5.1 and higher
+        if (! class_exists(MessengerTransportDoctrineSchemaSubscriber::class)) {
+            $container->removeDefinition('doctrine.orm.messenger.doctrine_schema_subscriber');
         }
 
         $transportFactoryDefinition = $container->getDefinition('messenger.transport.doctrine.factory');
+        if (! class_exists(DoctrineTransportFactory::class)) {
+            // If symfony/messenger < 5.1
+            if (! class_exists(\Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransportFactory::class)) {
+                // Dont add the tag
+                return;
+            }
+
+            $transportFactoryDefinition->setClass(\Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransportFactory::class);
+        }
+
         $transportFactoryDefinition->addTag('messenger.transport_factory');
     }
 

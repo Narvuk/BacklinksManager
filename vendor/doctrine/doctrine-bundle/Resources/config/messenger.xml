@@ -32,13 +32,18 @@
         The following service isn't tagged as transport factory because the class may not exist.
         The tag is added conditionally in DoctrineExtension.
         -->
-        <service id="messenger.transport.doctrine.factory" class="Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransportFactory" public="false">
+        <service id="messenger.transport.doctrine.factory" class="Symfony\Component\Messenger\Bridge\Doctrine\Transport\DoctrineTransportFactory" public="false">
             <argument type="service" id="doctrine" />
         </service>
 
         <service id="doctrine.orm.messenger.event_subscriber.doctrine_clear_entity_manager" class="Symfony\Bridge\Doctrine\Messenger\DoctrineClearEntityManagerWorkerSubscriber" public="false">
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="doctrine" />
+        </service>
+
+        <service id="doctrine.orm.messenger.doctrine_schema_subscriber" class="Symfony\Bridge\Doctrine\SchemaListener\MessengerTransportDoctrineSchemaSubscriber">
+            <argument type="tagged" tag="messenger.receiver" />
+            <tag name="doctrine.event_subscriber" />
         </service>
     </services>
 </container>

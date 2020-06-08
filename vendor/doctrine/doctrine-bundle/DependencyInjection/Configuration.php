@@ -4,6 +4,7 @@ namespace Doctrine\Bundle\DoctrineBundle\DependencyInjection;
 
 use Doctrine\ORM\EntityManager;
 use ReflectionClass;
+use Symfony\Component\Config\Definition\BaseNode;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -91,7 +92,7 @@ class Configuration implements ConfigurationInterface
                             ->end()
                             ->children()
                                 ->scalarNode('class')->isRequired()->end()
-                                ->booleanNode('commented')->setDeprecated()->end()
+                                ->booleanNode('commented')->setDeprecated(...$this->getCommentedParamDeprecationMsg())->end()
                             ->end()
                         ->end()
                     ->end()
@@ -133,6 +134,10 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('profiling_collect_backtrace')
                     ->defaultValue(false)
                     ->info('Enables collecting backtraces when profiling is enabled')
+                ->end()
+                ->booleanNode('profiling_collect_schema_errors')
+                    ->defaultValue(true)
+                    ->info('Enables collecting schema errors when profiling is enabled')
                 ->end()
                 ->scalarNode('server_version')->end()
                 ->scalarNode('driver_class')->end()
@@ -199,7 +204,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('memory')->end()
                 ->scalarNode('unix_socket')->info('The unix socket to use for MySQL')->end()
                 ->booleanNode('persistent')->info('True to use as persistent connection for the ibm_db2 driver')->end()
-                ->scalarNode('protocol')->info('The protocol to use for the ibm_db2 driver (default to TCPIP if ommited)')->end()
+                ->scalarNode('protocol')->info('The protocol to use for the ibm_db2 driver (default to TCPIP if omitted)')->end()
                 ->booleanNode('service')
                     ->info('True to use SERVICE_NAME as connection parameter instead of SID for Oracle')
                 ->end()
@@ -684,5 +689,28 @@ class Configuration implements ConfigurationInterface
             'names' => $namesArray,
             'values' => $valuesArray,
         ];
+    }
+
+    /**
+     * Returns the correct deprecation param's as an array for setDeprecated.
+     *
+     * Symfony/Config v5.1 introduces a deprecation notice when calling
+     * setDeprecation() with less than 3 args and the getDeprecation method was
+     * introduced at the same time. By checking if getDeprecation() exists,
+     * we can determine the correct param count to use when calling setDeprecated.
+     */
+    private function getCommentedParamDeprecationMsg() : array
+    {
+        $message = 'The doctrine-bundle type commenting features were removed; the corresponding config parameter was deprecated in 2.0 and will be dropped in 3.0.';
+
+        if (method_exists(BaseNode::class, 'getDeprecation')) {
+            return [
+                'doctrine/doctrine-bundle',
+                '2.0',
+                $message,
+            ];
+        }
+
+        return [$message];
     }
 }

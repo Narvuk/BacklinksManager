@@ -25,6 +25,7 @@ use Symfony\Bundle\MakerBundle\Validator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Yaml\Yaml;
 use SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle;
 
@@ -61,6 +62,7 @@ class MakeResetPassword extends AbstractMaker
     public function configureDependencies(DependencyBuilder $dependencies)
     {
         $dependencies->addClassDependency(SymfonyCastsResetPasswordBundle::class, 'symfonycasts/reset-password-bundle');
+        $dependencies->addClassDependency(MailerInterface::class, 'symfony/mailer');
 
         ORMDependencyBuilder::buildDependencies($dependencies);
 
@@ -107,7 +109,7 @@ class MakeResetPassword extends AbstractMaker
         );
         $input->setArgument(
             'email-getter',
-            $interactiveSecurityHelper->guessEmailGetter($io, $userClass)
+            $interactiveSecurityHelper->guessEmailGetter($io, $userClass, $input->getArgument('email-property-name'))
         );
         $input->setArgument(
             'password-setter',
@@ -191,6 +193,7 @@ class MakeResetPassword extends AbstractMaker
                 'from_email' => $input->getArgument('from-email-address'),
                 'from_email_name' => $input->getArgument('from-email-name'),
                 'email_getter' => $input->getArgument('email-getter'),
+                'email_field' => $input->getArgument('email-property-name'),
             ]
         );
 
