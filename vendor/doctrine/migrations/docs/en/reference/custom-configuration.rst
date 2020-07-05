@@ -14,13 +14,13 @@ Once you have your custom integration setup, you can modify it to look like the 
     require_once __DIR__.'/vendor/autoload.php';
 
     use Doctrine\DBAL\DriverManager;
-    use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
     use Doctrine\Migrations\Configuration\Configuration;
+    use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
+    use Doctrine\Migrations\Configuration\Configuration\ExistingConfiguration;
+    use Doctrine\Migrations\DependencyFactory;
+    use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
     use Doctrine\Migrations\Tools\Console\Command;
-    use Doctrine\Migrations\Tools\Console\Helper\ConfigurationHelper;
     use Symfony\Component\Console\Application;
-    use Symfony\Component\Console\Helper\HelperSet;
-    use Symfony\Component\Console\Helper\QuestionHelper;
 
     $dbParams = [
         'dbname' => 'migrations_docs_example',
@@ -33,34 +33,36 @@ Once you have your custom integration setup, you can modify it to look like the 
     $connection = DriverManager::getConnection($dbParams);
 
     $configuration = new Configuration($connection);
+
     $configuration->setName('My Project Migrations');
-    $configuration->setMigrationsNamespace('MyProject\Migrations');
-    $configuration->setMigrationsTableName('doctrine_migration_versions');
-    $configuration->setMigrationsColumnName('version');
-    $configuration->setMigrationsColumnLength(255);
-    $configuration->setMigrationsExecutedAtColumnName('executed_at');
-    $configuration->setMigrationsDirectory('/data/doctrine/migrations-docs-example/lib/MyProject/Migrations');
+    $configuration->addMigrationsDirectory('MyProject\Migrations', '/data/doctrine/migrations-docs-example/lib/MyProject/Migrations');
     $configuration->setAllOrNothing(true);
     $configuration->setCheckDatabasePlatform(false);
 
-    $helperSet = new HelperSet();
-    $helperSet->set(new QuestionHelper(), 'question');
-    $helperSet->set(new ConnectionHelper($connection), 'db');
-    $helperSet->set(new ConfigurationHelper($connection, $configuration));
+    $storageConfiguration = new TableMetadataStorageConfiguration();
+    $storageConfiguration->setTableName('doctrine_migration_versions');
+
+    $configuration->setMetadataStorageConfiguration($storageConfiguration);
+
+    $dependencyFactory = DependencyFactory::fromConnection(
+        new ExistingConfiguration($configuration),
+        new ExistingConnection($connection)
+    );
 
     $cli = new Application('Doctrine Migrations');
     $cli->setCatchExceptions(true);
-    $cli->setHelperSet($helperSet);
 
     $cli->addCommands(array(
-        new Command\DumpSchemaCommand(),
-        new Command\ExecuteCommand(),
-        new Command\GenerateCommand(),
-        new Command\LatestCommand(),
-        new Command\MigrateCommand(),
-        new Command\RollupCommand(),
-        new Command\StatusCommand(),
-        new Command\VersionCommand()
+        new Command\DumpSchemaCommand($dependencyFactory),
+        new Command\ExecuteCommand($dependencyFactory),
+        new Command\GenerateCommand($dependencyFactory),
+        new Command\LatestCommand($dependencyFactory),
+        new Command\ListCommand($dependencyFactory),
+        new Command\MigrateCommand($dependencyFactory),
+        new Command\RollupCommand($dependencyFactory),
+        new Command\StatusCommand($dependencyFactory),
+        new Command\SyncMetadataCommand($dependencyFactory),
+        new Command\VersionCommand($dependencyFactory),
     ));
 
     $cli->run();

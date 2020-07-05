@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Doctrine\Migrations\Tools\Console\Command;
 
+use Doctrine\Migrations\Exception\MigrationClassNotFound;
 use Doctrine\Migrations\Exception\UnknownMigrationVersion;
+use Doctrine\Migrations\Metadata\ExecutedMigrationsList;
 use Doctrine\Migrations\Tools\Console\Exception\InvalidOptionUsage;
 use Doctrine\Migrations\Tools\Console\Exception\VersionAlreadyExists;
 use Doctrine\Migrations\Tools\Console\Exception\VersionDoesNotExist;
+use Doctrine\Migrations\Version\Direction;
+use Doctrine\Migrations\Version\ExecutionResult;
+use Doctrine\Migrations\Version\Version;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,7 +22,7 @@ use function sprintf;
 /**
  * The VersionCommand class is responsible for manually adding and deleting migration versions from the tracking table.
  */
-class VersionCommand extends AbstractCommand
+final class VersionCommand extends DoctrineCommand
 {
     /** @var string */
     protected static $defaultName = 'migrations:version';
@@ -69,11 +74,11 @@ class VersionCommand extends AbstractCommand
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command allows you to manually add, delete or synchronize migration versions from the version table:
 
-    <info>%command.full_name% YYYYMMDDHHMMSS --add</info>
+    <info>%command.full_name% MIGRATION-FQCN --add</info>
 
 If you want to delete a version you can use the <comment>--delete</comment> option:
 
-    <info>%command.full_name% YYYYMMDDHHMMSS --delete</info>
+    <info>%command.full_name% MIGRATION-FQCN --delete</info>
 
 If you want to synchronize by adding or deleting all migration versions available in the version table you can use the <comment>--all</comment> option:
 
@@ -82,8 +87,8 @@ If you want to synchronize by adding or deleting all migration versions availabl
 
 If you want to synchronize by adding or deleting some range of migration versions available in the version table you can use the <comment>--range-from/--range-to</comment> option:
 
-    <info>%command.full_name% --add --range-from=YYYYMMDDHHMMSS --range-to=YYYYMMDDHHMMSS</info>
-    <info>%command.full_name% --delete --range-from=YYYYMMDDHHMMSS --range-to=YYYYMMDDHHMMSS</info>
+    <info>%command.full_name% --add --range-from=MIGRATION-FQCN --range-to=MIGRATION-FQCN</info>
+    <info>%command.full_name% --delete --range-from=MIGRATION-FQCN --range-to=MIGRATION-FQCN</info>
 
 You can also execute this command without a warning message which you need to interact with:
 
@@ -97,23 +102,23 @@ EOT
     /**
      * @throws InvalidOptionUsage
      */
-    public function execute(InputInterface $input, OutputInterface $output) : ?int
+    protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         if ($input->getOption('add') === false && $input->getOption('delete') === false) {
             throw InvalidOptionUsage::new('You must specify whether you want to --add or --delete the specified version.');
         }
 
-        $this->markMigrated = (bool) $input->getOption('add');
+        $this->markMigrated = $input->getOption('add');
 
         if ($input->isInteractive()) {
-            $question = 'WARNING! You are about to add, delete or synchronize migration versions from the version table that could result in data lost. Are you sure you wish to continue? (y/n)';
+            $question = 'WARNING! You are about to add, delete or synchronize migration versions from the version table that could result in data lost. Are you sure you wish to continue?';
 
-            $confirmation = $this->askConfirmation($question, $input, $output);
+            $confirmation = $this->io->confirm($question);
 
             if ($confirmation) {
                 $this->markVersions($input, $output);
             } else {
-                $output->writeln('<error>Migration cancelled!</error>');
+                $this->io->error('Migration cancelled!');
             }
         } else {
             $this->markVersions($input, $output);
@@ -144,24 +149,37 @@ EOT
             );
         }
 
+        $executedMigrations = $this->getDependencyFactory()->getMetadataStorage()->getExecutedMigrations();
+        $availableVersions  = $this->getDependencyFactory()->getMigrationPlanCalculator()->getMigrations();
         if ($allOption === true) {
-            $availableVersions = $this->migrationRepository->getAvailableVersions();
-
-            foreach ($availableVersions as $version) {
-                $this->mark($input, $output, $version, true);
+            if ($input->getOption('delete') === true) {
+                foreach ($executedMigrations->getItems() as $availableMigration) {
+                    $this->mark($input, $output, $availableMigration->getVersion(), false, $executedMigrations);
+                }
             }
-        } elseif ($rangeFromOption !== null && $rangeToOption !== null) {
-            $availableVersions = $this->migrationRepository->getAvailableVersions();
 
-            foreach ($availableVersions as $version) {
-                if ($version < $rangeFromOption || $version > $rangeToOption) {
-                    continue;
+            foreach ($availableVersions->getItems() as $availableMigration) {
+                $this->mark($input, $output, $availableMigration->getVersion(), true, $executedMigrations);
+            }
+        } elseif ($affectedVersion !== null) {
+            $this->mark($input, $output, new Version($affectedVersion), false, $executedMigrations);
+        } elseif ($rangeFromOption !== null && $rangeToOption !== null) {
+            $migrate = false;
+            foreach ($availableVersions->getItems() as $availableMigration) {
+                if ((string) $availableMigration->getVersion() === $rangeFromOption) {
+                    $migrate = true;
                 }
 
-                $this->mark($input, $output, $version, true);
+                if ($migrate) {
+                    $this->mark($input, $output, $availableMigration->getVersion(), true, $executedMigrations);
+                }
+
+                if ((string) $availableMigration->getVersion() === $rangeToOption) {
+                    break;
+                }
             }
         } else {
-            $this->mark($input, $output, $affectedVersion);
+            throw InvalidOptionUsage::new('You must specify the version or use the --all argument.');
         }
     }
 
@@ -170,36 +188,41 @@ EOT
      * @throws VersionDoesNotExist
      * @throws UnknownMigrationVersion
      */
-    private function mark(InputInterface $input, OutputInterface $output, string $version, bool $all = false) : void
+    private function mark(InputInterface $input, OutputInterface $output, Version $version, bool $all, ExecutedMigrationsList $executedMigrations) : void
     {
-        if (! $this->migrationRepository->hasVersion($version)) {
-            if ((bool) $input->getOption('delete') === false) {
-                throw UnknownMigrationVersion::new($version);
+        try {
+            $availableMigration = $this->getDependencyFactory()->getMigrationRepository()->getMigration($version);
+        } catch (MigrationClassNotFound $e) {
+            $availableMigration = null;
+        }
+
+        $storage = $this->getDependencyFactory()->getMetadataStorage();
+        if ($availableMigration === null) {
+            if ($input->getOption('delete') === false) {
+                throw UnknownMigrationVersion::new((string) $version);
             }
 
             $question =
                 'WARNING! You are about to delete a migration version from the version table that has no corresponding migration file.' .
-                'Do you want to delete this migration from the migrations table? (y/n)';
+                'Do you want to delete this migration from the migrations table?';
 
-            $confirmation = $this->askConfirmation($question, $input, $output);
+            $confirmation = $this->io->confirm($question);
 
             if ($confirmation) {
-                $this->migrationRepository->removeMigrationVersionFromDatabase($version);
-
-                $output->writeln(sprintf(
-                    '<info>%s</info> deleted from the version table.',
-                    $version
+                $migrationResult = new ExecutionResult($version, Direction::DOWN);
+                $storage->complete($migrationResult);
+                $this->io->text(sprintf(
+                    "<info>%s</info> deleted from the version table.\n",
+                    (string) $version
                 ));
 
                 return;
             }
         }
 
-        $version = $this->migrationRepository->getVersion($version);
-
         $marked = false;
 
-        if ($this->markMigrated && $this->migrationRepository->hasVersionMigrated($version)) {
+        if ($this->markMigrated && $executedMigrations->hasMigration($version)) {
             if (! $all) {
                 throw VersionAlreadyExists::new($version);
             }
@@ -207,7 +230,7 @@ EOT
             $marked = true;
         }
 
-        if (! $this->markMigrated && ! $this->migrationRepository->hasVersionMigrated($version)) {
+        if (! $this->markMigrated && ! $executedMigrations->hasMigration($version)) {
             if (! $all) {
                 throw VersionDoesNotExist::new($version);
             }
@@ -220,18 +243,20 @@ EOT
         }
 
         if ($this->markMigrated) {
-            $version->markMigrated();
+            $migrationResult = new ExecutionResult($version, Direction::UP);
+            $storage->complete($migrationResult);
 
-            $output->writeln(sprintf(
-                '<info>%s</info> added to the version table.',
-                $version->getVersion()
+            $this->io->text(sprintf(
+                "<info>%s</info> added to the version table.\n",
+                (string) $version
             ));
         } else {
-            $version->markNotMigrated();
+            $migrationResult = new ExecutionResult($version, Direction::DOWN);
+            $storage->complete($migrationResult);
 
-            $output->writeln(sprintf(
-                '<info>%s</info> deleted from the version table.',
-                $version->getVersion()
+            $this->io->text(sprintf(
+                "<info>%s</info> deleted from the version table.\n",
+                (string) $version
             ));
         }
     }

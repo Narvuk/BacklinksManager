@@ -6,13 +6,11 @@ namespace Doctrine\Migrations\Tools\Console\Helper;
 
 use Doctrine\Migrations\Configuration\Configuration;
 use Doctrine\Migrations\Tools\Console\Exception\DirectoryDoesNotExist;
-use const DIRECTORY_SEPARATOR;
-use function assert;
 use function date;
 use function file_exists;
-use function getcwd;
 use function mkdir;
 use function rtrim;
+use const DIRECTORY_SEPARATOR;
 
 /**
  * The MigrationDirectoryHelper class is responsible for returning the directory that migrations are stored in.
@@ -21,35 +19,22 @@ use function rtrim;
  */
 class MigrationDirectoryHelper
 {
-    /** @var Configuration */
-    private $configuration;
-
-    public function __construct(Configuration $configuration)
-    {
-        $this->configuration = $configuration;
-    }
-
     /**
      * @throws DirectoryDoesNotExist
      */
-    public function getMigrationDirectory() : string
+    public function getMigrationDirectory(Configuration $configuration, string $dir) : string
     {
-        $dir = $this->configuration->getMigrationsDirectory();
-        $dir = $dir ?? getcwd();
-
-        assert($dir !== false, 'Unable to determine current working directory.');
-
         $dir = rtrim($dir, '/');
 
         if (! file_exists($dir)) {
             throw DirectoryDoesNotExist::new($dir);
         }
 
-        if ($this->configuration->areMigrationsOrganizedByYear()) {
+        if ($configuration->areMigrationsOrganizedByYear()) {
             $dir .= $this->appendDir(date('Y'));
         }
 
-        if ($this->configuration->areMigrationsOrganizedByYearAndMonth()) {
+        if ($configuration->areMigrationsOrganizedByYearAndMonth()) {
             $dir .= $this->appendDir(date('m'));
         }
 

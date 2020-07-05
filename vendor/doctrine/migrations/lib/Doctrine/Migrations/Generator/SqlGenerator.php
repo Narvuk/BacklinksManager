@@ -6,7 +6,9 @@ namespace Doctrine\Migrations\Generator;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\Migrations\Configuration\Configuration;
-use SqlFormatter;
+use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
+use Doctrine\SqlFormatter\NullHighlighter;
+use Doctrine\SqlFormatter\SqlFormatter;
 use function array_unshift;
 use function count;
 use function implode;
@@ -44,8 +46,10 @@ class SqlGenerator
     ) : string {
         $code = [];
 
+        $storageConfiguration = $this->configuration->getMetadataStorageConfiguration();
         foreach ($sql as $query) {
-            if (stripos($query, $this->configuration->getMigrationsTableName()) !== false) {
+            if ($storageConfiguration instanceof TableMetadataStorageConfiguration
+                && stripos($query, $storageConfiguration->getTableName()) !== false) {
                 continue;
             }
 
@@ -53,7 +57,7 @@ class SqlGenerator
                 $maxLength = $lineLength - 18 - 8; // max - php code length - indentation
 
                 if (strlen($query) > $maxLength) {
-                    $query = SqlFormatter::format($query, false);
+                    $query = (new SqlFormatter(new NullHighlighter()))->format($query);
                 }
             }
 

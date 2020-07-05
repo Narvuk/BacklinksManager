@@ -4,37 +4,33 @@ declare(strict_types=1);
 
 namespace Doctrine\Migrations\Tools\Console\Command;
 
-use Doctrine\Migrations\Generator\DiffGenerator;
 use Doctrine\Migrations\Generator\Exception\NoChangesDetected;
-use Doctrine\Migrations\Provider\OrmSchemaProvider;
-use Doctrine\Migrations\Provider\SchemaProviderInterface;
+use Doctrine\Migrations\Metadata\AvailableMigrationsList;
+use Doctrine\Migrations\Metadata\ExecutedMigrationsList;
 use Doctrine\Migrations\Tools\Console\Exception\InvalidOptionUsage;
+use Doctrine\SqlFormatter\SqlFormatter;
+use OutOfBoundsException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use const FILTER_VALIDATE_BOOLEAN;
+use function addslashes;
+use function assert;
 use function class_exists;
+use function count;
 use function filter_var;
+use function is_string;
+use function key;
 use function sprintf;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * The DiffCommand class is responsible for generating a migration by comparing your current database schema to
  * your mapping information.
  */
-class DiffCommand extends AbstractCommand
+final class DiffCommand extends DoctrineCommand
 {
     /** @var string */
     protected static $defaultName = 'migrations:diff';
-
-    /** @var SchemaProviderInterface|null */
-    protected $schemaProvider;
-
-    public function __construct(?SchemaProviderInterface $schemaProvider = null)
-    {
-        $this->schemaProvider = $schemaProvider;
-
-        parent::__construct();
-    }
 
     protected function configure() : void
     {
@@ -48,21 +44,18 @@ The <info>%command.name%</info> command generates a migration by comparing your 
 
     <info>%command.full_name%</info>
 
-You can optionally specify a <comment>--editor-cmd</comment> option to open the generated file in your favorite editor:
-
-    <info>%command.full_name% --editor-cmd=mate</info>
 EOT
             )
             ->addOption(
-                'editor-cmd',
+                'namespace',
                 null,
-                InputOption::VALUE_OPTIONAL,
-                'Open file with this command upon creation.'
+                InputOption::VALUE_REQUIRED,
+                'The namespace to use for the migration (must be in the list of configured namespaces)'
             )
             ->addOption(
                 'filter-expression',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_REQUIRED,
                 'Tables which are filtered by Regular Expression.'
             )
             ->addOption(
@@ -74,7 +67,7 @@ EOT
             ->addOption(
                 'line-length',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_REQUIRED,
                 'Max line length of unformatted lines.',
                 120
             )
@@ -83,7 +76,7 @@ EOT
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'Check Database Platform to the generated code.',
-                true
+                false
             )
             ->addOption(
                 'allow-empty-diff',
@@ -96,29 +89,60 @@ EOT
     /**
      * @throws InvalidOptionUsage
      */
-    public function execute(
+    protected function execute(
         InputInterface $input,
         OutputInterface $output
-    ) : ?int {
-        $filterExpression = $input->getOption('filter-expression') ?? null;
-        $formatted        = (bool) $input->getOption('formatted');
-        $lineLength       = (int) $input->getOption('line-length');
-        $allowEmptyDiff   = (bool) $input->getOption('allow-empty-diff');
-        $checkDbPlatform  = filter_var($input->getOption('check-database-platform'), FILTER_VALIDATE_BOOLEAN);
+    ) : int {
+        $filterExpression = (string) $input->getOption('filter-expression');
+        if ($filterExpression === '') {
+            $filterExpression = null;
+        }
+
+        $formatted       = filter_var($input->getOption('formatted'), FILTER_VALIDATE_BOOLEAN);
+        $lineLength      = (int) $input->getOption('line-length');
+        $allowEmptyDiff  = $input->getOption('allow-empty-diff');
+        $checkDbPlatform = filter_var($input->getOption('check-database-platform'), FILTER_VALIDATE_BOOLEAN);
+        $namespace       = $input->getOption('namespace');
+        if ($namespace === '') {
+            $namespace = null;
+        }
 
         if ($formatted) {
-            if (! class_exists('SqlFormatter')) {
+            if (! class_exists(SqlFormatter::class)) {
                 throw InvalidOptionUsage::new(
-                    'The "--formatted" option can only be used if the sql formatter is installed. Please run "composer require jdorn/sql-formatter".'
+                    'The "--formatted" option can only be used if the sql formatter is installed. Please run "composer require doctrine/sql-formatter".'
                 );
             }
         }
 
-        $versionNumber = $this->configuration->generateVersionNumber();
+        $configuration = $this->getDependencyFactory()->getConfiguration();
+
+        $dirs = $configuration->getMigrationDirectories();
+        if ($namespace === null) {
+            $namespace = key($dirs);
+        } elseif (! isset($dirs[$namespace])) {
+            throw new OutOfBoundsException(sprintf('Path not defined for the namespace %s', $namespace));
+        }
+
+        assert(is_string($namespace));
+
+        $statusCalculator              = $this->getDependencyFactory()->getMigrationStatusCalculator();
+        $executedUnavailableMigrations = $statusCalculator->getExecutedUnavailableMigrations();
+        $newMigrations                 = $statusCalculator->getNewMigrations();
+
+        if (! $this->checkNewMigrationsOrExecutedUnavailable($newMigrations, $executedUnavailableMigrations, $input, $output)) {
+            $this->io->error('Migration cancelled!');
+
+            return 3;
+        }
+
+        $fqcn = $this->getDependencyFactory()->getClassNameGenerator()->generateClassName($namespace);
+
+        $diffGenerator = $this->getDependencyFactory()->getDiffGenerator();
 
         try {
-            $path = $this->createMigrationDiffGenerator()->generate(
-                $versionNumber,
+            $path = $diffGenerator->generate(
+                $fqcn,
                 $filterExpression,
                 $formatted,
                 $lineLength,
@@ -126,56 +150,56 @@ EOT
             );
         } catch (NoChangesDetected $exception) {
             if ($allowEmptyDiff) {
-                $output->writeln($exception->getMessage());
+                $this->io->error($exception->getMessage());
 
                 return 0;
             }
+
             throw $exception;
         }
 
-        $editorCommand = $input->getOption('editor-cmd');
-
-        if ($editorCommand !== null) {
-            $this->procOpen($editorCommand, $path);
-        }
-
-        $output->writeln([
+        $this->io->text([
             sprintf('Generated new migration class to "<info>%s</info>"', $path),
             '',
             sprintf(
-                'To run just this migration for testing purposes, you can use <info>migrations:execute --up %s</info>',
-                $versionNumber
+                'To run just this migration for testing purposes, you can use <info>migrations:execute --up \'%s\'</info>',
+                addslashes($fqcn)
             ),
             '',
             sprintf(
-                'To revert the migration you can use <info>migrations:execute --down %s</info>',
-                $versionNumber
+                'To revert the migration you can use <info>migrations:execute --down \'%s\'</info>',
+                addslashes($fqcn)
             ),
+            '',
         ]);
 
         return 0;
     }
 
-    protected function createMigrationDiffGenerator() : DiffGenerator
-    {
-        return new DiffGenerator(
-            $this->connection->getConfiguration(),
-            $this->connection->getSchemaManager(),
-            $this->getSchemaProvider(),
-            $this->connection->getDatabasePlatform(),
-            $this->dependencyFactory->getMigrationGenerator(),
-            $this->dependencyFactory->getMigrationSqlGenerator()
-        );
-    }
-
-    private function getSchemaProvider() : SchemaProviderInterface
-    {
-        if ($this->schemaProvider === null) {
-            $this->schemaProvider = new OrmSchemaProvider(
-                $this->getHelper('entityManager')->getEntityManager()
-            );
+    private function checkNewMigrationsOrExecutedUnavailable(
+        AvailableMigrationsList $newMigrations,
+        ExecutedMigrationsList $executedUnavailableMigrations,
+        InputInterface $input,
+        OutputInterface $output
+    ) : bool {
+        if (count($newMigrations) === 0 && count($executedUnavailableMigrations) === 0) {
+            return true;
         }
 
-        return $this->schemaProvider;
+        if (count($newMigrations) !== 0) {
+            $this->io->warning(sprintf(
+                'You have %d available migrations to execute.',
+                count($newMigrations)
+            ));
+        }
+
+        if (count($executedUnavailableMigrations) !== 0) {
+            $this->io->warning(sprintf(
+                'You have %d previously executed migrations in the database that are not registered migrations.',
+                count($executedUnavailableMigrations)
+            ));
+        }
+
+        return $this->canExecute('Are you sure you wish to continue?', $input);
     }
 }

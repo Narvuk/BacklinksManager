@@ -18,6 +18,7 @@ use Composer\Installer;
 use Composer\Json\JsonFile;
 use Composer\Package\Locker;
 use Composer\Package\Version\VersionParser;
+use Composer\Plugin\PluginInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -28,6 +29,8 @@ use Symfony\Flex\Unpacker;
 
 class UnpackCommand extends BaseCommand
 {
+    private $resolver;
+
     public function __construct(PackageResolver $resolver)
     {
         $this->resolver = $resolver;
@@ -114,16 +117,23 @@ class UnpackCommand extends BaseCommand
         $lockFile->write($lockData);
 
         // force removal of files under vendor/
-        $locker = new Locker($io, $lockFile, $composer->getRepositoryManager(), $composer->getInstallationManager(), file_get_contents($json->getPath()));
+        if (version_compare('2.0.0', PluginInterface::PLUGIN_API_VERSION, '>')) {
+            $locker = new Locker($io, $lockFile, $composer->getRepositoryManager(), $composer->getInstallationManager(), file_get_contents($json->getPath()));
+        } else {
+            $locker = new Locker($io, $lockFile, $composer->getInstallationManager(), file_get_contents($json->getPath()));
+        }
         $composer->setLocker($locker);
         $install = Installer::create($io, $composer);
         $install
             ->setDevMode(true)
             ->setDumpAutoloader(false)
             ->setRunScripts(false)
-            ->setSkipSuggest(true)
             ->setIgnorePlatformRequirements(true)
         ;
+
+        if (method_exists($install, 'setSkipSuggest')) {
+            $install->setSkipSuggest(true);
+        }
 
         return $install->run();
     }

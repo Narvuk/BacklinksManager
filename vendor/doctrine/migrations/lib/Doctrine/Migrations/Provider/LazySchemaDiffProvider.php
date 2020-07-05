@@ -16,24 +16,24 @@ use ProxyManager\Proxy\LazyLoadingInterface;
  *
  * @internal
  */
-class LazySchemaDiffProvider implements SchemaDiffProviderInterface
+class LazySchemaDiffProvider implements SchemaDiffProvider
 {
     /** @var LazyLoadingValueHolderFactory */
     private $proxyFactory;
 
-    /** @var SchemaDiffProviderInterface */
+    /** @var SchemaDiffProvider */
     private $originalSchemaManipulator;
 
     public function __construct(
         LazyLoadingValueHolderFactory $proxyFactory,
-        SchemaDiffProviderInterface $originalSchemaManipulator
+        SchemaDiffProvider $originalSchemaManipulator
     ) {
         $this->proxyFactory              = $proxyFactory;
         $this->originalSchemaManipulator = $originalSchemaManipulator;
     }
 
     public static function fromDefaultProxyFactoryConfiguration(
-        SchemaDiffProviderInterface $originalSchemaManipulator
+        SchemaDiffProvider $originalSchemaManipulator
     ) : LazySchemaDiffProvider {
         $proxyConfig = new Configuration();
         $proxyConfig->setGeneratorStrategy(new EvaluatingGeneratorStrategy());
@@ -48,7 +48,7 @@ class LazySchemaDiffProvider implements SchemaDiffProviderInterface
 
         return $this->proxyFactory->createProxy(
             Schema::class,
-            static function (&$wrappedObject, $proxy, $method, array $parameters, &$initializer) use ($originalSchemaManipulator) {
+            static function (&$wrappedObject, $proxy, $method, array $parameters, &$initializer) use ($originalSchemaManipulator) : bool {
                 $initializer = null;
 
                 $wrappedObject = $originalSchemaManipulator->createFromSchema();
@@ -65,7 +65,7 @@ class LazySchemaDiffProvider implements SchemaDiffProviderInterface
         if ($fromSchema instanceof LazyLoadingInterface && ! $fromSchema->isProxyInitialized()) {
             return $this->proxyFactory->createProxy(
                 Schema::class,
-                static function (&$wrappedObject, $proxy, $method, array $parameters, &$initializer) use ($originalSchemaManipulator, $fromSchema) {
+                static function (&$wrappedObject, $proxy, $method, array $parameters, &$initializer) use ($originalSchemaManipulator, $fromSchema) : bool {
                     $initializer = null;
 
                     $wrappedObject = $originalSchemaManipulator->createToSchema($fromSchema);
