@@ -66,7 +66,7 @@
                     <div class="card-header">
                       <h3 class="card-title">Latest Backlinks</h3>
                     </div>
-                  <div class="card-body p-0">
+                  <div id="no-more-tables" class="card-body p-0">
                       <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
@@ -79,10 +79,10 @@
                   <tbody>
                   {% for a in backlinks %}
                     <tr>
-                      <td>{{ a.backlink|slice(0,75) ~ '...' }}</td>
-                      <td><div id="blastchecked-{{a.id}}">{% if a.lastchecked %}{{ a.lastchecked|date('d-m-Y / H:i') }}{% else %} Not Checked {% endif %}</div></td>
-                      <td><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
-                      <td>
+                      <td data-title="Backlink">{{ a.backlink|slice(0,75) ~ '...' }}</td>
+                      <td data-title="Last Checked"><div id="blastchecked-{{a.id}}">{% if a.lastchecked %}{{ a.lastchecked|date('d-m-Y / H:i') }}{% else %} Not Checked {% endif %}</div></td>
+                      <td data-title="Status"><span class="tag tag-success"><div id="bstatus-{{a.id}}">{{ a.status }}</div></span></td>
+                      <td data-title="Action">
                         <a href="{{ path('backlink_view', {'id': a.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                         <button class="btn btn-warning btn-sm" id="checkisactive-{{a.id}}"><div id="bspin-{{a.id}}"><i class="fas fa-sync"></i></div></button>
                     <button type="button" class="btn btn-sm btn-info" data-toggle="dropdown">

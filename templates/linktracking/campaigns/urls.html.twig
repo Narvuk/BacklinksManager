@@ -12,7 +12,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-              <div class="card-body p-0">
+              <div id="no-more-tables" class="card-body p-0">
                 <table class="table table-sm table-hover text-nowrap">
                   <thead>
                     <tr>
@@ -26,11 +26,11 @@
                   <tbody>
                   {% for tu in turls %}
                     <tr>
-                      <td>{{ tu.title }}</td>
-                      <td>{{ tu.urlhits }}</td>
-                      <td>{% if tu.updated %}{{ tu.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
-                      <td><span class="tag tag-success">{{ tu.status }}</span></td>
-                      <td>
+                      <td data-title="Tracking Url">{{ tu.title }}</td>
+                      <td data-title="Hits/Traffic">{{ tu.urlhits }}</td>
+                      <td data-title="Updated">{% if tu.updated %}{{ tu.updated|date('d-m-Y / H:i') }}{% else %} Not Updated {% endif %}</td>
+                      <td data-title="Status"><span class="tag tag-success">{{ tu.status }}</span></td>
+                      <td data-title="Action">
                         <a href="{{ path('trackingurl_view', {'id': tu.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-eye"></i></a>
                       </td>
                     </tr>
