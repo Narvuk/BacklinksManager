@@ -17,7 +17,7 @@ class ReleaseInfo extends AbstractController
     public function CurrentVersion()
     {
         try{
-            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/currentversion');
+            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/1-Backlinks-Manager/currentversion');
             }
             catch(\Exception $e){
                 $currentversion = 'Unavailable';
@@ -30,7 +30,7 @@ class ReleaseInfo extends AbstractController
     public function DevelopmentVersion()
     {
         try{
-            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/indev');
+            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/1-Backlinks-Manager/indev');
             }
             catch(\Exception $e){
                 $currentversion = 'Unavailable';
@@ -60,7 +60,7 @@ class ReleaseInfo extends AbstractController
     public function Announcements()
     {
         try{
-            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/2-Backlinks-Manager/announcements');
+            $currentversion = file_get_contents('https://stormdevelopers.com/software/details/1-Backlinks-Manager/announcements');
             }
             catch(\Exception $e){
                 $currentversion = 'Unavailable';
