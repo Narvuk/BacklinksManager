@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Form\Extension\Core\Type;
 
+use Symfony\Component\Form\AbstractRendererEngine;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
@@ -97,6 +98,7 @@ abstract class BaseType extends AbstractType
             'disabled' => $form->isDisabled(),
             'label' => $options['label'],
             'label_format' => $labelFormat,
+            'label_html' => $options['label_html'],
             'multipart' => false,
             'attr' => $options['attr'],
             'block_prefixes' => $blockPrefixes,
@@ -111,7 +113,7 @@ abstract class BaseType extends AbstractType
             // collection form have different types (dynamically), they should
             // be rendered differently.
             // https://github.com/symfony/symfony/issues/5038
-            'cache_key' => $uniqueBlockPrefix.'_'.$form->getConfig()->getType()->getBlockPrefix(),
+            AbstractRendererEngine::CACHE_KEY_VAR => $uniqueBlockPrefix.'_'.$form->getConfig()->getType()->getBlockPrefix(),
         ]);
     }
 
@@ -127,6 +129,7 @@ abstract class BaseType extends AbstractType
             'label' => null,
             'label_format' => null,
             'row_attr' => [],
+            'label_html' => false,
             'label_translation_parameters' => [],
             'attr_translation_parameters' => [],
             'attr' => [],
@@ -137,5 +140,6 @@ abstract class BaseType extends AbstractType
         $resolver->setAllowedTypes('block_prefix', ['null', 'string']);
         $resolver->setAllowedTypes('attr', 'array');
         $resolver->setAllowedTypes('row_attr', 'array');
+        $resolver->setAllowedTypes('label_html', 'bool');
     }
 }

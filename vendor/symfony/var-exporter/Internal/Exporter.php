@@ -115,7 +115,7 @@ class Exporter
 
             if (method_exists($class, '__sleep')) {
                 if (!\is_array($sleep = $value->__sleep())) {
-                    trigger_error('serialize(): __sleep should return an array only containing the names of instance-variables to serialize', E_USER_NOTICE);
+                    trigger_error('serialize(): __sleep should return an array only containing the names of instance-variables to serialize', \E_USER_NOTICE);
                     $value = null;
                     goto handle_value;
                 }
@@ -160,7 +160,7 @@ class Exporter
             if ($sleep) {
                 foreach ($sleep as $n => $v) {
                     if (false !== $v) {
-                        trigger_error(sprintf('serialize(): "%s" returned as member variable from __sleep() but does not exist', $n), E_USER_NOTICE);
+                        trigger_error(sprintf('serialize(): "%s" returned as member variable from __sleep() but does not exist', $n), \E_USER_NOTICE);
                     }
                 }
             }
@@ -271,7 +271,7 @@ class Exporter
             return self::exportHydrator($value, $indent, $subIndent);
         }
 
-        throw new \UnexpectedValueException(sprintf('Cannot export value of type "%s".', \is_object($value) ? \get_class($value) : \gettype($value)));
+        throw new \UnexpectedValueException(sprintf('Cannot export value of type "%s".', get_debug_type($value)));
     }
 
     private static function exportRegistry(Registry $value, string $indent, string $subIndent): string

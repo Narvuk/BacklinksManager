@@ -80,24 +80,14 @@ EOT
             new TableSeparator(),
             ['<info>PHP</>'],
             new TableSeparator(),
-            ['Version', PHP_VERSION],
-            ['Architecture', (PHP_INT_SIZE * 8).' bits'],
+            ['Version', \PHP_VERSION],
+            ['Architecture', (\PHP_INT_SIZE * 8).' bits'],
             ['Intl locale', class_exists('Locale', false) && \Locale::getDefault() ? \Locale::getDefault() : 'n/a'],
             ['Timezone', date_default_timezone_get().' (<comment>'.(new \DateTime())->format(\DateTime::W3C).'</>)'],
-            ['OPcache', \extension_loaded('Zend OPcache') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false'],
-            ['APCu', \extension_loaded('apcu') && filter_var(ini_get('apc.enabled'), FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false'],
+            ['OPcache', \extension_loaded('Zend OPcache') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false'],
+            ['APCu', \extension_loaded('apcu') && filter_var(ini_get('apc.enabled'), \FILTER_VALIDATE_BOOLEAN) ? 'true' : 'false'],
             ['Xdebug', \extension_loaded('xdebug') ? 'true' : 'false'],
         ];
-
-        if ($dotenv = self::getDotenvVars()) {
-            $rows = array_merge($rows, [
-                new TableSeparator(),
-                ['<info>Environment (.env)</>'],
-                new TableSeparator(),
-            ], array_map(function ($value, $name) {
-                return [$name, $value];
-            }, $dotenv, array_keys($dotenv)));
-        }
 
         $io->table([], $rows);
 
@@ -128,17 +118,5 @@ EOT
         $date = \DateTime::createFromFormat('d/m/Y', '01/'.$date);
 
         return false !== $date && new \DateTime() > $date->modify('last day of this month 23:59:59');
-    }
-
-    private static function getDotenvVars(): array
-    {
-        $vars = [];
-        foreach (explode(',', $_SERVER['SYMFONY_DOTENV_VARS'] ?? $_ENV['SYMFONY_DOTENV_VARS'] ?? '') as $name) {
-            if ('' !== $name && isset($_ENV[$name])) {
-                $vars[$name] = $_ENV[$name];
-            }
-        }
-
-        return $vars;
     }
 }

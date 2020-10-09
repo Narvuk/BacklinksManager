@@ -7,7 +7,7 @@
     <services>
         <service id="mailer.mailer" class="Symfony\Component\Mailer\Mailer">
             <argument type="service" id="mailer.transports" />
-            <argument type="service" id="messenger.default_bus" on-invalid="ignore" />
+            <argument /> <!-- message bus-->
             <argument type="service" id="event_dispatcher" on-invalid="ignore" />
         </service>
         <service id="mailer" alias="mailer.mailer" />
@@ -41,6 +41,7 @@
 
         <service id="mailer.logger_message_listener" class="Symfony\Component\Mailer\EventListener\MessageLoggerListener">
             <tag name="kernel.event_subscriber"/>
+            <tag name="kernel.reset" method="reset" />
         </service>
     </services>
 </container>

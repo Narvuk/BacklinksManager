@@ -52,7 +52,7 @@ class UserPasswordEncoderCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Encodes a password.')
+            ->setDescription('Encodes a password')
             ->addArgument('password', InputArgument::OPTIONAL, 'The plain password to encode.')
             ->addArgument('user-class', InputArgument::OPTIONAL, 'The User entity class path associated with the encoder used to encode the password.')
             ->addOption('empty-salt', null, InputOption::VALUE_NONE, 'Do not generate a salt or let the encoder generate one.')
@@ -134,7 +134,7 @@ EOF
         if ($input->isInteractive() && !$emptySalt) {
             $emptySalt = true;
 
-            $errorIo->note('The command will take care of generating a salt for you. Be aware that some encoders advise to let them generate their own salt. If you\'re using one of those encoders, please answer \'no\' to the question below. '.PHP_EOL.'Provide the \'empty-salt\' option in order to let the encoder handle the generation itself.');
+            $errorIo->note('The command will take care of generating a salt for you. Be aware that some encoders advise to let them generate their own salt. If you\'re using one of those encoders, please answer \'no\' to the question below. '.\PHP_EOL.'Provide the \'empty-salt\' option in order to let the encoder handle the generation itself.');
 
             if ($errorIo->confirm('Confirm salt generation ?')) {
                 $salt = $this->generateSalt();

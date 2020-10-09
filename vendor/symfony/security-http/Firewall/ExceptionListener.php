@@ -144,7 +144,9 @@ class ExceptionListener
 
             try {
                 $insufficientAuthenticationException = new InsufficientAuthenticationException('Full authentication is required to access this resource.', 0, $exception);
-                $insufficientAuthenticationException->setToken($token);
+                if (null !== $token) {
+                    $insufficientAuthenticationException->setToken($token);
+                }
 
                 $event->setResponse($this->startAuthentication($event->getRequest(), $insufficientAuthenticationException));
             } catch (\Exception $e) {
@@ -193,6 +195,10 @@ class ExceptionListener
     private function startAuthentication(Request $request, AuthenticationException $authException): Response
     {
         if (null === $this->authenticationEntryPoint) {
+            if (null !== $this->logger) {
+                $this->logger->notice(sprintf('No Authentication entry point configured, returning a %s HTTP response. Configure "entry_point" on the firewall ("{firewall_name}") if you want to modify the response.', Response::HTTP_UNAUTHORIZED), ['firewall_name' => $this->providerKey]);
+            }
+
             throw new HttpException(Response::HTTP_UNAUTHORIZED, $authException->getMessage(), $authException, [], $authException->getCode());
         }
 
@@ -216,9 +222,9 @@ class ExceptionListener
         $response = $this->authenticationEntryPoint->start($request, $authException);
 
         if (!$response instanceof Response) {
-            $given = \is_object($response) ? \get_class($response) : \gettype($response);
+            $given = get_debug_type($response);
 
-            throw new \LogicException(sprintf('The "%s::start()" method must return a Response object ("%s" returned).', \get_class($this->authenticationEntryPoint), $given));
+            throw new \LogicException(sprintf('The "%s::start()" method must return a Response object ("%s" returned).', get_debug_type($this->authenticationEntryPoint), $given));
         }
 
         return $response;

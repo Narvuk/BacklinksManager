@@ -25,6 +25,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 class FormValidator extends ConstraintValidator
 {
     private $resolvedGroups;
+    private $fieldFormConstraints;
 
     /**
      * {@inheritdoc}
@@ -67,6 +68,7 @@ class FormValidator extends ConstraintValidator
 
             if ($hasChildren && $form->isRoot()) {
                 $this->resolvedGroups = new \SplObjectStorage();
+                $this->fieldFormConstraints = [];
             }
 
             if ($groups instanceof GroupSequence) {
@@ -84,14 +86,16 @@ class FormValidator extends ConstraintValidator
 
                     foreach ($form->all() as $field) {
                         if ($field->isSubmitted()) {
-                            // remember to validate this field is one group only
+                            // remember to validate this field in one group only
                             // otherwise resolving the groups would reuse the same
                             // sequence recursively, thus some fields could fail
                             // in different steps without breaking early enough
                             $this->resolvedGroups[$field] = (array) $group;
                             $fieldFormConstraint = new Form();
+                            $fieldFormConstraint->groups = $group;
+                            $this->fieldFormConstraints[] = $fieldFormConstraint;
                             $this->context->setNode($this->context->getValue(), $field, $this->context->getMetadata(), $this->context->getPropertyPath());
-                            $validator->atPath(sprintf('children[%s]', $field->getName()))->validate($field, $fieldFormConstraint);
+                            $validator->atPath(sprintf('children[%s]', $field->getName()))->validate($field, $fieldFormConstraint, $group);
                         }
                     }
 
@@ -136,6 +140,7 @@ class FormValidator extends ConstraintValidator
                     if ($field->isSubmitted()) {
                         $this->resolvedGroups[$field] = $groups;
                         $fieldFormConstraint = new Form();
+                        $this->fieldFormConstraints[] = $fieldFormConstraint;
                         $this->context->setNode($this->context->getValue(), $field, $this->context->getMetadata(), $this->context->getPropertyPath());
                         $validator->atPath(sprintf('children[%s]', $field->getName()))->validate($field, $fieldFormConstraint);
                     }
@@ -145,6 +150,7 @@ class FormValidator extends ConstraintValidator
             if ($hasChildren && $form->isRoot()) {
                 // destroy storage to avoid memory leaks
                 $this->resolvedGroups = new \SplObjectStorage();
+                $this->fieldFormConstraints = [];
             }
         } elseif (!$form->isSynchronized()) {
             $childrenSynchronized = true;
@@ -155,6 +161,7 @@ class FormValidator extends ConstraintValidator
                     $childrenSynchronized = false;
 
                     $fieldFormConstraint = new Form();
+                    $this->fieldFormConstraints[] = $fieldFormConstraint;
                     $this->context->setNode($this->context->getValue(), $child, $this->context->getMetadata(), $this->context->getPropertyPath());
                     $validator->atPath(sprintf('children[%s]', $child->getName()))->validate($child, $fieldFormConstraint);
                 }
@@ -170,7 +177,7 @@ class FormValidator extends ConstraintValidator
             if ($childrenSynchronized) {
                 $clientDataAsString = is_scalar($form->getViewData())
                     ? (string) $form->getViewData()
-                    : \gettype($form->getViewData());
+                    : get_debug_type($form->getViewData());
 
                 $failure = $form->getTransformationFailure();
 
@@ -193,6 +200,7 @@ class FormValidator extends ConstraintValidator
             $this->context->setConstraint($formConstraint);
             $this->context->buildViolation($config->getOption('extra_fields_message', ''))
                 ->setParameter('{{ extra_fields }}', '"'.implode('", "', array_keys($form->getExtraData())).'"')
+                ->setPlural(\count($form->getExtraData()))
                 ->setInvalidValue($form->getExtraData())
                 ->setCode(Form::NO_SUCH_FIELD_ERROR)
                 ->addViolation();

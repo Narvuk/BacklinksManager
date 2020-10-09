@@ -29,8 +29,6 @@ use Symfony\Component\String\Exception\InvalidArgumentException;
  * @author Hugo Hamon <hugohamon@neuf.fr>
  *
  * @throws ExceptionInterface
- *
- * @experimental in 5.0
  */
 class UnicodeString extends AbstractUnicodeString
 {
@@ -76,7 +74,7 @@ class UnicodeString extends AbstractUnicodeString
         $str = clone $this;
         $chunks = [];
 
-        foreach (preg_split($rx, $this->string, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY) as $chunk) {
+        foreach (preg_split($rx, $this->string, -1, \PREG_SPLIT_DELIM_CAPTURE | \PREG_SPLIT_NO_EMPTY) as $chunk) {
             $str->string = $chunk;
             $chunks[] = clone $str;
         }
@@ -102,10 +100,10 @@ class UnicodeString extends AbstractUnicodeString
         }
 
         if ($this->ignoreCase) {
-            return 0 === mb_stripos(grapheme_extract($this->string, \strlen($suffix), GRAPHEME_EXTR_MAXBYTES, \strlen($this->string) - \strlen($suffix)), $suffix, 0, 'UTF-8');
+            return 0 === mb_stripos(grapheme_extract($this->string, \strlen($suffix), \GRAPHEME_EXTR_MAXBYTES, \strlen($this->string) - \strlen($suffix)), $suffix, 0, 'UTF-8');
         }
 
-        return $suffix === grapheme_extract($this->string, \strlen($suffix), GRAPHEME_EXTR_MAXBYTES, \strlen($this->string) - \strlen($suffix));
+        return $suffix === grapheme_extract($this->string, \strlen($suffix), \GRAPHEME_EXTR_MAXBYTES, \strlen($this->string) - \strlen($suffix));
     }
 
     public function equalsTo($string): bool
@@ -145,7 +143,11 @@ class UnicodeString extends AbstractUnicodeString
             return null;
         }
 
-        $i = $this->ignoreCase ? grapheme_stripos($this->string, $needle, $offset) : grapheme_strpos($this->string, $needle, $offset);
+        try {
+            $i = $this->ignoreCase ? grapheme_stripos($this->string, $needle, $offset) : grapheme_strpos($this->string, $needle, $offset);
+        } catch (\ValueError $e) {
+            return null;
+        }
 
         return false === $i ? null : $i;
     }
@@ -237,7 +239,7 @@ class UnicodeString extends AbstractUnicodeString
             $result = '';
             $indexOf = $this->ignoreCase ? 'grapheme_stripos' : 'grapheme_strpos';
 
-            while (false !== $i = $indexOf($tail, $from)) {
+            while ('' !== $tail && false !== $i = $indexOf($tail, $from)) {
                 $slice = grapheme_substr($tail, 0, $i);
                 $result .= $slice.$to;
                 $tail = substr($tail, \strlen($slice) + \strlen($from));
@@ -265,7 +267,11 @@ class UnicodeString extends AbstractUnicodeString
     public function slice(int $start = 0, int $length = null): AbstractString
     {
         $str = clone $this;
-        $str->string = (string) grapheme_substr($this->string, $start, $length ?? \PHP_INT_MAX);
+        try {
+            $str->string = (string) grapheme_substr($this->string, $start, $length ?? \PHP_INT_MAX);
+        } catch (\ValueError $e) {
+            $str->string = '';
+        }
 
         return $str;
     }
@@ -341,10 +347,10 @@ class UnicodeString extends AbstractUnicodeString
         }
 
         if ($this->ignoreCase) {
-            return 0 === mb_stripos(grapheme_extract($this->string, \strlen($prefix), GRAPHEME_EXTR_MAXBYTES), $prefix, 0, 'UTF-8');
+            return 0 === mb_stripos(grapheme_extract($this->string, \strlen($prefix), \GRAPHEME_EXTR_MAXBYTES), $prefix, 0, 'UTF-8');
         }
 
-        return $prefix === grapheme_extract($this->string, \strlen($prefix), GRAPHEME_EXTR_MAXBYTES);
+        return $prefix === grapheme_extract($this->string, \strlen($prefix), \GRAPHEME_EXTR_MAXBYTES);
     }
 
     public function __wakeup()
