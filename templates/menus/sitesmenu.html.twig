@@ -13,32 +13,33 @@
         <p>Edit Site</p>
     </a>
 </li>
-<li class="nav-header">Workflow</li>
+<li class="nav-header">Site Details</li>
 <li class="nav-item">
-    <a href="{{ path('site_prospects', {'id': site.id}) }}" class="nav-link">
-        <i class="nav-icon far fa-circle text-info"></i>
-        <p>Prospects</p>
-    </a>
-</li>
-<li class="nav-item">
-    <a href="{{ path('site_backlinks', {'id': site.id}) }}" class="nav-link">
-        <i class="nav-icon far fa-circle text-info"></i>
-        <p>Backlinks</p>
+    <a href="{{ path('site_pages', {'id': site.id}) }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-orange"></i>
+        <p>Site Pages</p>
     </a>
 </li>
 <li class="nav-item">
     <a href="{{ path('site_keywords', {'id': site.id}) }}" class="nav-link">
-        <i class="nav-icon far fa-circle text-info"></i>
+        <i class="nav-icon far fa-circle text-orange"></i>
         <p>Keywords</p>
     </a>
 </li>
+<li class="nav-header">Marketing</li>
 <li class="nav-item">
-    <a href="{{ path('site_pages', {'id': site.id}) }}" class="nav-link">
-        <i class="nav-icon far fa-circle text-info"></i>
-        <p>Site Pages</p>
+    <a href="{{ path('site_prospects', {'id': site.id}) }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-yellow"></i>
+        <p>Prospects</p>
     </a>
 </li>
-<li class="nav-header">Tools</li>
+<li class="nav-header">Reports</li>
+<li class="nav-item">
+    <a href="{{ path('site_backlinks', {'id': site.id}) }}" class="nav-link">
+        <i class="nav-icon far fa-circle text-green"></i>
+        <p>Backlinks</p>
+    </a>
+</li>
 <li class="nav-item">
     <a href="{{ path('site_link_tracking', {'id': site.id}) }}" class="nav-link">
         <i class="nav-icon far fa-circle text-green"></i>

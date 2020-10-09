@@ -22,6 +22,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Role\Role;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use ZipArchive;
+use App\Service\ReleaseInfo;
 
 
 class UpdatesController extends AbstractController
@@ -129,12 +130,13 @@ class UpdatesController extends AbstractController
     /**
      * @Route("/updates/download/latest", name="updates_download_latest")
      */
-    public function DownloadLatestVersion(KernelInterface $kernel, Request $request)
+    public function DownloadLatestVersion(KernelInterface $kernel, Request $request, ReleaseInfo $releaseinfo)
     {
+        $currentversion = $releaseinfo->CurrentVersion();
         if ($request->isXmlHttpRequest()) {
             $fileSystem = new Filesystem();
-            $url = "https://update.stormdevelopers.com/BacklinksManager/latest.zip";
-            $zipFile = "../latest.zip"; // Local Zip File Path
+            $url = "https://github.com/StormDevelopers/BacklinksManager/releases/download/".$currentversion."/update.zip";
+            $zipFile = "../update.zip"; // Local Zip File Path
             $zipResource = fopen($zipFile, "w");
             // Get The Zip File From Server
             $ch = curl_init();
@@ -163,7 +165,7 @@ class UpdatesController extends AbstractController
             /* Extract Zip File */
             $zip->extractTo($extractPath);
             $zip->close();
-            $fileSystem->remove('../latest.zip');
+            $fileSystem->remove('../update.zip');
         }
 
         $completed = 'Updated System Files';

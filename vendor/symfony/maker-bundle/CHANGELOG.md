@@ -1,3 +1,21 @@
+1.21
+====
+
+* [make:docker:database] When using MySQL, a "main" database is now created
+  automatically for you - #656 thanks to @robmeijer!
+
+* [make:voter] Better generated entity "guess" - #658 thanks to @yahyaerturan!
+
+* [make:command] Use the new Command::SUCCESS when available - #664
+  thanks to @Chi-teck!
+
+
+1.20
+====
+
+* [make:docker:database] Added a new command to generate a database service
+  in your `docker-compose.yaml` file - #640 thanks to @jrushlow!
+
 1.19
 ====
 

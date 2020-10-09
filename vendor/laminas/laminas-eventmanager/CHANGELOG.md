@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 3.3.0 - 2020-08-25
+
+### Added
+
+- [#10](https://github.com/laminas/laminas-eventmanager/pull/10) adds support for the upcoming PHP 8.0 release.
+
+- [zendframework/zend-eventmanager#72](https://github.com/zendframework/zend-eventmanager/pull/72) adds support for PHP 7.3.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- [#10](https://github.com/laminas/laminas-eventmanager/pull/10) removes support for PHP versions prior to PHP 7.3.
+
+### Fixed
+
+- Nothing.
+
 ## 3.2.1 - 2018-04-25
 
 ### Added

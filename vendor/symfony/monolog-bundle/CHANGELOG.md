@@ -1,3 +1,8 @@
+## 3.6.0 (xxxx-xx-xx)
+
+* Added support for Symfony Mailer
+* Added support for setting log levels from parameters or environment variables
+
 ## 3.5.0 (2019-11-13)
 
 * Added support for Monolog 2.0

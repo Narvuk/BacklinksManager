@@ -482,6 +482,7 @@ class SitesController extends AbstractController
             $sitepages = $sitepages->findBy(['siteid' => $id], ['id' => 'DESC'], $limit, $offset);
 
             $countbls = 0;
+            $totalhits = 0;
             foreach ($sitepages as $page)
             {
                 $pageid = $page->getId();

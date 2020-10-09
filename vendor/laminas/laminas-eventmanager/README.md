@@ -1,6 +1,6 @@
 # laminas-eventmanager
 
-[![Build Status](https://travis-ci.org/laminas/laminas-eventmanager.svg?branch=master)](https://travis-ci.org/laminas/laminas-eventmanager)
+[![Build Status](https://travis-ci.com/laminas/laminas-eventmanager.svg?branch=master)](https://travis-ci.com/laminas/laminas-eventmanager)
 [![Coverage Status](https://coveralls.io/repos/laminas/laminas-eventmanager/badge.svg?branch=master)](https://coveralls.io/r/laminas/laminas-eventmanager?branch=master)
 
 laminas-eventmanager is designed for the following use cases:
@@ -22,11 +22,11 @@ documentation](https://docs.laminas.dev/laminas-eventmanager/migration/intro/).
 ## Benchmarks
 
 We provide scripts for benchmarking laminas-eventmanager using the
-[Athletic](https://github.com/polyfractal/athletic) framework; these can be
+[PHPBench](https://github.com/phpbench/phpbench) framework; these can be
 found in the `benchmarks/` directory.
 
 To execute the benchmarks you can run the following command:
 
 ```bash
-$ vendor/bin/athletic -p benchmarks
+$ vendor/bin/phpbench run --report=aggregate
 ```

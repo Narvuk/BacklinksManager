@@ -2,10 +2,13 @@
 
 namespace Doctrine\DBAL\Driver;
 
+use Doctrine\DBAL\Driver\PDO\Exception;
+use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\ParameterType;
 use PDO;
-use const E_USER_DEPRECATED;
+use PDOException;
+
 use function array_slice;
 use function assert;
 use function func_get_args;
@@ -13,16 +16,21 @@ use function is_array;
 use function sprintf;
 use function trigger_error;
 
+use const E_USER_DEPRECATED;
+
 /**
  * The PDO implementation of the Statement interface.
  * Used by all PDO-based drivers.
+ *
+ * @deprecated Use {@link Statement} instead
  */
-class PDOStatement extends \PDOStatement implements Statement
+class PDOStatement extends \PDOStatement implements StatementInterface, Result
 {
     private const PARAM_TYPE_MAP = [
         ParameterType::NULL         => PDO::PARAM_NULL,
         ParameterType::INTEGER      => PDO::PARAM_INT,
         ParameterType::STRING       => PDO::PARAM_STR,
+        ParameterType::ASCII        => PDO::PARAM_STR,
         ParameterType::BINARY       => PDO::PARAM_LOB,
         ParameterType::LARGE_OBJECT => PDO::PARAM_LOB,
         ParameterType::BOOLEAN      => PDO::PARAM_BOOL,
@@ -39,6 +47,8 @@ class PDOStatement extends \PDOStatement implements Statement
 
     /**
      * Protected constructor.
+     *
+     * @internal The statement can be only instantiated by its driver connection.
      */
     protected function __construct()
     {
@@ -46,6 +56,8 @@ class PDOStatement extends \PDOStatement implements Statement
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use one of the fetch- or iterate-related methods.
      */
     public function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)
     {
@@ -65,8 +77,8 @@ class PDOStatement extends \PDOStatement implements Statement
             }
 
             return parent::setFetchMode($fetchMode, $arg2, $arg3);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
@@ -79,13 +91,13 @@ class PDOStatement extends \PDOStatement implements Statement
 
         try {
             return parent::bindValue($param, $value, $type);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
-     * @param mixed    $column
+     * @param mixed    $param
      * @param mixed    $variable
      * @param int      $type
      * @param int|null $length
@@ -93,25 +105,27 @@ class PDOStatement extends \PDOStatement implements Statement
      *
      * @return bool
      */
-    public function bindParam($column, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
+    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null, $driverOptions = null)
     {
         $type = $this->convertParamType($type);
 
         try {
-            return parent::bindParam($column, $variable, $type, ...array_slice(func_get_args(), 3));
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+            return parent::bindParam($param, $variable, $type, ...array_slice(func_get_args(), 3));
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use free() instead.
      */
     public function closeCursor()
     {
         try {
             return parent::closeCursor();
-        } catch (\PDOException $exception) {
+        } catch (PDOException $exception) {
             // Exceptions not allowed by the interface.
             // In case driver implementations do not adhere to the interface, silence exceptions here.
             return true;
@@ -125,13 +139,15 @@ class PDOStatement extends \PDOStatement implements Statement
     {
         try {
             return parent::execute($params);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchNumeric(), fetchAssociative() or fetchOne() instead.
      */
     public function fetch($fetchMode = null, $cursorOrientation = PDO::FETCH_ORI_NEXT, $cursorOffset = 0)
     {
@@ -143,13 +159,15 @@ class PDOStatement extends \PDOStatement implements Statement
 
         try {
             return parent::fetch(...$args);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @deprecated Use fetchAllNumeric(), fetchAllAssociative() or fetchFirstColumn() instead.
      */
     public function fetchAll($fetchMode = null, $fetchArgument = null, $ctorArgs = null)
     {
@@ -174,21 +192,76 @@ class PDOStatement extends \PDOStatement implements Statement
             assert(is_array($data));
 
             return $data;
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @deprecated Use fetchOne() instead.
+     */
+    public function fetchColumn($columnIndex = 0)
+    {
+        try {
+            return parent::fetchColumn($columnIndex);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchColumn($columnIndex = 0)
+    public function fetchNumeric()
     {
-        try {
-            return parent::fetchColumn($columnIndex);
-        } catch (\PDOException $exception) {
-            throw new PDOException($exception);
-        }
+        return $this->fetch(PDO::FETCH_NUM);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAssociative()
+    {
+        return $this->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne()
+    {
+        return $this->fetch(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllNumeric(): array
+    {
+        return $this->fetchAll(PDO::FETCH_NUM);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchAllAssociative(): array
+    {
+        return $this->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchFirstColumn(): array
+    {
+        return $this->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function free(): void
+    {
+        parent::closeCursor();
     }
 
     /**
@@ -196,7 +269,7 @@ class PDOStatement extends \PDOStatement implements Statement
      *
      * @param int $type Parameter type
      */
-    private function convertParamType(int $type) : int
+    private function convertParamType(int $type): int
     {
         if (! isset(self::PARAM_TYPE_MAP[$type])) {
             // TODO: next major: throw an exception
@@ -216,7 +289,7 @@ class PDOStatement extends \PDOStatement implements Statement
      *
      * @param int $fetchMode Fetch mode
      */
-    private function convertFetchMode(int $fetchMode) : int
+    private function convertFetchMode(int $fetchMode): int
     {
         if (! isset(self::FETCH_MODE_MAP[$fetchMode])) {
             // TODO: next major: throw an exception

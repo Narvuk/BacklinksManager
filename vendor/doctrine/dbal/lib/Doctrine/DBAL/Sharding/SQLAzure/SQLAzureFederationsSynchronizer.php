@@ -11,6 +11,7 @@ use Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use RuntimeException;
+
 use function array_merge;
 
 /**
@@ -20,6 +21,8 @@ use function array_merge;
  * by partitioning the passed schema into subschemas for the federation and the
  * global database and then applying the operations step by step using the
  * {@see \Doctrine\DBAL\Schema\Synchronizer\SingleDatabaseSynchronizer}.
+ *
+ * @deprecated
  */
 class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
 {
@@ -61,7 +64,9 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
             $defaultValue = $this->getFederationTypeDefaultValue();
 
             $sql[] = $this->getCreateFederationStatement();
-            $sql[] = 'USE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $defaultValue . ') WITH RESET, FILTERING = OFF;';
+            $sql[] = 'USE FEDERATION ' . $this->shardManager->getFederationName()
+                . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $defaultValue . ')'
+                . ' WITH RESET, FILTERING = OFF;';
             $sql   = array_merge($sql, $federationSql);
         }
 
@@ -135,7 +140,9 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
             }
 
             $sql[] = '-- Work on Federation ID ' . $shard['id'] . "\n" .
-                     'USE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $shard['rangeLow'] . ') WITH RESET, FILTERING = OFF;';
+                     'USE FEDERATION ' . $this->shardManager->getFederationName()
+                . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $shard['rangeLow'] . ')'
+                . ' WITH RESET, FILTERING = OFF;';
             $sql   = array_merge($sql, $federationSql);
         }
 
@@ -225,8 +232,10 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
                 continue;
             }
 
-            $sql[] = '-- Work on Federation ID ' . $shard['id'] . "\n" .
-                     'USE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $shard['rangeLow'] . ') WITH RESET, FILTERING = OFF;';
+            $sql[] = '-- Work on Federation ID ' . $shard['id'] . "\n"
+                . 'USE FEDERATION ' . $this->shardManager->getFederationName()
+                . ' (' . $this->shardManager->getDistributionKey() . ' = ' . $shard['rangeLow'] . ')'
+                . ' WITH RESET, FILTERING = OFF;';
             $sql   = array_merge($sql, $federationSql);
         }
 
@@ -265,7 +274,9 @@ class SQLAzureFederationsSynchronizer extends AbstractSchemaSynchronizer
         $federationType    = Type::getType($this->shardManager->getDistributionType());
         $federationTypeSql = $federationType->getSQLDeclaration([], $this->conn->getDatabasePlatform());
 
-        return "--Create Federation\n" .
-               'CREATE FEDERATION ' . $this->shardManager->getFederationName() . ' (' . $this->shardManager->getDistributionKey() . ' ' . $federationTypeSql . '  RANGE)';
+        return "--Create Federation\n"
+            . 'CREATE FEDERATION ' . $this->shardManager->getFederationName()
+            . ' (' . $this->shardManager->getDistributionKey()
+            . ' ' . $federationTypeSql . '  RANGE)';
     }
 }
