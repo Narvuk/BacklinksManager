@@ -9,7 +9,7 @@ class ReleaseInfo extends AbstractController
 
     public function SystemVersion()
     {
-        $version = '0.5.8';
+        $version = '0.5.9';
 
         return $version;
     }
