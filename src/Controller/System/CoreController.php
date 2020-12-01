@@ -28,8 +28,11 @@ class CoreController extends AbstractController
      /**
      * @Route("/", name="core")
      */
-    public function Index(Request $request)
+    public function Index(ReleaseInfo $releaseinfo, Request $request)
     {
+        // check updates
+        $releaseinfo->UpdateServiceCron();
+        // run page
         $limit = "6";
         $getsites = $this->getDoctrine()->getRepository(Sites::class);
         $getcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
@@ -230,30 +233,35 @@ class CoreController extends AbstractController
     public function SystemAboutInformation(Request $request, ReleaseInfo $releaseinfo)
     {
         $fileSystem = new Filesystem();
-        $islivemode = $fileSystem->exists('../.env.local');
-        if ($islivemode === True){
+        $isdevmode = $fileSystem->exists('../.env.local');
+        if ($isdevmode === True){
             $sysmode = 'Developer Mode';
         }else{
             $sysmode = 'Live Mode';
         }
 
-        
-        $announcements = $releaseinfo->Announcements();
+        // $updates = $releaseinfo->UpdateService();
 
         $sysversion = $releaseinfo->SystemVersion();
-        $currentversion = $releaseinfo->CurrentVersion();          
+
+        $currentversion = $releaseinfo->CurrentVersion();
         $nextversion = $releaseinfo->DevelopmentVersion();
         $isupdate = $releaseinfo->UpdateCheck();
+        $servicestatus = $releaseinfo->ServiceStatus();
+        $devstage = $releaseinfo->DevStage();
+
 
 
         return $this->render('system/sysinfo.html.twig',
             [
-                'announcements' => $announcements,
+                'isdev' => $isdevmode,
                 'sysmode' => $sysmode,
                 'nextversion' => $nextversion,
                 'currentversion' => $currentversion,
                 'sysversion' => $sysversion,
                 'isupdate' => $isupdate,
+                'servicestatus' => $servicestatus,
+                'devstage' => $devstage,
             ]
         );
     }

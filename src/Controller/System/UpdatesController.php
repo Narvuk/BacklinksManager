@@ -145,7 +145,7 @@ class UpdatesController extends AbstractController
             curl_setopt($ch, CURLOPT_HEADER, 0);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-            curl_setopt($ch, CURLOPT_BINARYTRANSFER,true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); 

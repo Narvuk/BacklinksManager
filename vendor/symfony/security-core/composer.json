@@ -28,6 +28,7 @@
         "symfony/expression-language": "^4.4|^5.0",
         "symfony/http-foundation": "^4.4|^5.0",
         "symfony/ldap": "^4.4|^5.0",
+        "symfony/translation": "^4.4|^5.0",
         "symfony/validator": "^4.4|^5.0",
         "psr/log": "~1.0"
     },
@@ -50,10 +51,5 @@
             "/Tests/"
         ]
     },
-    "minimum-stability": "dev",
-    "extra": {
-        "branch-alias": {
-            "dev-master": "5.1-dev"
-        }
-    }
+    "minimum-stability": "dev"
 }

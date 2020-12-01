@@ -30,7 +30,8 @@
         "symfony/web-link": "5.1.*",
         "symfony/yaml": "5.1.*",
         "ext-curl": "*",
-        "ext-zip": "*"
+        "ext-zip": "*",
+        "ext-json": "*"
     },
     "require-dev": {
         "symfony/debug-pack": "*",

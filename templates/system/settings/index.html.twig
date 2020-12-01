@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+{% block AppMenu %}
+    {{ include('menus/settingsmenu.html.twig') }}
+{% endblock %}
+{% block bodytitle %}
+    System Settings
+{% endblock %}
+{% block tcright %}
+<!-- buttons here -->
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div id="no-more-tables" class="card-body p-0">
+                    <table class="table table-sm table-hover text-nowrap">
+                        <thead>
+                        <tr>
+                            <th>Setting Type</th>
+                            <th>Setting Name</th>
+                            <th>Setting description</th>
+                            <th>Setting Value</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for s in settings %}
+                            {% if s.settingtype != 'private' %}
+                            <tr>
+                                <td data-title="Type">{{ s.settingtype }}</td>
+                                <td data-title="Name">{{ s.settingname}}</td>
+                                <td data-title="Key">{{ s.description}}</td>
+                                <td data-title="Status">{{ s.settingValue }}</td>
+                                <td data-title="Action">
+                                    {% if s.settingtype != 'private' and s.settingtype != 'core' %}
+                                    <a href="{{ path('system_settings_edit', {id: s.id}) }}" class="btn btn-success btn-sm"><i class="fas fa-edit"></i></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.card-body -->
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="dataTables_paginate float-right">
+                        <ul class="pagination">
+                            <li class="paginate_button page-item previous {% if currentpage < '2' %}disabled{% endif %}"><a href="?page=1" class="page-link">First</a></li>
+                            <li class="paginate_button page-item previous {% if currentpage < '2' %}disabled{% endif %}"><a href="?page={{previouspage}}" class="page-link"><i class="fa fa-angle-double-left"></i></a></li>
+                            <li class="paginate_button page-item disabled"><a href="" class="page-link">{{currentpage}} of {{maxpages}}</a></li>
+                            <li class="paginate_button page-item next {% if currentpage == maxpages %}disabled{% endif %}"><a href="?page={{nextpage}}" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
+                            <li class="paginate_button page-item next {% if currentpage == maxpages %}disabled{% endif %}"><a href="?page={{maxpages}}" class="page-link">Last</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block pageJS %}
+    <!-- Additional Javascript or Jquery  -->
+{% endblock %}

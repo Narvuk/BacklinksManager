@@ -537,7 +537,6 @@ class ComposerStaticInit2810bd1ac7a68f121359017c75154794
             0 => __DIR__ . '/..' . '/doctrine/common/lib/Doctrine/Common',
             1 => __DIR__ . '/..' . '/doctrine/event-manager/lib/Doctrine/Common',
             2 => __DIR__ . '/..' . '/doctrine/persistence/lib/Doctrine/Common',
-            3 => __DIR__ . '/..' . '/doctrine/reflection/lib/Doctrine/Common',
         ),
         'Doctrine\\Bundle\\MigrationsBundle\\' => 
         array (
@@ -558,7 +557,9 @@ class ComposerStaticInit2810bd1ac7a68f121359017c75154794
     );
 
     public static $classMap = array (
+        'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Collator' => __DIR__ . '/..' . '/symfony/intl/Resources/stubs/Collator.php',
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'IntlDateFormatter' => __DIR__ . '/..' . '/symfony/intl/Resources/stubs/IntlDateFormatter.php',
         'JsonException' => __DIR__ . '/..' . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
         'Locale' => __DIR__ . '/..' . '/symfony/intl/Resources/stubs/Locale.php',

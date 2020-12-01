@@ -185,7 +185,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
             return true;
         }
 
-        list($reflectionMethod) = $this->getMutatorMethod($class, $property);
+        [$reflectionMethod] = $this->getMutatorMethod($class, $property);
 
         return null !== $reflectionMethod;
     }
@@ -384,7 +384,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
      */
     private function extractFromMutator(string $class, string $property): ?array
     {
-        list($reflectionMethod, $prefix) = $this->getMutatorMethod($class, $property);
+        [$reflectionMethod, $prefix] = $this->getMutatorMethod($class, $property);
         if (null === $reflectionMethod) {
             return null;
         }
@@ -411,7 +411,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
      */
     private function extractFromAccessor(string $class, string $property): ?array
     {
-        list($reflectionMethod, $prefix) = $this->getAccessorMethod($class, $property);
+        [$reflectionMethod, $prefix] = $this->getAccessorMethod($class, $property);
         if (null === $reflectionMethod) {
             return null;
         }
@@ -477,8 +477,9 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
         }
 
         $type = \gettype($defaultValue);
+        $type = static::MAP_TYPES[$type] ?? $type;
 
-        return [new Type(static::MAP_TYPES[$type] ?? $type)];
+        return [new Type($type, false, null, Type::BUILTIN_TYPE_ARRAY === $type)];
     }
 
     private function extractFromReflectionType(\ReflectionType $reflectionType, \ReflectionClass $declaringClass): array
@@ -488,7 +489,7 @@ class ReflectionExtractor implements PropertyListExtractorInterface, PropertyTyp
 
         foreach ($reflectionType instanceof \ReflectionUnionType ? $reflectionType->getTypes() : [$reflectionType] as $type) {
             $phpTypeOrClass = $reflectionType instanceof \ReflectionNamedType ? $reflectionType->getName() : (string) $type;
-            if ('null' === $phpTypeOrClass) {
+            if ('null' === $phpTypeOrClass || 'mixed' === $phpTypeOrClass) {
                 continue;
             }
 

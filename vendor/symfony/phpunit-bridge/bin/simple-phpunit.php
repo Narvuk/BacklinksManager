@@ -95,7 +95,7 @@ $passthruOrFail = function ($command) {
 
 if (\PHP_VERSION_ID >= 80000) {
     // PHP 8 requires PHPUnit 9.3+
-    $PHPUNIT_VERSION = $getEnvVar('SYMFONY_PHPUNIT_VERSION', '9.3');
+    $PHPUNIT_VERSION = $getEnvVar('SYMFONY_PHPUNIT_VERSION', '9.4');
 } elseif (\PHP_VERSION_ID >= 70200) {
     // PHPUnit 8 requires PHP 7.2+
     $PHPUNIT_VERSION = $getEnvVar('SYMFONY_PHPUNIT_VERSION', '8.3');
@@ -111,6 +111,12 @@ if (\PHP_VERSION_ID >= 80000) {
 } else {
     // PHPUnit 5.1 requires PHP 5.6+
     $PHPUNIT_VERSION = '4.8';
+}
+
+$MAX_PHPUNIT_VERSION = $getEnvVar('SYMFONY_MAX_PHPUNIT_VERSION', false);
+
+if ($MAX_PHPUNIT_VERSION && version_compare($MAX_PHPUNIT_VERSION, $PHPUNIT_VERSION, '<')) {
+    $PHPUNIT_VERSION = $MAX_PHPUNIT_VERSION;
 }
 
 $PHPUNIT_REMOVE_RETURN_TYPEHINT = filter_var($getEnvVar('SYMFONY_PHPUNIT_REMOVE_RETURN_TYPEHINT', '0'), \FILTER_VALIDATE_BOOLEAN);
@@ -197,7 +203,7 @@ if (!file_exists("$PHPUNIT_DIR/$PHPUNIT_VERSION_DIR/phpunit") || $configurationH
         'requires' => ['php' => '*'],
     ];
 
-    $stableVersions = array_filter($info['versions'], function($v) {
+    $stableVersions = array_filter($info['versions'], function ($v) {
         return !preg_match('/-dev$|^dev-/', $v);
     });
 
@@ -232,7 +238,7 @@ if (!file_exists("$PHPUNIT_DIR/$PHPUNIT_VERSION_DIR/phpunit") || $configurationH
     }
     $prevRoot = getenv('COMPOSER_ROOT_VERSION');
     putenv("COMPOSER_ROOT_VERSION=$PHPUNIT_VERSION.99");
-    $q = '\\' === \DIRECTORY_SEPARATOR ? '"' : '';
+    $q = '\\' === \DIRECTORY_SEPARATOR && \PHP_VERSION_ID < 80000 ? '"' : '';
     // --no-suggest is not in the list to keep compat with composer 1.0, which is shipped with Ubuntu 16.04LTS
     $exit = proc_close(proc_open("$q$COMPOSER install --no-dev --prefer-dist --no-progress $q", [], $p, getcwd()));
     putenv('COMPOSER_ROOT_VERSION'.(false !== $prevRoot ? '='.$prevRoot : ''));
@@ -265,11 +271,11 @@ if (!class_exists('SymfonyExcludeListPhpunit', false)) {
 if (method_exists('PHPUnit\Util\ExcludeList', 'addDirectory')) {
     (new PHPUnit\Util\Excludelist())->getExcludedDirectories();
     PHPUnit\Util\ExcludeList::addDirectory(\dirname((new \ReflectionClass('SymfonyExcludeListPhpunit'))->getFileName()));
-    PHPUnit\Util\ExcludeList::addDirectory(\dirname((new \ReflectionClass('SymfonyExcludeListSimplePhpunit'))->getFileName()));
+    class_exists('SymfonyExcludeListSimplePhpunit', false) && PHPUnit\Util\ExcludeList::addDirectory(\dirname((new \ReflectionClass('SymfonyExcludeListSimplePhpunit'))->getFileName()));
 } elseif (method_exists('PHPUnit\Util\Blacklist', 'addDirectory')) {
     (new PHPUnit\Util\BlackList())->getBlacklistedDirectories();
     PHPUnit\Util\Blacklist::addDirectory(\dirname((new \ReflectionClass('SymfonyExcludeListPhpunit'))->getFileName()));
-    PHPUnit\Util\Blacklist::addDirectory(\dirname((new \ReflectionClass('SymfonyExcludeListSimplePhpunit'))->getFileName()));
+    class_exists('SymfonyExcludeListSimplePhpunit', false) && PHPUnit\Util\Blacklist::addDirectory(\dirname((new \ReflectionClass('SymfonyExcludeListSimplePhpunit'))->getFileName()));
 } else {
     PHPUnit\Util\Blacklist::$blacklistedClassNames['SymfonyExcludeListPhpunit'] = 1;
     PHPUnit\Util\Blacklist::$blacklistedClassNames['SymfonyExcludeListSimplePhpunit'] = 1;

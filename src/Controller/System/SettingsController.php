@@ -2,6 +2,8 @@
 
 namespace App\Controller\System;
 
+use App\Entity\System\CronTasks;
+use App\Form\System\SystemSettingsType;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use App\Entity\System\Settings;
 use App\Entity\System\DataSettings;
-use App\Form\System\EditSettingsMainType;
 use App\Form\System\EditDataSettingsType;
 
 
@@ -36,36 +37,126 @@ class SettingsController extends AbstractController
 
 
     /**
-     * @Route("/system/mainsettings", name="system_settings_main")
+     * @Route("/system/settings", name="system_settings_index")
      */
-    public function SystemMainSettings(Request $request)
+    public function SystemSettingsIndex(Request $request)
     {
+        //repo
+        $getsettings = $this->getDoctrine()->getRepository(Settings::class);
 
-        $settings = $this->getDoctrine()->getRepository(Settings::class)->find(1);
-
-
-        // 1) build the form
-        $form = $this->createForm(EditSettingsMainType::class, $settings);
-
-        // 2) handle the submit (will only happen on POST)
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-
-            // 4) save the site!
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $entityManager->persist($settings);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Settings Saved');
-
-            return $this->redirectToRoute('system_settings_main');
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = 20;
+        $countmax = count($getsettings->findBy([], ['id' => 'ASC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+        {
+            $currentpage = $_GET['page'];
+        } else {
+            $currentpage = 1;
+        }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $settings = $getsettings->findBy([], ['id' => 'ASC'], $limit, $offset);
         }
 
-        return $this->render('system/settings/main.html.twig',
+        return $this->render('system/settings/index.html.twig',
+            [
+                'settings' => $settings,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
+            ]
+        );
+    }
+
+    /**
+     * @Route("/system/settings/{id}", name="system_settings_edit")
+     */
+    public function SystemSettingsEdit($id, Request $request)
+    {
+
+        $setting = $this->getDoctrine()->getRepository(Settings::class)->find($id);
+
+        // if core setting do not edit
+        if ($setting->getSettingType() == 'core') {
+            return $this->redirectToRoute('system_settings_index');
+        } else {
+
+            // 1) build the form
+            $form = $this->createForm(SystemSettingsType::class, $setting);
+
+            // 2) handle the submit (will only happen on POST)
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
+
+                // 4) save the site!
+                $entityManager = $this->getDoctrine()->getManager();
+
+                $entityManager->persist($setting);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Setting Saved');
+
+                return $this->redirectToRoute('system_settings_index');
+            }
+        }
+
+        return $this->render('system/settings/edit.html.twig',
             [
                 'form' => $form->createView(),
+            ]
+        );
+    }
+
+
+    /**
+     * @Route("/system/crontasks", name="system_crontasks_index")
+     */
+    public function SystemCronTasksIndex(Request $request)
+    {
+        //repo
+        $getcrons = $this->getDoctrine()->getRepository(CronTasks::class);
+
+        // Paginition
+        $page = isset($_GET['page']) ? $_GET['page'] : "1";
+        $limit = 20;
+        $countmax = count($getcrons->findBy([], ['id' => 'ASC']));
+        $getmaxpages = ceil($countmax / $limit);
+        if ($getmaxpages < 1){
+            $maxpages = 1;
+        } else {
+            $maxpages = $getmaxpages;
+        }
+        if (isset($_GET['page']) && $_GET['page']!="")
+        {
+            $currentpage = $_GET['page'];
+        } else {
+            $currentpage = 1;
+        }
+        $previouspage = $currentpage - 1;
+        $nextpage = $currentpage + 1;
+        if ($page){
+            $offset = ($page - 1) * $limit;
+            $crontasks = $getcrons->findBy([], ['id' => 'ASC'], $limit, $offset);
+        }
+
+        return $this->render('system/crontasks.html.twig',
+            [
+                'crontasks' => $crontasks,
+                'currentpage' => $currentpage,
+                'previouspage' => $previouspage,
+                'nextpage' => $nextpage,
+                'maxpages' => $maxpages,
             ]
         );
     }

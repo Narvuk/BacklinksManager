@@ -6,6 +6,7 @@ namespace ProxyManager\ProxyGenerator\Util;
 
 use InvalidArgumentException;
 use Laminas\Code\Generator\PropertyGenerator;
+
 use function sprintf;
 
 /**
@@ -41,7 +42,7 @@ class PublicScopeSimulator
         ?string $valueParameter = null,
         ?PropertyGenerator $valueHolder = null,
         ?string $returnPropertyName = null
-    ) : string {
+    ): string {
         $byRef  = self::getByRefReturnValue($operationType);
         $value  = $operationType === self::OPERATION_SET ? ', $value' : '';
         $target = '$this';
@@ -72,13 +73,13 @@ class PublicScopeSimulator
     /**
      * This will generate code that triggers a notice if access is attempted on a non-existing property
      */
-    private static function getUndefinedPropertyNotice(string $operationType, string $nameParameter) : string
+    private static function getUndefinedPropertyNotice(string $operationType, string $nameParameter): string
     {
         if ($operationType !== self::OPERATION_GET) {
             return '';
         }
 
-        return '    $backtrace = debug_backtrace(false);' . "\n"
+        return '    $backtrace = debug_backtrace(false, 1);' . "\n"
             . '    trigger_error(' . "\n"
             . '        sprintf(' . "\n"
             . '            \'Undefined property: %s::$%s in %s on line %s\',' . "\n"
@@ -98,7 +99,7 @@ class PublicScopeSimulator
      * is a ghost or the proxy has no wrapper, then an instance of the parent class is created via
      * on-the-fly unserialization
      */
-    private static function getByRefReturnValue(string $operationType) : string
+    private static function getByRefReturnValue(string $operationType): string
     {
         return $operationType === self::OPERATION_GET || $operationType === self::OPERATION_SET ? '& ' : '';
     }
@@ -106,7 +107,7 @@ class PublicScopeSimulator
     /**
      * Retrieves the logic to fetch the object on which access should be attempted
      */
-    private static function getTargetObject(?PropertyGenerator $valueHolder = null) : string
+    private static function getTargetObject(?PropertyGenerator $valueHolder = null): string
     {
         if ($valueHolder) {
             return '$this->' . $valueHolder->getName();
@@ -118,19 +119,22 @@ class PublicScopeSimulator
     /**
      * @throws InvalidArgumentException
      */
-    private static function getOperation(string $operationType, string $nameParameter, ?string $valueParameter) : string
+    private static function getOperation(string $operationType, string $nameParameter, ?string $valueParameter): string
     {
         switch ($operationType) {
             case self::OPERATION_GET:
                 return 'return $targetObject->$' . $nameParameter . ';';
+
             case self::OPERATION_SET:
                 if ($valueParameter === null) {
                     throw new InvalidArgumentException('Parameter $valueParameter not provided');
                 }
 
                 return 'return $targetObject->$' . $nameParameter . ' = $' . $valueParameter . ';';
+
             case self::OPERATION_ISSET:
                 return 'return isset($targetObject->$' . $nameParameter . ');';
+
             case self::OPERATION_UNSET:
                 return 'unset($targetObject->$' . $nameParameter . ');';
         }
@@ -141,9 +145,9 @@ class PublicScopeSimulator
     /**
      * Generates code to bind operations to the parent scope
      */
-    private static function getScopeReBind() : string
+    private static function getScopeReBind(): string
     {
-        return '$backtrace = debug_backtrace(true);' . "\n"
+        return '$backtrace = debug_backtrace(true, 2);' . "\n"
             . '$scopeObject = isset($backtrace[1][\'object\'])'
             . ' ? $backtrace[1][\'object\'] : new \ProxyManager\Stub\EmptyClassStub();' . "\n"
             . '$accessor = $accessor->bindTo($scopeObject, get_class($scopeObject));' . "\n";

@@ -12,8 +12,8 @@
 namespace Symfony\Component\Form\Extension\Core\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FileUploadError;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
@@ -146,7 +146,7 @@ class FileType extends AbstractType
         $messageParameters = [];
 
         if (\UPLOAD_ERR_INI_SIZE === $errorCode) {
-            list($limitAsString, $suffix) = $this->factorizeSizes(0, self::getMaxFilesize());
+            [$limitAsString, $suffix] = $this->factorizeSizes(0, self::getMaxFilesize());
             $messageTemplate = 'The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.';
             $messageParameters = [
                 '{{ limit }}' => $limitAsString,
@@ -164,7 +164,7 @@ class FileType extends AbstractType
             $message = strtr($messageTemplate, $messageParameters);
         }
 
-        return new FormError($message, $messageTemplate, $messageParameters);
+        return new FileUploadError($message, $messageTemplate, $messageParameters);
     }
 
     /**

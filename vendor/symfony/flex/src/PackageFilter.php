@@ -12,8 +12,11 @@
 namespace Symfony\Flex;
 
 use Composer\IO\IOInterface;
+use Composer\Package\AliasPackage;
 use Composer\Package\PackageInterface;
+use Composer\Package\RootPackageInterface;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Intervals;
 use Composer\Semver\VersionParser;
 
 /**
@@ -39,13 +42,27 @@ class PackageFilter
 
     /**
      * @param PackageInterface[] $data
+     * @param PackageInterface[] $lockedPackages
      *
      * @return PackageInterface[]
      */
-    public function removeLegacyPackages(array $data): array
+    public function removeLegacyPackages(array $data, RootPackageInterface $rootPackage, array $lockedPackages): array
     {
         if (!$this->symfonyConstraints || !$data) {
             return $data;
+        }
+
+        $lockedVersions = [];
+        foreach ($lockedPackages as $package) {
+            $lockedVersions[$package->getName()] = [$package->getVersion()];
+            if ($package instanceof AliasPackage) {
+                $lockedVersions[$package->getName()][] = $package->getAliasOf()->getVersion();
+            }
+        }
+
+        $rootConstraints = [];
+        foreach ($rootPackage->getRequires() + $rootPackage->getDevRequires() as $name => $link) {
+            $rootConstraints[$name] = $link->getConstraint();
         }
 
         $knownVersions = $this->getVersions();
@@ -54,20 +71,30 @@ class PackageFilter
         $oneSymfony = false;
         foreach ($data as $package) {
             $name = $package->getName();
-            $version = $package->getVersion();
-            if ('symfony/symfony' !== $name && !isset($knownVersions['splits'][$name])) {
+            $versions = [$package->getVersion()];
+            if ($package instanceof AliasPackage) {
+                $versions[] = $package->getAliasOf()->getVersion();
+            }
+
+            if ('symfony/symfony' !== $name && (
+                !isset($knownVersions['splits'][$name])
+                || array_intersect($versions, $lockedVersions[$name] ?? [])
+                || (isset($rootConstraints[$name]) && !Intervals::haveIntersections($this->symfonyConstraints, $rootConstraints[$name]))
+            )) {
                 $filteredPackages[] = $package;
                 continue;
             }
 
-            if (null !== $alias = $package->getExtra()['branch-alias'][$version] ?? null) {
-                $version = $this->versionParser->normalize($alias);
+            if (null !== $alias = $package->getExtra()['branch-alias'][$package->getVersion()] ?? null) {
+                $versions[] = $this->versionParser->normalize($alias);
             }
 
-            if ($this->symfonyConstraints->matches(new Constraint('==', $version))) {
-                $filteredPackages[] = $package;
-                $oneSymfony = $oneSymfony || 'symfony/symfony' === $name;
-                continue;
+            foreach ($versions as $version) {
+                if ($this->symfonyConstraints->matches(new Constraint('==', $version))) {
+                    $filteredPackages[] = $package;
+                    $oneSymfony = $oneSymfony || 'symfony/symfony' === $name;
+                    continue 2;
+                }
             }
 
             if ('symfony/symfony' === $name) {
@@ -99,9 +126,10 @@ class PackageFilter
             foreach ($vers as $i => $v) {
                 if (!isset($okVersions[$v])) {
                     $okVersions[$v] = false;
+                    $w = '.x' === substr($v, -2) ? $versions['next'] : $v;
 
                     for ($j = 0; $j < 60; ++$j) {
-                        if ($this->symfonyConstraints->matches(new Constraint('==', $v.'.'.$j.'.0'))) {
+                        if ($this->symfonyConstraints->matches(new Constraint('==', $w.'.'.$j.'.0'))) {
                             $okVersions[$v] = true;
                             break;
                         }

@@ -1,6 +1,7 @@
 <?PHP
 namespace App\Controller\System;
 
+use App\Service\DatabaseInstallData;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use App\Form\System\Setup\DbdetailsType;
 use App\Form\System\Setup\AdmindetailsType;
@@ -176,7 +177,7 @@ class SetupController extends AbstractController
     /**
      * @Route("/setup/step2b", name="setup_step2b")
      */
-    public function Step2b()
+    public function Step2b(DatabaseInstallData $databaseinstalldata)
     {
 
         // lock setup if database exists - If not run install
@@ -192,16 +193,18 @@ class SetupController extends AbstractController
 
         $entityManager = $this->getDoctrine()->getManager();
 
-        $setting = new Settings();
-        $setting->setSystemName('Backlinks Manager');
 
         $datasetting = new DataSettings();
         $datasetting->setMaxPageRows('20');
 
-        $entityManager->persist($setting);
         $entityManager->persist($datasetting);
         
         $entityManager->flush();
+
+        /*
+         Install Data
+        */
+        $databaseinstalldata->SettingsData();
 
         return $this->redirectToRoute('setup_step3');
     }
