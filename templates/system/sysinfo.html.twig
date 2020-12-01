@@ -130,27 +130,27 @@
     </div>
 
 
-    <noscript>
         <div class="row">
-            <div class="col-md-12">
+            {% for a in announcements %}
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">
-                            <i class="fas fa-users-cog"></i>
-                            Change Log
+                            <i class="fas fa-bullhorn"></i>
+                            {{ a.title }}
                         </h3>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
-                        Changes being recorded soon
+                            {{ a.announcement }}
                     </div>
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
             </div>
             <!-- ./col -->
+            {% endfor %}
         </div>
-    </noscript>
 {% endblock %}
 {% block pageJS %}
     <!-- Additional Javascript or Jquery  -->

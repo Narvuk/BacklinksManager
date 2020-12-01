@@ -254,6 +254,8 @@ class CoreController extends AbstractController
         $servicestatus = $releaseinfo->ServiceStatus();
         $devstage = $releaseinfo->DevStage();
 
+        $announcements = $releaseinfo->Announcements();
+
 
 
         return $this->render('system/sysinfo.html.twig',
@@ -267,6 +269,7 @@ class CoreController extends AbstractController
                 'servicestatus' => $servicestatus,
                 'devstage' => $devstage,
                 'uscron' => $uscron,
+                'announcements' => $announcements,
             ]
         );
     }

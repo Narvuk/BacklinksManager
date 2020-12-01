@@ -73,12 +73,13 @@ class ReleaseInfo extends AbstractController
     public function Announcements()
     {
         try{
-            $announcements = file_get_contents('https://update.stormdevelopers.com/get/details/2/announcements');
+            $url = 'https://update.stormdevelopers.com/api/announcements/2';
+            $json = file_get_contents($url);
+            $announcements = json_decode($json, TRUE);
         }
         catch(\Exception $e){
             $announcements = 'Announcements are offline or no new announcements been sent, They will be some very soon';
         }
-
         return $announcements;
     }
 
