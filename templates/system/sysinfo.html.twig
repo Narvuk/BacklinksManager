@@ -14,7 +14,7 @@
                         <span class="info-box-icon bg-dark"><i class="fas fa-clock"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Last Checked: Date/Time</span>
+                            <span class="info-box-text">Last Checked: {{ uscron.lastrun|date("F jS \\a\\t g:ia") }}</span>
                             <span class="info-box-number"><a href="#" class="btn btn-xs btn-primary">Check Now</a></span>
                         </div>
                         <!-- /.info-box-content -->

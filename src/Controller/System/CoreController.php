@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use App\Entity\Sites;
 use App\Entity\System\Users;
+use App\Entity\System\CronTasks;
 use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
@@ -232,6 +233,9 @@ class CoreController extends AbstractController
      */
     public function SystemAboutInformation(Request $request, ReleaseInfo $releaseinfo)
     {
+        // Get Update Cron
+        $uscron = $this->getDoctrine()->getRepository(CronTasks::class)->findOneBy(['cronkey' => 'update_service_check']);
+
         $fileSystem = new Filesystem();
         $isdevmode = $fileSystem->exists('../.env.local');
         if ($isdevmode === True){
@@ -262,6 +266,7 @@ class CoreController extends AbstractController
                 'isupdate' => $isupdate,
                 'servicestatus' => $servicestatus,
                 'devstage' => $devstage,
+                'uscron' => $uscron,
             ]
         );
     }

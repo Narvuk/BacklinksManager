@@ -6,6 +6,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -19,13 +20,14 @@ class SystemSettingsType extends AbstractType
             ->add('settingtype', ChoiceType::class, array(
                 'placeholder' => 'Choose a Setting Type',
                 'choices' => array(
-                    'System' => 'System',
-                    'Billing' => 'Billing',
+                    'system' => 'system',
+                    'billing' => 'billing',
                 ),
             ))
             ->add('settingname', TextType::class)
             ->add('settingkey', TextType::class)
             ->add('settingvalue', TextType::class)
+            ->add('description', TextType::class)
         ;
     }
 

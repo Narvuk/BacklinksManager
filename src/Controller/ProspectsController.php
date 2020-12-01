@@ -10,7 +10,6 @@ use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
 use App\Entity\Sitepages;
-use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Linktracking\AddTrackingCampaignType;
 use App\Form\Sites\AddBacklinkType;
@@ -22,7 +21,7 @@ use App\Entity\Notes\ProspectsNotes;
 use App\Form\Prospects\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use App\Service\SystemSettings;
 
 class ProspectsController extends AbstractController
 {
@@ -152,11 +151,10 @@ class ProspectsController extends AbstractController
     /**
      * @Route("/prospect/{id}/tcampaigns", name="prospect_tcampaigns_view")
      */
-    public function ProspectTrackingCampaigns($id, Request $request)
+    public function ProspectTrackingCampaigns($id, Request $request, SystemSettings $systemsettings)
     {
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
 
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
@@ -164,7 +162,7 @@ class ProspectsController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($tcampaigns->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -230,14 +228,13 @@ class ProspectsController extends AbstractController
     /**
      * @Route("/prospect/{id}/backlinks", name="prospect_backlinks_view")
      */
-    public function ProspectBacklinksView($id, Request $request)
+    public function ProspectBacklinksView($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
 
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
@@ -245,7 +242,7 @@ class ProspectsController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($backlinks->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -313,14 +310,13 @@ class ProspectsController extends AbstractController
     /**
      * @Route("/prospect/{id}/notes", name="prospect_notes")
      */
-    public function ProspectNotes($id, Request $request)
+    public function ProspectNotes($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $pnotes = $this->getDoctrine()->getRepository(ProspectsNotes::class);
 
         $prospect = $this->getDoctrine()->getRepository(Prospects::class)->find($id);
@@ -328,7 +324,7 @@ class ProspectsController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($pnotes->findBy(['prospectid' => $prospect->getId()], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){

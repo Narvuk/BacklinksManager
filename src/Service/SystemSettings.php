@@ -9,10 +9,18 @@ class SystemSettings extends AbstractController
 {
     public function getSystemName()
     {
-        $getsettings = $this->getDoctrine()->getRepository(Settings::class)->find(1);
-        $systemname = $getsettings->getSystemName();
+        $setting = $this->getDoctrine()->getRepository(Settings::class)->findOneBy(['settingkey' => 'system_name']);
+        $systemname = $setting->getSettingValue();
 
         return $systemname;
+    }
+
+    public function getMaxPerPage()
+    {
+        $setting = $this->getDoctrine()->getRepository(Settings::class)->findOneBy(['settingkey' => 'system_items_perpage']);
+        $itemsperpage = $setting->getSettingValue();
+
+        return $itemsperpage;
     }
 
 }

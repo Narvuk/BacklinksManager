@@ -16,8 +16,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use App\Entity\System\Settings;
-use App\Entity\System\DataSettings;
-use App\Form\System\EditDataSettingsType;
+use App\Service\SystemSettings;
 
 
 class SettingsController extends AbstractController
@@ -39,14 +38,14 @@ class SettingsController extends AbstractController
     /**
      * @Route("/system/settings", name="system_settings_index")
      */
-    public function SystemSettingsIndex(Request $request)
+    public function SystemSettingsIndex(Request $request, SystemSettings $systemsettings)
     {
         //repo
         $getsettings = $this->getDoctrine()->getRepository(Settings::class);
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = 20;
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($getsettings->findBy([], ['id' => 'ASC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -86,6 +85,10 @@ class SettingsController extends AbstractController
 
         $setting = $this->getDoctrine()->getRepository(Settings::class)->find($id);
 
+        if ($setting->getSettingType() == 'private'){
+            return $this->redirectToRoute('system_settings_index');
+        }
+
         // if core setting do not edit
         if ($setting->getSettingType() == 'core') {
             return $this->redirectToRoute('system_settings_index');
@@ -122,14 +125,14 @@ class SettingsController extends AbstractController
     /**
      * @Route("/system/crontasks", name="system_crontasks_index")
      */
-    public function SystemCronTasksIndex(Request $request)
+    public function SystemCronTasksIndex(Request $request, SystemSettings $systemsettings)
     {
         //repo
         $getcrons = $this->getDoctrine()->getRepository(CronTasks::class);
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = 20;
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($getcrons->findBy([], ['id' => 'ASC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -159,42 +162,5 @@ class SettingsController extends AbstractController
                 'maxpages' => $maxpages,
             ]
         );
-    }
-
-
-    /**
-     * @Route("/system/datasettings", name="system_settings_data")
-     */
-    public function SystemDataSettings(Request $request)
-    {
-
-        $settings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
-
-
-        // 1) build the form
-        $form = $this->createForm(EditDataSettingsType::class, $settings);
-
-        // 2) handle the submit (will only happen on POST)
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
-
-            // 4) save the site!
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $entityManager->persist($settings);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Settings Saved');
-
-            return $this->redirectToRoute('system_settings_data');
-        }
-
-        return $this->render('system/settings/data.html.twig',
-            [
-                'form' => $form->createView(),
-            ]
-        );
-
     }
 }

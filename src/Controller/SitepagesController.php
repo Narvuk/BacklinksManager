@@ -10,14 +10,13 @@ use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Keywords;
 use App\Entity\Sitepages;
-use App\Entity\System\DataSettings;
 use App\Entity\Notes\SitepagesNotes;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Form\Sitepages\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-
+use App\Service\SystemSettings;
 
 class SitepagesController extends AbstractController
 {
@@ -102,14 +101,13 @@ class SitepagesController extends AbstractController
     /**
      * @Route("/sitepage/{id}/notes", name="sitepage_notes")
      */
-    public function SitepageNotes($id, Request $request)
+    public function SitepageNotes($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $spnotes = $this->getDoctrine()->getRepository(SitepagesNotes::class);
 
         $spage = $this->getDoctrine()->getRepository(Sitepages::class)->find($id);
@@ -117,7 +115,7 @@ class SitepagesController extends AbstractController
 
          // Paginition
          $page = isset($_GET['page']) ? $_GET['page'] : "1";
-         $limit = $datasettings->getMaxPageRows();
+         $limit = $systemsettings->getMaxPerPage();
          $countmax = count($spnotes->findBy(['spageid' => $spage->getId()], ['id' => 'DESC']));
          $getmaxpages = ceil($countmax / $limit);
          if ($getmaxpages < 1){

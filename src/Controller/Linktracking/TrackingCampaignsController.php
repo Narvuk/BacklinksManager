@@ -9,7 +9,6 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Prospects;
-use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Form\Linktracking\AddTrackingCampaignType;
@@ -22,6 +21,7 @@ use App\Entity\Notes\ProspectsNotes;
 use App\Form\Prospects\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\SystemSettings;
 
 
 class TrackingCampaignsController extends AbstractController
@@ -103,14 +103,13 @@ class TrackingCampaignsController extends AbstractController
     /**
      * @Route("/linktrack/campaign/{id}/urls", name="trackcamp_urls_view")
      */
-    public function TrackCampaignUrls($id, Request $request)
+    public function TrackCampaignUrls($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $turls = $this->getDoctrine()->getRepository(TrackingUrls::class);
 
         $tcamp = $this->getDoctrine()->getRepository(TrackingCampaigns::class)->find($id);
@@ -118,7 +117,7 @@ class TrackingCampaignsController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($turls->findBy(['tcampaignid' => $id], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){

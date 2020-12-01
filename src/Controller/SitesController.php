@@ -11,7 +11,6 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
-use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Form\Sites\AddBacklinkType;
@@ -19,6 +18,7 @@ use App\Form\Sites\AddPageType;
 use App\Form\Sites\AddKeywordType;
 use App\Form\Sites\AddProspectType;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\SystemSettings;
 
 class SitesController extends AbstractController
 {
@@ -187,21 +187,20 @@ class SitesController extends AbstractController
     /**
      * @Route("/site/{id}/prospects", name="site_prospects")
      */
-    public function Prospects($id, Request $request)
+    public function Prospects($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         //Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $prospects = $this->getDoctrine()->getRepository(Prospects::class);
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($prospects->findBy(['siteid' => $id], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -268,14 +267,13 @@ class SitesController extends AbstractController
     /**
      * @Route("/site/{id}/backlinks", name="site_backlinks")
      */
-    public function Backlinks($id, Request $request)
+    public function Backlinks($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
         
         //repo
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
@@ -283,7 +281,7 @@ class SitesController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($backlinks->findBy(['siteid' => $id], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -352,14 +350,13 @@ class SitesController extends AbstractController
     /**
      * @Route("/site/{id}/keywords", name="site_keywords")
      */
-    public function SiteKeywords($id, Request $request)
+    public function SiteKeywords($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $sitekeywords = $this->getDoctrine()->getRepository(Keywords::class);
         $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
 
@@ -372,7 +369,7 @@ class SitesController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($sitekeywords->findBy(['siteid' => $id], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -444,14 +441,13 @@ class SitesController extends AbstractController
     /**
      * @Route("/site/{id}/pages", name="site_pages")
      */
-    public function SitePages($id, Request $request)
+    public function SitePages($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $sitepages = $this->getDoctrine()->getRepository(SitePages::class);
         $backlinks = $this->getDoctrine()->getRepository(Backlinks::class);
         $turls = $this->getDoctrine()->getRepository(TrackingUrls::class);
@@ -461,7 +457,7 @@ class SitesController extends AbstractController
         
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($sitepages->findBy(['siteid' => $id], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
@@ -549,21 +545,20 @@ class SitesController extends AbstractController
      /**
      * @Route("/site/{id}/linktracking", name="site_link_tracking")
      */
-    public function LinkTracking($id, Request $request)
+    public function LinkTracking($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $tcampaigns = $this->getDoctrine()->getRepository(TrackingCampaigns::class);
 
         $site = $this->getDoctrine()->getRepository(Sites::class)->find($id);
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($tcampaigns->findBy(['siteid' => $id], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){

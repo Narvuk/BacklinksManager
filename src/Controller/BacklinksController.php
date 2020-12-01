@@ -11,7 +11,6 @@ use App\Entity\Backlinks;
 use App\Entity\Sitepages;
 use App\Entity\Keywords;
 use App\Entity\Prospects;
-use App\Entity\System\DataSettings;
 use App\Entity\Linktracking\TrackingUrls;
 use App\Entity\Linktracking\TrackingCampaigns;
 use App\Entity\Notes\BacklinksNotes;
@@ -20,7 +19,7 @@ use App\Form\Backlinks\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\DomCrawler\Crawler;
-
+use App\Service\SystemSettings;
 
 class BacklinksController extends AbstractController
 {
@@ -134,14 +133,13 @@ class BacklinksController extends AbstractController
     /**
      * @Route("/backlink/{id}/notes", name="backlink_notes")
      */
-    public function BacklinkNotes($id, Request $request)
+    public function BacklinkNotes($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $blnotes = $this->getDoctrine()->getRepository(BacklinksNotes::class);
 
         $backlink = $this->getDoctrine()->getRepository(Backlinks::class)->find($id);
@@ -149,7 +147,7 @@ class BacklinksController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($blnotes->findBy(['backlinkid' => $backlink->getId()], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){

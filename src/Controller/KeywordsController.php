@@ -9,11 +9,11 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use App\Entity\Sites;
 use App\Entity\Backlinks;
 use App\Entity\Keywords;
-use App\Entity\System\DataSettings;
 use App\Entity\Notes\KeywordsNotes;
 use App\Form\Keywords\AddNoteType;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Service\SystemSettings;
 
 
 class KeywordsController extends AbstractController
@@ -87,14 +87,13 @@ class KeywordsController extends AbstractController
     /**
      * @Route("/keyword/{id}/notes", name="keyword_notes")
      */
-    public function KeywordNotes($id, Request $request)
+    public function KeywordNotes($id, Request $request, SystemSettings $systemsettings)
     {
         if ($id == NULL){
             return $this->redirectToRoute('core');
         }
 
         // Repos
-        $datasettings = $this->getDoctrine()->getRepository(DataSettings::class)->find(1);
         $knotes = $this->getDoctrine()->getRepository(KeywordsNotes::class);
 
         $keyword = $this->getDoctrine()->getRepository(Keywords::class)->find($id);
@@ -102,7 +101,7 @@ class KeywordsController extends AbstractController
 
         // Paginition
         $page = isset($_GET['page']) ? $_GET['page'] : "1";
-        $limit = $datasettings->getMaxPageRows();
+        $limit = $systemsettings->getMaxPerPage();
         $countmax = count($knotes->findBy(['keywordid' => $keyword->getId()], ['id' => 'DESC']));
         $getmaxpages = ceil($countmax / $limit);
         if ($getmaxpages < 1){
