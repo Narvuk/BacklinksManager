@@ -13,8 +13,4 @@ We enjoy seeing other developers take part in our development process and will l
 
 ### Founders and Maintainers
 
-Founder: Storm Developers
-
-Maintainers: Alan (Gh0st4unt3r)
-
-Contributors: Jean-Marie Clement
+Founder: Narvuk
