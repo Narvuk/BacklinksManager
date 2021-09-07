@@ -77,7 +77,7 @@ abstract class AbstractUnicodeString extends AbstractString
      *
      * Install the intl extension for best results.
      *
-     * @param string[]|\Transliterator[] $rules See "*-Latin" rules from Transliterator::listIDs()
+     * @param string[]|\Transliterator[]|\Closure[] $rules See "*-Latin" rules from Transliterator::listIDs()
      */
     public function ascii(array $rules = []): self
     {
@@ -107,6 +107,8 @@ abstract class AbstractUnicodeString extends AbstractString
 
             if ($rule instanceof \Transliterator) {
                 $s = $rule->transliterate($s);
+            } elseif ($rule instanceof \Closure) {
+                $s = $rule($s);
             } elseif ($rule) {
                 if ('nfd' === $rule = strtolower($rule)) {
                     normalizer_is_normalized($s, self::NFD) ?: $s = normalizer_normalize($s, self::NFD);
@@ -478,22 +480,22 @@ abstract class AbstractUnicodeString extends AbstractString
 
         switch ($type) {
             case \STR_PAD_RIGHT:
-                return $this->append(str_repeat($pad->string, $freeLen / $padLen).($len ? $pad->slice(0, $len) : ''));
+                return $this->append(str_repeat($pad->string, intdiv($freeLen, $padLen)).($len ? $pad->slice(0, $len) : ''));
 
             case \STR_PAD_LEFT:
-                return $this->prepend(str_repeat($pad->string, $freeLen / $padLen).($len ? $pad->slice(0, $len) : ''));
+                return $this->prepend(str_repeat($pad->string, intdiv($freeLen, $padLen)).($len ? $pad->slice(0, $len) : ''));
 
             case \STR_PAD_BOTH:
                 $freeLen /= 2;
 
                 $rightLen = ceil($freeLen);
                 $len = $rightLen % $padLen;
-                $str = $this->append(str_repeat($pad->string, $rightLen / $padLen).($len ? $pad->slice(0, $len) : ''));
+                $str = $this->append(str_repeat($pad->string, intdiv($rightLen, $padLen)).($len ? $pad->slice(0, $len) : ''));
 
                 $leftLen = floor($freeLen);
                 $len = $leftLen % $padLen;
 
-                return $str->prepend(str_repeat($pad->string, $leftLen / $padLen).($len ? $pad->slice(0, $len) : ''));
+                return $str->prepend(str_repeat($pad->string, intdiv($leftLen, $padLen)).($len ? $pad->slice(0, $len) : ''));
 
             default:
                 throw new InvalidArgumentException('Invalid padding type.');

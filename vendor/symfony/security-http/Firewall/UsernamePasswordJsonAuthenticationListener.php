@@ -34,6 +34,9 @@ use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Component\Security\Http\SecurityEvents;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+trigger_deprecation('symfony/security-http', '5.3', 'The "%s" class is deprecated, use the new authenticator system instead.', UsernamePasswordJsonAuthenticationListener::class);
 
 /**
  * UsernamePasswordJsonAuthenticationListener is a stateless implementation of
@@ -41,7 +44,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * @author Kévin Dunglas <dunglas@gmail.com>
  *
- * @final
+ * @deprecated since Symfony 5.3, use the new authenticator system instead
  */
 class UsernamePasswordJsonAuthenticationListener extends AbstractListener
 {
@@ -56,6 +59,11 @@ class UsernamePasswordJsonAuthenticationListener extends AbstractListener
     private $eventDispatcher;
     private $propertyAccessor;
     private $sessionStrategy;
+
+    /**
+     * @var TranslatorInterface|null
+     */
+    private $translator;
 
     public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager, HttpUtils $httpUtils, string $providerKey, AuthenticationSuccessHandlerInterface $successHandler = null, AuthenticationFailureHandlerInterface $failureHandler = null, array $options = [], LoggerInterface $logger = null, EventDispatcherInterface $eventDispatcher = null, PropertyAccessorInterface $propertyAccessor = null)
     {
@@ -73,8 +81,8 @@ class UsernamePasswordJsonAuthenticationListener extends AbstractListener
 
     public function supports(Request $request): ?bool
     {
-        if (false === strpos($request->getRequestFormat(), 'json')
-            && false === strpos($request->getContentType(), 'json')
+        if (!str_contains($request->getRequestFormat() ?? '', 'json')
+            && !str_contains($request->getContentType() ?? '', 'json')
         ) {
             return false;
         }
@@ -145,7 +153,8 @@ class UsernamePasswordJsonAuthenticationListener extends AbstractListener
     private function onSuccess(Request $request, TokenInterface $token): ?Response
     {
         if (null !== $this->logger) {
-            $this->logger->info('User has been authenticated successfully.', ['username' => $token->getUsername()]);
+            // @deprecated since Symfony 5.3, change to $token->getUserIdentifier() in 6.0
+            $this->logger->info('User has been authenticated successfully.', ['username' => method_exists($token, 'getUserIdentifier') ? $token->getUserIdentifier() : $token->getUsername()]);
         }
 
         $this->migrateSession($request, $token);
@@ -177,12 +186,18 @@ class UsernamePasswordJsonAuthenticationListener extends AbstractListener
         }
 
         $token = $this->tokenStorage->getToken();
-        if ($token instanceof UsernamePasswordToken && $this->providerKey === $token->getProviderKey()) {
+        if ($token instanceof UsernamePasswordToken && $this->providerKey === $token->getFirewallName()) {
             $this->tokenStorage->setToken(null);
         }
 
         if (!$this->failureHandler) {
-            return new JsonResponse(['error' => $failed->getMessageKey()], 401);
+            if (null !== $this->translator) {
+                $errorMessage = $this->translator->trans($failed->getMessageKey(), $failed->getMessageData(), 'security');
+            } else {
+                $errorMessage = strtr($failed->getMessageKey(), $failed->getMessageData());
+            }
+
+            return new JsonResponse(['error' => $errorMessage], 401);
         }
 
         $response = $this->failureHandler->onAuthenticationFailure($request, $failed);
@@ -202,6 +217,11 @@ class UsernamePasswordJsonAuthenticationListener extends AbstractListener
     public function setSessionAuthenticationStrategy(SessionAuthenticationStrategyInterface $sessionStrategy)
     {
         $this->sessionStrategy = $sessionStrategy;
+    }
+
+    public function setTranslator(TranslatorInterface $translator)
+    {
+        $this->translator = $translator;
     }
 
     private function migrateSession(Request $request, TokenInterface $token)

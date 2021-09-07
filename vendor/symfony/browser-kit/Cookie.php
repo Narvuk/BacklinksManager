@@ -22,7 +22,7 @@ class Cookie
      * Handles dates as defined by RFC 2616 section 3.3.1, and also some other
      * non-standard, but common formats.
      */
-    private static $dateFormats = [
+    private const DATE_FORMATS = [
         'D, d M Y H:i:s T',
         'D, d-M-y H:i:s T',
         'D, d-M-Y H:i:s T',
@@ -46,7 +46,7 @@ class Cookie
      * Sets a cookie.
      *
      * @param string      $name         The cookie name
-     * @param string      $value        The value of the cookie
+     * @param string|null $value        The value of the cookie
      * @param string|null $expires      The time the cookie expires
      * @param string|null $path         The path on the server in which the cookie will be available on
      * @param string      $domain       The domain that the cookie is available
@@ -62,7 +62,7 @@ class Cookie
             $this->rawValue = $value;
         } else {
             $this->value = $value;
-            $this->rawValue = rawurlencode($value);
+            $this->rawValue = rawurlencode($value ?? '');
         }
         $this->name = $name;
         $this->path = empty($path) ? '/' : $path;
@@ -92,7 +92,7 @@ class Cookie
 
         if (null !== $this->expires) {
             $dateTime = \DateTime::createFromFormat('U', $this->expires, new \DateTimeZone('GMT'));
-            $cookie .= '; expires='.str_replace('+0000', '', $dateTime->format(self::$dateFormats[0]));
+            $cookie .= '; expires='.str_replace('+0000', '', $dateTime->format(self::DATE_FORMATS[0]));
         }
 
         if ('' !== $this->domain) {
@@ -129,7 +129,7 @@ class Cookie
     {
         $parts = explode(';', $cookie);
 
-        if (false === strpos($parts[0], '=')) {
+        if (!str_contains($parts[0], '=')) {
             throw new \InvalidArgumentException(sprintf('The cookie string "%s" is not valid.', $parts[0]));
         }
 
@@ -205,7 +205,7 @@ class Cookie
             $dateValue = substr($dateValue, 1, -1);
         }
 
-        foreach (self::$dateFormats as $dateFormat) {
+        foreach (self::DATE_FORMATS as $dateFormat) {
             if (false !== $date = \DateTime::createFromFormat($dateFormat, $dateValue, new \DateTimeZone('GMT'))) {
                 return $date->format('U');
             }

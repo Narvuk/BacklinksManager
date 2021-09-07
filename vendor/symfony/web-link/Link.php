@@ -46,7 +46,7 @@ class Link implements EvolvableLinkInterface
     private $rel = [];
 
     /**
-     * @var string[]
+     * @var array<string, string|bool|string[]>
      */
     private $attributes = [];
 
@@ -99,7 +99,6 @@ class Link implements EvolvableLinkInterface
     {
         $that = clone $this;
         $that->href = $href;
-        $that->templated = $this->hrefIsTemplated($href);
 
         return $that;
     }
@@ -133,6 +132,8 @@ class Link implements EvolvableLinkInterface
     /**
      * {@inheritdoc}
      *
+     * @param string|\Stringable|int|float|bool|string[] $value
+     *
      * @return static
      */
     public function withAttribute($attribute, $value)
@@ -158,6 +159,6 @@ class Link implements EvolvableLinkInterface
 
     private function hrefIsTemplated(string $href): bool
     {
-        return false !== strpos($href, '{') || false !== strpos($href, '}');
+        return str_contains($href, '{') || str_contains($href, '}');
     }
 }

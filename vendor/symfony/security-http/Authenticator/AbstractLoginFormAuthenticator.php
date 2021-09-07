@@ -22,8 +22,6 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
  * A base class to make form login authentication easier!
  *
  * @author Ryan Weaver <ryan@symfonycasts.com>
- *
- * @experimental in 5.1
  */
 abstract class AbstractLoginFormAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
 {
@@ -31,6 +29,20 @@ abstract class AbstractLoginFormAuthenticator extends AbstractAuthenticator impl
      * Return the URL to the login page.
      */
     abstract protected function getLoginUrl(Request $request): string;
+
+    /**
+     * {@inheritdoc}
+     *
+     * Override to change the request conditions that have to be
+     * matched in order to handle the login form submit.
+     *
+     * This default implementation handles all POST requests to the
+     * login path (@see getLoginUrl()).
+     */
+    public function supports(Request $request): bool
+    {
+        return $request->isMethod('POST') && $this->getLoginUrl($request) === $request->getPathInfo();
+    }
 
     /**
      * Override to change what happens after a bad username/password is submitted.

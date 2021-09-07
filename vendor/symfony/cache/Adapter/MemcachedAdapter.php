@@ -25,7 +25,6 @@ class MemcachedAdapter extends AbstractAdapter
     /**
      * We are replacing characters that are illegal in Memcached keys with reserved characters from
      * {@see \Symfony\Contracts\Cache\ItemInterface::RESERVED_CHARACTERS} that are legal in Memcached.
-This conversation was marked as resolved by lstrojny
      * Note: don’t use {@see \Symfony\Component\Cache\Adapter\AbstractAdapter::NS_SEPARATOR}.
      */
     private const RESERVED_MEMCACHED = " \n\r\t\v\f\0";
@@ -33,7 +32,7 @@ This conversation was marked as resolved by lstrojny
 
     protected $maxIdLength = 250;
 
-    private static $defaultClientOptions = [
+    private const DEFAULT_CLIENT_OPTIONS = [
         'persistent_id' => null,
         'username' => null,
         'password' => null,
@@ -108,7 +107,7 @@ This conversation was marked as resolved by lstrojny
         }
         set_error_handler(function ($type, $msg, $file, $line) { throw new \ErrorException($msg, 0, $type, $file, $line); });
         try {
-            $options += static::$defaultClientOptions;
+            $options += static::DEFAULT_CLIENT_OPTIONS;
             $client = new \Memcached($options['persistent_id']);
             $username = $options['username'];
             $password = $options['password'];
@@ -163,7 +162,7 @@ This conversation was marked as resolved by lstrojny
                     $params['path'] = substr($params['path'], 0, -\strlen($m[0]));
                 }
                 $params += [
-                    'host' => isset($params['host']) ? $params['host'] : $params['path'],
+                    'host' => $params['host'] ?? $params['path'],
                     'port' => isset($params['host']) ? 11211 : null,
                     'weight' => 0,
                 ];

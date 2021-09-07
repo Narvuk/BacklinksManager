@@ -11,6 +11,7 @@
 
 namespace Symfony\Bridge\Doctrine\DependencyInjection;
 
+use Symfony\Component\Config\Resource\GlobResource;
 use Symfony\Component\DependencyInjection\Alias;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -88,6 +89,25 @@ abstract class AbstractDoctrineExtension extends Extension
                 if (!$mappingConfig) {
                     continue;
                 }
+            } elseif (!$mappingConfig['type'] && \PHP_VERSION_ID < 80000) {
+                $mappingConfig['type'] = 'annotation';
+            } elseif (!$mappingConfig['type']) {
+                $mappingConfig['type'] = 'attribute';
+
+                $glob = new GlobResource($mappingConfig['dir'], '*', true);
+                $container->addResource($glob);
+
+                foreach ($glob as $file) {
+                    $content = file_get_contents($file);
+
+                    if (preg_match('/^#\[.*Entity\b/m', $content)) {
+                        break;
+                    }
+                    if (preg_match('/^ \* @.*Entity\b/m', $content)) {
+                        $mappingConfig['type'] = 'annotation';
+                        break;
+                    }
+                }
             }
 
             $this->assertValidMappingConfiguration($mappingConfig, $objectManager['name']);
@@ -146,7 +166,7 @@ abstract class AbstractDoctrineExtension extends Extension
         }
 
         if (!$bundleConfig['dir']) {
-            if (\in_array($bundleConfig['type'], ['annotation', 'staticphp'])) {
+            if (\in_array($bundleConfig['type'], ['annotation', 'staticphp', 'attribute'])) {
                 $bundleConfig['dir'] = $bundleDir.'/'.$this->getMappingObjectDefaultName();
             } else {
                 $bundleConfig['dir'] = $bundleDir.'/'.$this->getMappingResourceConfigDirectory();
@@ -186,6 +206,10 @@ abstract class AbstractDoctrineExtension extends Extension
                     $args[0] = array_merge(array_values($driverPaths), $args[0]);
                 }
                 $mappingDriverDef->setArguments($args);
+            } elseif ('attribute' === $driverType) {
+                $mappingDriverDef = new Definition($this->getMetadataDriverClass($driverType), [
+                    array_values($driverPaths),
+                ]);
             } elseif ('annotation' == $driverType) {
                 $mappingDriverDef = new Definition($this->getMetadataDriverClass($driverType), [
                     new Reference($this->getObjectManagerElementName('metadata.annotation_reader')),
@@ -197,7 +221,7 @@ abstract class AbstractDoctrineExtension extends Extension
                 ]);
             }
             $mappingDriverDef->setPublic(false);
-            if (false !== strpos($mappingDriverDef->getClass(), 'yml') || false !== strpos($mappingDriverDef->getClass(), 'xml')) {
+            if (str_contains($mappingDriverDef->getClass(), 'yml') || str_contains($mappingDriverDef->getClass(), 'xml')) {
                 $mappingDriverDef->setArguments([array_flip($driverPaths)]);
                 $mappingDriverDef->addMethodCall('setGlobalBasename', ['mapping']);
             }
@@ -227,8 +251,8 @@ abstract class AbstractDoctrineExtension extends Extension
             throw new \InvalidArgumentException(sprintf('Specified non-existing directory "%s" as Doctrine mapping source.', $mappingConfig['dir']));
         }
 
-        if (!\in_array($mappingConfig['type'], ['xml', 'yml', 'annotation', 'php', 'staticphp'])) {
-            throw new \InvalidArgumentException(sprintf('Can only configure "xml", "yml", "annotation", "php" or "staticphp" through the DoctrineBundle. Use your own bundle to configure other metadata drivers. You can register them by adding a new driver to the "%s" service definition.', $this->getObjectManagerElementName($objectManagerName.'_metadata_driver')));
+        if (!\in_array($mappingConfig['type'], ['xml', 'yml', 'annotation', 'php', 'staticphp', 'attribute'])) {
+            throw new \InvalidArgumentException(sprintf('Can only configure "xml", "yml", "annotation", "php", "staticphp" or "attribute" through the DoctrineBundle. Use your own bundle to configure other metadata drivers. You can register them by adding a new driver to the "%s" service definition.', $this->getObjectManagerElementName($objectManagerName.'_metadata_driver')));
         }
     }
 
@@ -296,7 +320,6 @@ abstract class AbstractDoctrineExtension extends Extension
                 $memcachedPort = !empty($cacheDriver['port']) ? $cacheDriver['port'] : '%'.$this->getObjectManagerElementName('cache.memcached_port').'%';
                 $cacheDef = new Definition($memcachedClass);
                 $memcachedInstance = new Definition($memcachedInstanceClass);
-                $memcachedInstance->setPrivate(true);
                 $memcachedInstance->addMethodCall('addServer', [
                     $memcachedHost, $memcachedPort,
                 ]);
@@ -310,7 +333,6 @@ abstract class AbstractDoctrineExtension extends Extension
                 $redisPort = !empty($cacheDriver['port']) ? $cacheDriver['port'] : '%'.$this->getObjectManagerElementName('cache.redis_port').'%';
                 $cacheDef = new Definition($redisClass);
                 $redisInstance = new Definition($redisInstanceClass);
-                $redisInstance->setPrivate(true);
                 $redisInstance->addMethodCall('connect', [
                     $redisHost, $redisPort,
                 ]);
@@ -334,11 +356,12 @@ abstract class AbstractDoctrineExtension extends Extension
         if (!isset($cacheDriver['namespace'])) {
             // generate a unique namespace for the given application
             if ($container->hasParameter('cache.prefix.seed')) {
-                $seed = '.'.$container->getParameterBag()->resolveValue($container->getParameter('cache.prefix.seed'));
+                $seed = $container->getParameterBag()->resolveValue($container->getParameter('cache.prefix.seed'));
             } else {
                 $seed = '_'.$container->getParameter('kernel.project_dir');
+                $seed .= '.'.$container->getParameter('kernel.container_class');
             }
-            $seed .= '.'.$container->getParameter('kernel.container_class');
+
             $namespace = 'sf_'.$this->getMappingResourceExtension().'_'.$objectManagerName.'_'.ContainerBuilder::hash($seed);
 
             $cacheDriver['namespace'] = $namespace;

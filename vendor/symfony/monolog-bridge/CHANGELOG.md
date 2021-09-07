@@ -1,8 +1,20 @@
 CHANGELOG
 =========
 
+5.3
+---
+
+ * Add `ResetLoggersWorkerSubscriber` to reset buffered logs in messenger workers
+
+5.2.0
+-----
+
+ * The `$actionLevel` constructor argument of `Symfony\Bridge\Monolog\Handler\FingersCrossed\NotFoundActivationStrategy` has been deprecated and replaced by the `$inner` one which expects an ActivationStrategyInterface to decorate instead. `Symfony\Bridge\Monolog\Handler\FingersCrossed\NotFoundActivationStrategy` will become final in 6.0.
+ * The `$actionLevel` constructor argument of `Symfony\Bridge\Monolog\Handler\FingersCrossed\HttpCodeActivationStrategy` has been deprecated and replaced by the `$inner` one which expects an ActivationStrategyInterface to decorate instead. `Symfony\Bridge\Monolog\Handler\FingersCrossed\HttpCodeActivationStrategy` will become final in 6.0
+
 5.1.0
 -----
+
  * Added `MailerHandler`
 
 5.0.0
@@ -14,9 +26,9 @@ CHANGELOG
 4.4.0
 -----
 
-* The `RouteProcessor` class has been made final
-* Added `ElasticsearchLogstashHandler`
-* Added the `ServerLogCommand`. Backport from the deprecated WebServerBundle
+ * The `RouteProcessor` class has been made final
+ * Added `ElasticsearchLogstashHandler`
+ * Added the `ServerLogCommand`. Backport from the deprecated WebServerBundle
 
 4.3.0
 -----

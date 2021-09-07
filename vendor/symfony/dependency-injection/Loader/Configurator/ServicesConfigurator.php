@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
  */
 class ServicesConfigurator extends AbstractConfigurator
 {
-    const FACTORY = 'services';
+    public const FACTORY = 'services';
 
     private $defaults;
     private $container;
@@ -81,7 +81,6 @@ class ServicesConfigurator extends AbstractConfigurator
             }
 
             $id = sprintf('.%d_%s', ++$this->anonymousCount, preg_replace('/^.*\\\\/', '', $class).'~'.$this->anonymousHash);
-            $definition->setPublic(false);
         } elseif (!$defaults->isPublic() || !$defaults->isPrivate()) {
             $definition->setPublic($defaults->isPublic() && !$defaults->isPrivate());
         }
@@ -95,6 +94,17 @@ class ServicesConfigurator extends AbstractConfigurator
         $configurator = new ServiceConfigurator($this->container, $this->instanceof, true, $this, $definition, $id, $defaults->getTags(), $this->path);
 
         return null !== $class ? $configurator->class($class) : $configurator;
+    }
+
+    /**
+     * Removes an already defined service definition or alias.
+     */
+    final public function remove(string $id): self
+    {
+        $this->container->removeDefinition($id);
+        $this->container->removeAlias($id);
+
+        return $this;
     }
 
     /**

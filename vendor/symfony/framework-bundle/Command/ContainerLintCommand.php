@@ -30,6 +30,7 @@ use Symfony\Component\HttpKernel\Kernel;
 final class ContainerLintCommand extends Command
 {
     protected static $defaultName = 'lint:container';
+    protected static $defaultDescription = 'Ensure that arguments injected into services match type declarations';
 
     /**
      * @var ContainerBuilder
@@ -42,7 +43,7 @@ final class ContainerLintCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Ensures that arguments injected into services match type declarations')
+            ->setDescription(self::$defaultDescription)
             ->setHelp('This command parses service definitions and ensures that injected values match the type declarations of each services\' class.')
         ;
     }
@@ -113,7 +114,7 @@ final class ContainerLintCommand extends Command
 
             $skippedIds = [];
             foreach ($container->getServiceIds() as $serviceId) {
-                if (0 === strpos($serviceId, '.errored.')) {
+                if (str_starts_with($serviceId, '.errored.')) {
                     $skippedIds[$serviceId] = true;
                 }
             }

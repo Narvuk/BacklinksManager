@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,6 +22,7 @@ namespace Doctrine\ORM\Mapping;
 
 use Doctrine\Instantiator\Instantiator;
 use ReflectionProperty;
+use ReturnTypeWillChange;
 
 /**
  * Acts as a proxy to a nested Property structure, making it look like
@@ -33,48 +35,41 @@ use ReflectionProperty;
  */
 class ReflectionEmbeddedProperty extends ReflectionProperty
 {
-    /**
-     * @var ReflectionProperty reflection property of the class where the embedded object has to be put
-     */
+    /** @var ReflectionProperty reflection property of the class where the embedded object has to be put */
     private $parentProperty;
 
-    /**
-     * @var ReflectionProperty reflection property of the embedded object
-     */
+    /** @var ReflectionProperty reflection property of the embedded object */
     private $childProperty;
 
-    /**
-     * @var string name of the embedded class to be eventually instantiated
-     */
+    /** @var string name of the embedded class to be eventually instantiated */
     private $embeddedClass;
 
-    /**
-     * @var Instantiator|null
-     */
+    /** @var Instantiator|null */
     private $instantiator;
 
     /**
-     * @param ReflectionProperty $parentProperty
-     * @param ReflectionProperty $childProperty
-     * @param string             $embeddedClass
+     * @param string $embeddedClass
      */
     public function __construct(ReflectionProperty $parentProperty, ReflectionProperty $childProperty, $embeddedClass)
     {
-        $this->parentProperty  = $parentProperty;
-        $this->childProperty   = $childProperty;
-        $this->embeddedClass   = (string) $embeddedClass;
+        $this->parentProperty = $parentProperty;
+        $this->childProperty  = $childProperty;
+        $this->embeddedClass  = (string) $embeddedClass;
 
         parent::__construct($childProperty->getDeclaringClass()->getName(), $childProperty->getName());
     }
 
     /**
      * {@inheritDoc}
+     *
+     * @return mixed
      */
+    #[ReturnTypeWillChange]
     public function getValue($object = null)
     {
         $embeddedObject = $this->parentProperty->getValue($object);
 
-        if (null === $embeddedObject) {
+        if ($embeddedObject === null) {
             return null;
         }
 
@@ -83,12 +78,15 @@ class ReflectionEmbeddedProperty extends ReflectionProperty
 
     /**
      * {@inheritDoc}
+     *
+     * @return void
      */
+    #[ReturnTypeWillChange]
     public function setValue($object, $value = null)
     {
         $embeddedObject = $this->parentProperty->getValue($object);
 
-        if (null === $embeddedObject) {
+        if ($embeddedObject === null) {
             $this->instantiator = $this->instantiator ?: new Instantiator();
 
             $embeddedObject = $this->instantiator->instantiate($this->embeddedClass);

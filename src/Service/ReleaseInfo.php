@@ -2,6 +2,10 @@
 
 namespace App\Service;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpClient\HttpClient;
 use App\Entity\System\CronTasks;
 use App\Entity\System\Settings;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +22,8 @@ class ReleaseInfo extends AbstractController
 
     public function UpdateService()
     {
-        $url = 'https://update.stormdevelopers.com/api/updateservice/2';
+        $api_key = 'r9zCymkGV3aoqDY3wtwhMoPeVRsgo4h3';
+        $url = 'https://infinityweb.solutions/api/software/details/?api_key='.$api_key;
         $json = file_get_contents($url);
         $updates = json_decode($json, TRUE);
         return $updates;
@@ -112,8 +117,8 @@ class ReleaseInfo extends AbstractController
             if($getinfo["currentversion"] > $currentverion->getSettingValue()) {
                 $currentverion->setSettingValue($getinfo["currentversion"]);
             }
-            if($getinfo["indev"] > $indev->getSettingValue()) {
-                $indev->setSettingValue($getinfo["indev"]);
+            if($getinfo["developmentversion"] > $indev->getSettingValue()) {
+                $indev->setSettingValue($getinfo["developmentversion"]);
             }
             // update service time refresh rate
             $uservtime = $settings->findOneBy(['settingkey' => 'core_update_service']);
@@ -126,11 +131,12 @@ class ReleaseInfo extends AbstractController
             {
                 $devstage->setSettingValue($getinfo["devstage"]);
             }
+            /*
             $servicestatus = $settings->findOneBy(['settingkey' => 'update_service_status']);
             if($servicestatus != $getinfo["devstage"])
             {
                 $servicestatus->setSettingValue($getinfo["status"]);
-            }
+            }*/
             $cronconfig->setLastRun(new \DateTime('now'));
             $cronconfig->setNextRun($datenow->add(new \DateInterval('PT'.$getsettingtime.'S')));
             $entityManager->flush();

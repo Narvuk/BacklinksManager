@@ -23,8 +23,8 @@ use Symfony\Component\Form\Exception\UnexpectedTypeException;
  */
 class PercentToLocalizedStringTransformer implements DataTransformerInterface
 {
-    const FRACTIONAL = 'fractional';
-    const INTEGER = 'integer';
+    public const FRACTIONAL = 'fractional';
+    public const INTEGER = 'integer';
 
     protected static $types = [
         self::FRACTIONAL,
@@ -34,21 +34,18 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
     private $roundingMode;
     private $type;
     private $scale;
+    private $html5Format;
 
     /**
      * @see self::$types for a list of supported types
      *
-     * @param int    $scale The scale
-     * @param string $type  One of the supported types
+     * @param int|null $roundingMode A value from \NumberFormatter, such as \NumberFormatter::ROUND_HALFUP
+     * @param bool     $html5Format  Use an HTML5 specific format, see https://www.w3.org/TR/html51/sec-forms.html#date-time-and-number-formats
      *
      * @throws UnexpectedTypeException if the given value of type is unknown
      */
-    public function __construct(int $scale = null, string $type = null, ?int $roundingMode = null)
+    public function __construct(int $scale = null, string $type = null, int $roundingMode = null, bool $html5Format = false)
     {
-        if (null === $scale) {
-            $scale = 0;
-        }
-
         if (null === $type) {
             $type = self::FRACTIONAL;
         }
@@ -62,8 +59,9 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
         }
 
         $this->type = $type;
-        $this->scale = $scale;
+        $this->scale = $scale ?? 0;
         $this->roundingMode = $roundingMode;
+        $this->html5Format = $html5Format;
     }
 
     /**
@@ -135,7 +133,7 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
             $value = str_replace(',', $decSep, $value);
         }
 
-        if (false !== strpos($value, $decSep)) {
+        if (str_contains($value, $decSep)) {
             $type = \NumberFormatter::TYPE_DOUBLE;
         } else {
             $type = \PHP_INT_SIZE === 8 ? \NumberFormatter::TYPE_INT64 : \NumberFormatter::TYPE_INT32;
@@ -182,7 +180,13 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
      */
     protected function getNumberFormatter()
     {
-        $formatter = new \NumberFormatter(\Locale::getDefault(), \NumberFormatter::DECIMAL);
+        // Values used in HTML5 number inputs should be formatted as in "1234.5", ie. 'en' format without grouping,
+        // according to https://www.w3.org/TR/html51/sec-forms.html#date-time-and-number-formats
+        $formatter = new \NumberFormatter($this->html5Format ? 'en' : \Locale::getDefault(), \NumberFormatter::DECIMAL);
+
+        if ($this->html5Format) {
+            $formatter->setAttribute(\NumberFormatter::GROUPING_USED, 0);
+        }
 
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $this->scale);
 
@@ -204,7 +208,7 @@ class PercentToLocalizedStringTransformer implements DataTransformerInterface
     {
         if (null !== $this->scale && null !== $this->roundingMode) {
             // shift number to maintain the correct scale during rounding
-            $roundingCoef = pow(10, $this->scale);
+            $roundingCoef = 10 ** $this->scale;
 
             if (self::FRACTIONAL == $this->type) {
                 $roundingCoef *= 100;

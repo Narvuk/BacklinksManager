@@ -11,6 +11,7 @@
 
 namespace Symfony\Bundle\MonologBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\BaseNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -38,7 +39,7 @@ use Monolog\Logger;
  *   - [verbosity_levels]: level => verbosity configuration
  *   - [level]: level name or int value, defaults to DEBUG
  *   - [bubble]: bool, defaults to true
- *   - [console_formater_options]: array
+ *   - [console_formatter_options]: array
  *
  * - firephp:
  *   - [level]: level name or int value, defaults to DEBUG
@@ -63,6 +64,7 @@ use Monolog\Logger;
  *   - [level]: level name or int value, defaults to DEBUG
  *   - [bubble]: bool, defaults to true
  *   - [file_permission]: string|null, defaults to null
+ *   - [use_locking]: bool, defaults to false
  *   - [filename_format]: string, defaults to '{filename}-{date}'
  *   - [date_format]: string, defaults to 'Y-m-d'
  *
@@ -83,6 +85,9 @@ use Monolog\Logger;
  *      - id: optional if host is given
  *      - host: elastic search host name. Do not prepend with http(s)://
  *      - [port]: defaults to 9200
+ *      - [transport]: transport protocol (http by default)
+ *      - [user]: elastic search user name
+ *      - [password]: elastic search user password
  *   - [index]: index name, defaults to monolog
  *   - [document_type]: document_type, defaults to logs
  *   - [level]: level name or int value, defaults to DEBUG
@@ -211,6 +216,9 @@ use Monolog\Logger;
  *   - [bubble]: bool, defaults to true
  *   - [auto_log_stacks]: bool, defaults to false
  *   - [environment]: string, default to null (no env specified)
+ *
+ * - sentry:
+ *   - hub_id: Sentry hub custom service id (optional)
  *
  * - newrelic:
  *   - [level]: level name or int value, defaults to DEBUG
@@ -397,7 +405,7 @@ class Configuration implements ConfigurationInterface
                                     })
                                 ->end()
                             ->end()
-                            ->booleanNode('use_locking')->defaultFalse()->end() // stream
+                            ->booleanNode('use_locking')->defaultFalse()->end() // stream and rotating
                             ->scalarNode('filename_format')->defaultValue('{filename}-{date}')->end() //rotating
                             ->scalarNode('date_format')->defaultValue('Y-m-d')->end() //rotating
                             ->scalarNode('ident')->defaultFalse()->end() // syslog and syslogudp
@@ -639,6 +647,7 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('connection_timeout')->end() // socket_handler, logentries, pushover, hipchat & slack
                             ->booleanNode('persistent')->end() // socket_handler
                             ->scalarNode('dsn')->end() // raven_handler, sentry_handler
+                            ->scalarNode('hub_id')->defaultNull()->end() // sentry_handler
                             ->scalarNode('client_id')->defaultNull()->end() // raven_handler, sentry_handler
                             ->scalarNode('auto_log_stacks')->defaultFalse()->end() // raven_handler
                             ->scalarNode('release')->defaultNull()->end() // raven_handler, sentry_handler
@@ -657,12 +666,19 @@ class Configuration implements ConfigurationInterface
                             ->end()
                              // console
                             ->variableNode('console_formater_options')
-                                ->defaultValue([])
+                                ->setDeprecated(...$this->getDeprecationMsg('"%path%.%node%" is deprecated, use "%path%.console_formatter_options" instead.', 3.7))
                                 ->validate()
                                     ->ifTrue(function ($v) {
                                         return !is_array($v);
                                     })
-                                    ->thenInvalid('console_formater_options must an array.')
+                                    ->thenInvalid('The console_formater_options must be an array.')
+                                ->end()
+                            ->end()
+                            ->variableNode('console_formatter_options')
+                                ->defaultValue([])
+                                ->validate()
+                                    ->ifTrue(static function ($v) { return !is_array($v); })
+                                    ->thenInvalid('The console_formatter_options must be an array.')
                                 ->end()
                             ->end()
                             ->arrayNode('verbosity_levels') // console
@@ -783,6 +799,18 @@ class Configuration implements ConfigurationInterface
                             ->scalarNode('formatter')->end()
                             ->booleanNode('nested')->defaultFalse()->end()
                         ->end()
+                        ->beforeNormalization()
+                            ->always(static function ($v) {
+                                if (empty($v['console_formatter_options']) && !empty($v['console_formater_options'])) {
+                                    $v['console_formatter_options'] = $v['console_formater_options'];
+                                }
+
+                                return $v;
+                            })
+                        ->end()
+                        ->validate()
+                            ->always(static function ($v) { unset($v['console_formater_options']); return $v; })
+                        ->end()
                         ->validate()
                             ->ifTrue(function ($v) { return 'service' === $v['type'] && !empty($v['formatter']); })
                             ->thenInvalid('Service handlers can not have a formatter configured in the bundle, you must reconfigure the service itself instead')
@@ -860,8 +888,12 @@ class Configuration implements ConfigurationInterface
                             ->thenInvalid('The DSN has to be specified to use a RavenHandler')
                         ->end()
                         ->validate()
-                            ->ifTrue(function ($v) { return 'sentry' === $v['type'] && !array_key_exists('dsn', $v) && null === $v['client_id']; })
+                            ->ifTrue(function ($v) { return 'sentry' === $v['type'] && !array_key_exists('dsn', $v) && null === $v['hub_id'] && null === $v['client_id']; })
                             ->thenInvalid('The DSN has to be specified to use Sentry\'s handler')
+                        ->end()
+                        ->validate()
+                            ->ifTrue(function ($v) { return 'sentry' === $v['type'] && null !== $v['hub_id'] && null !== $v['client_id']; })
+                            ->thenInvalid('You can not use both a hub_id and a client_id in a Sentry handler')
                         ->end()
                         ->validate()
                             ->ifTrue(function ($v) { return 'hipchat' === $v['type'] && (empty($v['token']) || empty($v['room'])); })
@@ -975,5 +1007,28 @@ class Configuration implements ConfigurationInterface
         ;
 
         return $treeBuilder;
+    }
+
+    /**
+     * Returns the correct deprecation param's as an array for setDeprecated.
+     *
+     * Symfony/Config v5.1 introduces a deprecation notice when calling
+     * setDeprecation() with less than 3 args and the getDeprecation method was
+     * introduced at the same time. By checking if getDeprecation() exists,
+     * we can determine the correct param count to use when calling setDeprecated.
+     *
+     * @return array{0:string}|array{0:string, 1: numeric-string, string}
+     */
+    private function getDeprecationMsg(string $message, string $version): array
+    {
+        if (method_exists(BaseNode::class, 'getDeprecation')) {
+            return [
+                'symfony/monolog-bundle',
+                $version,
+                $message,
+            ];
+        }
+
+        return [$message];
     }
 }

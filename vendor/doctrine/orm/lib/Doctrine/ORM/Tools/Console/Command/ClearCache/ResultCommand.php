@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,24 +21,26 @@
 namespace Doctrine\ORM\Tools\Console\Command\ClearCache;
 
 use Doctrine\Common\Cache\ApcCache;
+use Doctrine\Common\Cache\ClearableCache;
+use Doctrine\Common\Cache\FlushableCache;
 use Doctrine\Common\Cache\XcacheCache;
-use Symfony\Component\Console\Command\Command;
+use Doctrine\ORM\Tools\Console\Command\AbstractEntityManagerCommand;
+use InvalidArgumentException;
+use LogicException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use function get_class;
+use function sprintf;
+
 /**
  * Command to clear the result cache of the various cache drivers.
  *
  * @link    www.doctrine-project.org
- * @since   2.0
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
- * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author  Jonathan Wage <jonwage@gmail.com>
- * @author  Roman Borschel <roman@code-factory.org>
  */
-class ResultCommand extends Command
+class ResultCommand extends AbstractEntityManagerCommand
 {
     /**
      * {@inheritdoc}
@@ -46,6 +49,7 @@ class ResultCommand extends Command
     {
         $this->setName('orm:clear-cache:result')
              ->setDescription('Clear all result cache of the various cache drivers')
+             ->addOption('em', null, InputOption::VALUE_REQUIRED, 'Name of the entity manager to operate on')
              ->addOption('flush', null, InputOption::VALUE_NONE, 'If defined, cache entries will be flushed instead of deleted/invalidated.')
              ->setHelp(<<<EOT
 The <info>%command.name%</info> command is meant to clear the result cache of associated Entity Manager.
@@ -69,40 +73,50 @@ EOT
 
     /**
      * {@inheritdoc}
+     *
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $ui = new SymfonyStyle($input, $output);
 
-        $em = $this->getHelper('em')->getEntityManager();
+        $em          = $this->getEntityManager($input);
         $cacheDriver = $em->getConfiguration()->getResultCacheImpl();
 
-        if ( ! $cacheDriver) {
-            throw new \InvalidArgumentException('No Result cache driver is configured on given EntityManager.');
+        if (! $cacheDriver) {
+            throw new InvalidArgumentException('No Result cache driver is configured on given EntityManager.');
         }
 
         if ($cacheDriver instanceof ApcCache) {
-            throw new \LogicException("Cannot clear APC Cache from Console, its shared in the Webserver memory and not accessible from the CLI.");
+            throw new LogicException('Cannot clear APC Cache from Console, its shared in the Webserver memory and not accessible from the CLI.');
         }
 
         if ($cacheDriver instanceof XcacheCache) {
-            throw new \LogicException("Cannot clear XCache Cache from Console, its shared in the Webserver memory and not accessible from the CLI.");
+            throw new LogicException('Cannot clear XCache Cache from Console, its shared in the Webserver memory and not accessible from the CLI.');
+        }
+
+        if (! ($cacheDriver instanceof ClearableCache)) {
+            throw new LogicException(sprintf(
+                'Can only clear cache when ClearableCache interface is implemented, %s does not implement.',
+                get_class($cacheDriver)
+            ));
         }
 
         $ui->comment('Clearing <info>all</info> Result cache entries');
 
         $result  = $cacheDriver->deleteAll();
-        $message = ($result) ? 'Successfully deleted cache entries.' : 'No cache entries were deleted.';
+        $message = $result ? 'Successfully deleted cache entries.' : 'No cache entries were deleted.';
 
-        if (true === $input->getOption('flush')) {
+        if ($input->getOption('flush') === true) {
+            if (! ($cacheDriver instanceof FlushableCache)) {
+                throw new LogicException(sprintf(
+                    'Can only clear cache when FlushableCache interface is implemented, %s does not implement.',
+                    get_class($cacheDriver)
+                ));
+            }
+
             $result  = $cacheDriver->flushAll();
-            $message = ($result) ? 'Successfully flushed cache entries.' : $message;
-        }
-
-        if ( ! $result) {
-            $ui->error($message);
-
-            return 1;
+            $message = $result ? 'Successfully flushed cache entries.' : $message;
         }
 
         $ui->success($message);

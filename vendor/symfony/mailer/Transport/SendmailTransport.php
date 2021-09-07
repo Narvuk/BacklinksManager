@@ -27,6 +27,11 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * It is advised to use -bs mode since error reporting with -t mode is not
  * possible.
  *
+ * Transport can be instanciated through SendmailTransportFactory or NativeTransportFactory:
+ *
+ * - SendmailTransportFactory to use most common sendmail path and recommanded options
+ * - NativeTransportFactory when configuration is set via php.ini
+ *
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Chris Corbyn
  */
@@ -50,7 +55,7 @@ class SendmailTransport extends AbstractTransport
         parent::__construct($dispatcher, $logger);
 
         if (null !== $command) {
-            if (false === strpos($command, ' -bs') && false === strpos($command, ' -t')) {
+            if (!str_contains($command, ' -bs') && !str_contains($command, ' -t')) {
                 throw new \InvalidArgumentException(sprintf('Unsupported sendmail command flags "%s"; must be one of "-bs" or "-t" but can include additional flags.', $command));
             }
 
@@ -58,7 +63,7 @@ class SendmailTransport extends AbstractTransport
         }
 
         $this->stream = new ProcessStream();
-        if (false !== strpos($this->command, ' -bs')) {
+        if (str_contains($this->command, ' -bs')) {
             $this->stream->setCommand($this->command);
             $this->transport = new SmtpTransport($this->stream, $dispatcher, $logger);
         }
@@ -87,13 +92,13 @@ class SendmailTransport extends AbstractTransport
         $this->getLogger()->debug(sprintf('Email transport "%s" starting', __CLASS__));
 
         $command = $this->command;
-        if (false === strpos($command, ' -f')) {
+        if (!str_contains($command, ' -f')) {
             $command .= ' -f'.escapeshellarg($message->getEnvelope()->getSender()->getEncodedAddress());
         }
 
         $chunks = AbstractStream::replace("\r\n", "\n", $message->toIterable());
 
-        if (false === strpos($command, ' -i') && false === strpos($command, ' -oi')) {
+        if (!str_contains($command, ' -i') && !str_contains($command, ' -oi')) {
             $chunks = AbstractStream::replace("\n.", "\n..", $chunks);
         }
 

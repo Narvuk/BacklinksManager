@@ -41,7 +41,7 @@ class Application extends BaseApplication
 
         $inputDefinition = $this->getDefinition();
         $inputDefinition->addOption(new InputOption('--env', '-e', InputOption::VALUE_REQUIRED, 'The Environment name.', $kernel->getEnvironment()));
-        $inputDefinition->addOption(new InputOption('--no-debug', null, InputOption::VALUE_NONE, 'Switches off debug mode.'));
+        $inputDefinition->addOption(new InputOption('--no-debug', null, InputOption::VALUE_NONE, 'Switch off debug mode.'));
     }
 
     /**
@@ -109,7 +109,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function find($name)
+    public function find(string $name)
     {
         $this->registerCommands();
 
@@ -119,7 +119,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function get($name)
+    public function get(string $name)
     {
         $this->registerCommands();
 
@@ -135,7 +135,7 @@ class Application extends BaseApplication
     /**
      * {@inheritdoc}
      */
-    public function all($namespace = null)
+    public function all(string $namespace = null)
     {
         $this->registerCommands();
 

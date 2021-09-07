@@ -54,7 +54,7 @@ abstract class TransportFactoryTestCase extends TestCase
     /**
      * @dataProvider supportsProvider
      */
-    public function testSupports(Dsn $dsn, bool $supports): void
+    public function testSupports(Dsn $dsn, bool $supports)
     {
         $factory = $this->getFactory();
 
@@ -64,12 +64,12 @@ abstract class TransportFactoryTestCase extends TestCase
     /**
      * @dataProvider createProvider
      */
-    public function testCreate(Dsn $dsn, TransportInterface $transport): void
+    public function testCreate(Dsn $dsn, TransportInterface $transport)
     {
         $factory = $this->getFactory();
 
         $this->assertEquals($transport, $factory->create($dsn));
-        if (false !== strpos('smtp', $dsn->getScheme())) {
+        if (str_contains('smtp', $dsn->getScheme())) {
             $this->assertStringMatchesFormat($dsn->getScheme().'://%S'.$dsn->getHost().'%S', (string) $transport);
         }
     }
@@ -77,7 +77,7 @@ abstract class TransportFactoryTestCase extends TestCase
     /**
      * @dataProvider unsupportedSchemeProvider
      */
-    public function testUnsupportedSchemeException(Dsn $dsn, string $message = null): void
+    public function testUnsupportedSchemeException(Dsn $dsn, string $message = null)
     {
         $factory = $this->getFactory();
 
@@ -92,7 +92,7 @@ abstract class TransportFactoryTestCase extends TestCase
     /**
      * @dataProvider incompleteDsnProvider
      */
-    public function testIncompleteDsnException(Dsn $dsn): void
+    public function testIncompleteDsnException(Dsn $dsn)
     {
         $factory = $this->getFactory();
 

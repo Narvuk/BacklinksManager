@@ -1,6 +1,46 @@
 CHANGELOG
 =========
 
+5.3
+---
+ * Add the `normalizer` option to the `Unique` constraint
+ * Add `Validation::createIsValidCallable()` that returns true/false instead of throwing exceptions
+
+5.2.0
+-----
+
+ * added a `Cascade` constraint to ease validating nested typed object properties
+ * deprecated the `allowEmptyString` option of the `Length` constraint
+
+   Before:
+
+   ```php
+   use Symfony\Component\Validator\Constraints as Assert;
+
+   /**
+    * @Assert\Length(min=5, allowEmptyString=true)
+    */
+   ```
+
+   After:
+
+   ```php
+   use Symfony\Component\Validator\Constraints as Assert;
+
+   /**
+    * @Assert\AtLeastOneOf({
+    *     @Assert\Blank(),
+    *     @Assert\Length(min=5)
+    * })
+    */
+   ```
+ * added the `Isin` constraint and validator
+ * added the `ULID` constraint and validator
+ * added support for UUIDv6 in `Uuid` constraint
+ * enabled the validator to load constraints from PHP attributes
+ * deprecated the `NumberConstraintTrait` trait
+ * deprecated setting or creating a Doctrine annotation reader via `ValidatorBuilder::enableAnnotationMapping()`, pass `true` as first parameter and additionally call `setDoctrineAnnotationReader()` or `addDefaultDoctrineAnnotationReader()` to set up the annotation reader
+
 5.1.0
 -----
 

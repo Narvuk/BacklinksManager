@@ -1,7 +1,7 @@
-| [Master][Master] | [2.7][2.7] |
-|:----------------:|:----------:|
-| [![Build status][Master image]][Master] | [![Build status][2.7 image]][2.7] |
-| [![Coverage Status][Master coverage image]][Master coverage] | [![Coverage Status][2.7 coverage image]][2.7 coverage] |
+| [3.0.x][3.0] | [2.10.x][2.10] | [2.9.x][2.9] |
+|:----------------:|:----------------:|:----------:|
+| [![Build status][3.0 image]][3.0] | [![Build status][2.10 image]][2.10] | [![Build status][2.9 image]][2.9] |
+| [![Coverage Status][3.0 coverage image]][3.0 coverage]| [![Coverage Status][2.10 coverage image]][2.10 coverage] | [![Coverage Status][2.9 coverage image]][2.9 coverage]  |
 
 Doctrine 2 is an object-relational mapper (ORM) for PHP 7.1+ that provides transparent persistence
 for PHP objects. It sits on top of a powerful database abstraction layer (DBAL). One of its key features
@@ -13,14 +13,18 @@ without requiring unnecessary code duplication.
 ## More resources:
 
 * [Website](http://www.doctrine-project.org)
-* [Documentation](http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/index.html)
+* [Documentation](https://www.doctrine-project.org/projects/doctrine-orm/en/latest/index.html)
 
 
-  [Master image]: https://img.shields.io/travis/doctrine/orm/master.svg?style=flat-square
-  [Master]: https://travis-ci.org/doctrine/orm
-  [Master coverage image]: https://codecov.io/gh/doctrine/orm/branch/master/graph/badge.svg
-  [Master coverage]: https://codecov.io/gh/doctrine/orm/branch/master
-  [2.7 image]: https://img.shields.io/travis/doctrine/orm/2.7.svg?style=flat-square
-  [2.7]: https://github.com/doctrine/orm/tree/2.7
-  [2.7 coverage image]: https://codecov.io/gh/doctrine/orm/branch/2.7/graph/badge.svg
-  [2.7 coverage]: https://codecov.io/gh/doctrine/orm/branch/2.7
+  [3.0 image]: https://github.com/doctrine/orm/actions/workflows/continuous-integration.yml/badge.svg?branch=3.0.x
+  [3.0]: https://github.com/doctrine/orm/tree/3.0.x
+  [3.0 coverage image]: https://codecov.io/gh/doctrine/orm/branch/3.0.x/graph/badge.svg
+  [3.0 coverage]: https://codecov.io/gh/doctrine/orm/branch/3.0.x
+  [2.9 image]: https://github.com/doctrine/orm/actions/workflows/continuous-integration.yml/badge.svg?branch=2.9.x
+  [2.9]: https://github.com/doctrine/orm/tree/2.9.x
+  [2.9 coverage image]: https://codecov.io/gh/doctrine/orm/branch/2.9.x/graph/badge.svg
+  [2.9 coverage]: https://codecov.io/gh/doctrine/orm/branch/2.9.x
+  [2.10 image]: https://github.com/doctrine/orm/actions/workflows/continuous-integration.yml/badge.svg?branch=2.10.x
+  [2.10]: https://github.com/doctrine/orm/tree/2.10.x
+  [2.10 coverage image]: https://codecov.io/gh/doctrine/orm/branch/2.10.x/graph/badge.svg
+  [2.10 coverage]: https://codecov.io/gh/doctrine/orm/branch/2.10.x

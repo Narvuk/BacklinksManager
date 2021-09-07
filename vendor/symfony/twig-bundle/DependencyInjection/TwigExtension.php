@@ -15,8 +15,9 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileExistenceResource;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Translation\Translator;
@@ -34,22 +35,22 @@ class TwigExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('twig.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('twig.php');
 
-        if (class_exists('Symfony\Component\Form\Form')) {
-            $loader->load('form.xml');
+        if ($container::willBeAvailable('symfony/form', Form::class, ['symfony/twig-bundle'])) {
+            $loader->load('form.php');
         }
 
-        if (class_exists(Application::class)) {
-            $loader->load('console.xml');
+        if ($container::willBeAvailable('symfony/console', Application::class, ['symfony/twig-bundle'])) {
+            $loader->load('console.php');
         }
 
-        if (class_exists(Mailer::class)) {
-            $loader->load('mailer.xml');
+        if ($container::willBeAvailable('symfony/mailer', Mailer::class, ['symfony/twig-bundle'])) {
+            $loader->load('mailer.php');
         }
 
-        if (!class_exists(Translator::class)) {
+        if (!$container::willBeAvailable('symfony/translation', Translator::class, ['symfony/twig-bundle'])) {
             $container->removeDefinition('twig.translation.extractor');
         }
 
@@ -172,7 +173,7 @@ class TwigExtension extends Extension
 
     private function normalizeBundleName(string $name): string
     {
-        if ('Bundle' === substr($name, -6)) {
+        if (str_ends_with($name, 'Bundle')) {
             $name = substr($name, 0, -6);
         }
 

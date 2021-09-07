@@ -1,6 +1,18 @@
 CHANGELOG
 =========
 
+5.3
+---
+
+ * added the `mailer` monolog channel and set it on all transport definitions
+
+5.2.0
+-----
+
+ * added `NativeTransportFactory` to configure a transport based on php.ini settings
+ * added `local_domain`, `restart_threshold`, `restart_threshold_sleep` and `ping_threshold` options for `smtp`
+ * added `command` option for `sendmail`
+
 4.4.0
 -----
 

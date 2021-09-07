@@ -14,20 +14,20 @@ namespace Symfony\Component\Security\Http\Authenticator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PasswordUpgradeBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
@@ -39,7 +39,6 @@ use Symfony\Component\Security\Http\ParameterBagUtils;
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @final
- * @experimental in 5.1
  */
 class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
 {
@@ -48,6 +47,7 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
     private $successHandler;
     private $failureHandler;
     private $options;
+    private $httpKernel;
 
     public function __construct(HttpUtils $httpUtils, UserProviderInterface $userProvider, AuthenticationSuccessHandlerInterface $successHandler, AuthenticationFailureHandlerInterface $failureHandler, array $options)
     {
@@ -80,12 +80,20 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
     public function authenticate(Request $request): PassportInterface
     {
         $credentials = $this->getCredentials($request);
-        $user = $this->userProvider->loadUserByUsername($credentials['username']);
-        if (!$user instanceof UserInterface) {
-            throw new AuthenticationServiceException('The user provider must return a UserInterface object.');
+
+        // @deprecated since Symfony 5.3, change to $this->userProvider->loadUserByIdentifier() in 6.0
+        $method = 'loadUserByIdentifier';
+        if (!method_exists($this->userProvider, 'loadUserByIdentifier')) {
+            trigger_deprecation('symfony/security-core', '5.3', 'Not implementing method "loadUserByIdentifier()" in user provider "%s" is deprecated. This method will replace "loadUserByUsername()" in Symfony 6.0.', get_debug_type($this->userProvider));
+
+            $method = 'loadUserByUsername';
         }
 
-        $passport = new Passport($user, new PasswordCredentials($credentials['password']), [new RememberMeBadge()]);
+        $passport = new Passport(
+            new UserBadge($credentials['username'], [$this->userProvider, $method]),
+            new PasswordCredentials($credentials['password']),
+            [new RememberMeBadge()]
+        );
         if ($this->options['enable_csrf']) {
             $passport->addBadge(new CsrfTokenBadge($this->options['csrf_token_id'], $credentials['csrf_token']));
         }
@@ -141,5 +149,25 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
         $request->getSession()->set(Security::LAST_USERNAME, $credentials['username']);
 
         return $credentials;
+    }
+
+    public function setHttpKernel(HttpKernelInterface $httpKernel): void
+    {
+        $this->httpKernel = $httpKernel;
+    }
+
+    public function start(Request $request, AuthenticationException $authException = null): Response
+    {
+        if (!$this->options['use_forward']) {
+            return parent::start($request, $authException);
+        }
+
+        $subRequest = $this->httpUtils->createRequest($request, $this->options['login_path']);
+        $response = $this->httpKernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
+        if (200 === $response->getStatusCode()) {
+            $response->setStatusCode(401);
+        }
+
+        return $response;
     }
 }

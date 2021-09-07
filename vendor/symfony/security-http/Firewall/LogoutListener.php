@@ -46,7 +46,7 @@ class LogoutListener extends AbstractListener
      * @param EventDispatcherInterface $eventDispatcher
      * @param array                    $options         An array of options to process a logout attempt
      */
-    public function __construct(TokenStorageInterface $tokenStorage, HttpUtils $httpUtils, /* EventDispatcherInterface */$eventDispatcher, array $options = [], CsrfTokenManagerInterface $csrfTokenManager = null)
+    public function __construct(TokenStorageInterface $tokenStorage, HttpUtils $httpUtils, $eventDispatcher, array $options = [], CsrfTokenManagerInterface $csrfTokenManager = null)
     {
         if (!$eventDispatcher instanceof EventDispatcherInterface) {
             trigger_deprecation('symfony/security-http', '5.1', 'Passing a logout success handler to "%s" is deprecated, pass an instance of "%s" instead.', __METHOD__, EventDispatcherInterface::class);
@@ -113,7 +113,7 @@ class LogoutListener extends AbstractListener
         if (null !== $this->csrfTokenManager) {
             $csrfToken = ParameterBagUtils::getRequestParameterValue($request, $this->options['csrf_parameter']);
 
-            if (false === $this->csrfTokenManager->isTokenValid(new CsrfToken($this->options['csrf_token_id'], $csrfToken))) {
+            if (!\is_string($csrfToken) || false === $this->csrfTokenManager->isTokenValid(new CsrfToken($this->options['csrf_token_id'], $csrfToken))) {
                 throw new LogoutException('Invalid CSRF token.');
             }
         }
@@ -141,5 +141,10 @@ class LogoutListener extends AbstractListener
     protected function requiresLogout(Request $request): bool
     {
         return isset($this->options['logout_path']) && $this->httpUtils->checkRequestPath($request, $this->options['logout_path']);
+    }
+
+    public static function getPriority(): int
+    {
+        return -127;
     }
 }

@@ -10,6 +10,11 @@ use Doctrine\Persistence\ObjectRepository;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 
+use function class_exists;
+use function is_a;
+use function spl_object_hash;
+use function sprintf;
+
 /**
  * Fetches repositories from the container or falls back to normal creation.
  */
@@ -21,9 +26,7 @@ final class ContainerRepositoryFactory implements RepositoryFactory
     /** @var ContainerInterface */
     private $container;
 
-    /**
-     * @param ContainerInterface $container A service locator containing the repositories
-     */
+    /** @param ContainerInterface $container A service locator containing the repositories */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;

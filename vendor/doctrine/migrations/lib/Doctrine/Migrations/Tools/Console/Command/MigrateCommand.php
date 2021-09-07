@@ -13,9 +13,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use function count;
+use function dirname;
 use function getcwd;
 use function in_array;
+use function is_dir;
 use function is_string;
 use function is_writable;
 use function sprintf;
@@ -30,7 +33,7 @@ final class MigrateCommand extends DoctrineCommand
     /** @var string */
     protected static $defaultName = 'migrations:migrate';
 
-    protected function configure() : void
+    protected function configure(): void
     {
         $this
             ->setAliases(['migrate'])
@@ -47,7 +50,7 @@ final class MigrateCommand extends DoctrineCommand
                 'write-sql',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'The path to output the migration SQL file instead of executing it. Defaults to current working directory.',
+                'The path to output the migration SQL file. Defaults to current working directory.',
                 false
             )
             ->addOption(
@@ -72,13 +75,17 @@ final class MigrateCommand extends DoctrineCommand
                 'all-or-nothing',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'Wrap the entire migration in a transaction.',
-                false
+                'Wrap the entire migration in a transaction.'
             )
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command executes a migration to a specified version or the latest available version:
 
     <info>%command.full_name%</info>
+
+You can show more information about the process by increasing the verbosity level. To see the
+executed queries, set the level to debug with <comment>-vv</comment>:
+
+    <info>%command.full_name% -vv</info>
 
 You can optionally manually specify the version you wish to migrate to:
 
@@ -97,7 +104,7 @@ You can also execute the migration as a <comment>--dry-run</comment>:
 
     <info>%command.full_name% FQCN --dry-run</info>
 
-You can output the would be executed SQL statements to a file with <comment>--write-sql</comment>:
+You can output the prepared SQL statements to a file with <comment>--write-sql</comment>:
 
     <info>%command.full_name% FQCN --write-sql</info>
 
@@ -110,18 +117,22 @@ You can also time all the different queries if you wanna know which one is takin
     <info>%command.full_name% --query-time</info>
 
 Use the --all-or-nothing option to wrap the entire migration in a transaction.
+
 EOT
             );
 
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) : int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $migratorConfigurationFactory = $this->getDependencyFactory()->getConsoleInputMigratorConfigurationFactory();
         $migratorConfiguration        = $migratorConfigurationFactory->getMigratorConfiguration($input);
 
-        $question = 'WARNING! You are about to execute a database migration that could result in schema changes and data loss. Are you sure you wish to continue?';
+        $question = sprintf(
+            'WARNING! You are about to execute a migration in database "%s" that could result in schema changes and data loss. Are you sure you wish to continue?',
+            $this->getDependencyFactory()->getConnection()->getDatabase() ?? '<unnamed>'
+        );
         if (! $migratorConfiguration->isDryRun() && ! $this->canExecute($question, $input)) {
             $this->io->error('Migration cancelled!');
 
@@ -134,7 +145,8 @@ EOT
         $versionAlias     = $input->getArgument('version');
 
         $path = $input->getOption('write-sql') ?? getcwd();
-        if (is_string($path) && ! is_writable($path)) {
+
+        if (is_string($path) && ! $this->isPathWritable($path)) {
             $this->io->error(sprintf('The path "%s" not writeable!', $path));
 
             return 1;
@@ -167,7 +179,7 @@ EOT
             ));
 
             return 1;
-        } catch (NoMigrationsToExecute|NoMigrationsFoundWithCriteria $e) {
+        } catch (NoMigrationsToExecute | NoMigrationsFoundWithCriteria $e) {
             return $this->exitForAlias($versionAlias);
         }
 
@@ -209,7 +221,7 @@ EOT
     private function checkExecutedUnavailableMigrations(
         ExecutedMigrationsList $executedUnavailableMigrations,
         InputInterface $input
-    ) : bool {
+    ): bool {
         if (count($executedUnavailableMigrations) !== 0) {
             $this->io->warning(sprintf(
                 'You have %s previously executed migrations in the database that are not registered migrations.',
@@ -238,7 +250,7 @@ EOT
         return true;
     }
 
-    private function exitForAlias(string $versionAlias) : int
+    private function exitForAlias(string $versionAlias): int
     {
         $version = $this->getDependencyFactory()->getVersionAliasResolver()->resolveVersionAlias('current');
 
@@ -269,5 +281,10 @@ EOT
         }
 
         return 0;
+    }
+
+    private function isPathWritable(string $path): bool
+    {
+        return is_writable($path) || is_dir($path) || is_writable(dirname($path));
     }
 }

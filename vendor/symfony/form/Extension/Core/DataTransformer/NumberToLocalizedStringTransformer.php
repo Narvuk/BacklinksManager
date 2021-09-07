@@ -26,37 +26,37 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_CEILING instead.
      */
-    const ROUND_CEILING = \NumberFormatter::ROUND_CEILING;
+    public const ROUND_CEILING = \NumberFormatter::ROUND_CEILING;
 
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_FLOOR instead.
      */
-    const ROUND_FLOOR = \NumberFormatter::ROUND_FLOOR;
+    public const ROUND_FLOOR = \NumberFormatter::ROUND_FLOOR;
 
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_UP instead.
      */
-    const ROUND_UP = \NumberFormatter::ROUND_UP;
+    public const ROUND_UP = \NumberFormatter::ROUND_UP;
 
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_DOWN instead.
      */
-    const ROUND_DOWN = \NumberFormatter::ROUND_DOWN;
+    public const ROUND_DOWN = \NumberFormatter::ROUND_DOWN;
 
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_HALFEVEN instead.
      */
-    const ROUND_HALF_EVEN = \NumberFormatter::ROUND_HALFEVEN;
+    public const ROUND_HALF_EVEN = \NumberFormatter::ROUND_HALFEVEN;
 
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_HALFUP instead.
      */
-    const ROUND_HALF_UP = \NumberFormatter::ROUND_HALFUP;
+    public const ROUND_HALF_UP = \NumberFormatter::ROUND_HALFUP;
 
     /**
      * @deprecated since Symfony 5.1, use \NumberFormatter::ROUND_HALFDOWN instead.
      */
-    const ROUND_HALF_DOWN = \NumberFormatter::ROUND_HALFDOWN;
+    public const ROUND_HALF_DOWN = \NumberFormatter::ROUND_HALFDOWN;
 
     protected $grouping;
 
@@ -67,24 +67,16 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
 
     public function __construct(int $scale = null, ?bool $grouping = false, ?int $roundingMode = \NumberFormatter::ROUND_HALFUP, string $locale = null)
     {
-        if (null === $grouping) {
-            $grouping = false;
-        }
-
-        if (null === $roundingMode) {
-            $roundingMode = \NumberFormatter::ROUND_HALFUP;
-        }
-
         $this->scale = $scale;
-        $this->grouping = $grouping;
-        $this->roundingMode = $roundingMode;
+        $this->grouping = $grouping ?? false;
+        $this->roundingMode = $roundingMode ?? \NumberFormatter::ROUND_HALFUP;
         $this->locale = $locale;
     }
 
     /**
      * Transforms a number type into localized number.
      *
-     * @param int|float $value Number value
+     * @param int|float|null $value Number value
      *
      * @return string Localized value
      *
@@ -119,7 +111,7 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
      *
      * @param string $value The localized value
      *
-     * @return int|float The numeric value
+     * @return int|float|null The numeric value
      *
      * @throws TransformationFailedException if the given value is not a string
      *                                       or if the value can not be transformed
@@ -151,7 +143,7 @@ class NumberToLocalizedStringTransformer implements DataTransformerInterface
             $value = str_replace(',', $decSep, $value);
         }
 
-        if (false !== strpos($value, $decSep)) {
+        if (str_contains($value, $decSep)) {
             $type = \NumberFormatter::TYPE_DOUBLE;
         } else {
             $type = \PHP_INT_SIZE === 8

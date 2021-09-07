@@ -42,9 +42,6 @@ class ClassExistenceResource implements SelfCheckingResourceInterface
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __toString(): string
     {
         return $this->resource;
@@ -219,14 +216,14 @@ class ClassExistenceResource implements SelfCheckingResourceInterface
             }
 
             $props = [
-                'file' => isset($callerFrame['file']) ? $callerFrame['file'] : null,
-                'line' => isset($callerFrame['line']) ? $callerFrame['line'] : null,
+                'file' => $callerFrame['file'] ?? null,
+                'line' => $callerFrame['line'] ?? null,
                 'trace' => \array_slice($trace, 1 + $i),
             ];
 
             foreach ($props as $p => $v) {
                 if (null !== $v) {
-                    $r = new \ReflectionProperty('Exception', $p);
+                    $r = new \ReflectionProperty(\Exception::class, $p);
                     $r->setAccessible(true);
                     $r->setValue($e, $v);
                 }

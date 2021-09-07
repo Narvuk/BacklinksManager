@@ -108,7 +108,7 @@
                             {{ include('@WebProfiler/Icon/search.svg') }} <span class="hidden-small">Search</span>
                         </a>
 
-                        {{ render(path('_profiler_search_bar', request.query.all)) }}
+                        {{ render(controller('web_profiler.controller.profiler::searchBarAction', request.query.all)) }}
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@
                                 {%- endif -%}
                             {%- endset %}
                             {% if menu is not empty %}
-                                <li class="{{ name }} {{ name == panel ? 'selected' : '' }}">
+                                <li class="{{ name }} {{ name == panel ? 'selected' }}">
                                     <a href="{{ path('_profiler', { token: token, panel: name }) }}">{{ menu|raw }}</a>
                                 </li>
                             {% endif %}

@@ -1,6 +1,31 @@
 CHANGELOG
 =========
 
+5.3
+---
+
+ * Add `ServicesConfigurator::remove()` in the PHP-DSL
+ * Add `%env(not:...)%` processor to negate boolean values
+ * Add support for loading autoconfiguration rules via the `#[Autoconfigure]` and `#[AutoconfigureTag]` attributes on PHP 8
+ * Add `#[AsTaggedItem]` attribute for defining the index and priority of classes found in tagged iterators/locators
+ * Add autoconfigurable attributes
+ * Add support for autowiring tagged iterators and locators via attributes on PHP 8
+ * Add support for per-env configuration in XML and Yaml loaders
+ * Add `ContainerBuilder::willBeAvailable()` to help with conditional configuration
+ * Add support an integer return value for default_index_method
+ * Add `#[When(env: 'foo')]` to skip autoregistering a class when the env doesn't match
+ * Add `env()` and `EnvConfigurator` in the PHP-DSL
+ * Add support for `ConfigBuilder` in the `PhpFileLoader`
+ * Add `ContainerConfigurator::env()` to get the current environment
+ * Add `#[Target]` to tell how a dependency is used and hint named autowiring aliases
+
+5.2.0
+-----
+
+ * added `param()` and `abstract_arg()` in the PHP-DSL
+ * deprecated `Definition::setPrivate()` and `Alias::setPrivate()`, use `setPublic()` instead
+ * added support for the `#[Required]` attribute
+
 5.1.0
 -----
 
@@ -170,7 +195,6 @@ CHANGELOG
  * added `TaggedIteratorArgument` with YAML (`!tagged foo`) and XML (`<service type="tagged"/>`) support
  * deprecated `AutowireExceptionPass` and `AutowirePass::getAutowiringExceptions()`, use `Definition::addError()` and the `DefinitionErrorExceptionPass` instead
 
-
 3.3.0
 -----
 
@@ -239,8 +263,8 @@ CHANGELOG
 2.5.0
 -----
 
-* added DecoratorServicePass and a way to override a service definition (Definition::setDecoratedService())
-* deprecated SimpleXMLElement class.
+ * added DecoratorServicePass and a way to override a service definition (Definition::setDecoratedService())
+ * deprecated SimpleXMLElement class.
 
 2.4.0
 -----

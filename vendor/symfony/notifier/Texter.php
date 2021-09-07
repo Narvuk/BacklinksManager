@@ -16,13 +16,12 @@ use Symfony\Component\EventDispatcher\LegacyEventDispatcherProxy;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Notifier\Event\MessageEvent;
 use Symfony\Component\Notifier\Message\MessageInterface;
+use Symfony\Component\Notifier\Message\SentMessage;
 use Symfony\Component\Notifier\Transport\TransportInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 5.1
  */
 final class Texter implements TexterInterface
 {
@@ -47,12 +46,10 @@ final class Texter implements TexterInterface
         return $this->transport->supports($message);
     }
 
-    public function send(MessageInterface $message): void
+    public function send(MessageInterface $message): ?SentMessage
     {
         if (null === $this->bus) {
-            $this->transport->send($message);
-
-            return;
+            return $this->transport->send($message);
         }
 
         if (null !== $this->dispatcher) {
@@ -60,5 +57,7 @@ final class Texter implements TexterInterface
         }
 
         $this->bus->dispatch($message);
+
+        return null;
     }
 }

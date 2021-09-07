@@ -1,6 +1,24 @@
 CHANGELOG
 =========
 
+5.3
+---
+
+ * Add the ability to provide (de)normalization context using metadata (e.g. `@Symfony\Component\Serializer\Annotation\Context`)
+ * Deprecate `ArrayDenormalizer::setSerializer()`, call `setDenormalizer()` instead
+ * Add normalization formats to `UidNormalizer`
+ * Add `CsvEncoder::END_OF_LINE` context option
+ * Deprecate creating instances of the annotation classes by passing an array of parameters, use named arguments instead
+
+5.2.0
+-----
+
+ * added `CompiledClassMetadataFactory` and `ClassMetadataFactoryCompiler` for faster metadata loading.
+ * added `UidNormalizer`
+ * added `FormErrorNormalizer`
+ * added `MimeMessageNormalizer`
+ * serializer mapping can be configured using php attributes
+
 5.1.0
 -----
 

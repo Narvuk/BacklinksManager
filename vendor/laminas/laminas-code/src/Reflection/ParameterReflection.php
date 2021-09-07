@@ -1,22 +1,16 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-code for the canonical source repository
- * @copyright https://github.com/laminas/laminas-code/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-code/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Code\Reflection;
 
+use ReflectionClass;
+use ReflectionMethod;
 use ReflectionParameter;
 
 use function method_exists;
 
 class ParameterReflection extends ReflectionParameter implements ReflectionInterface
 {
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $isFromMethod = false;
 
     /**
@@ -26,7 +20,7 @@ class ParameterReflection extends ReflectionParameter implements ReflectionInter
      */
     public function getDeclaringClass()
     {
-        $phpReflection  = parent::getDeclaringClass();
+        $phpReflection     = parent::getDeclaringClass();
         $laminasReflection = new ClassReflection($phpReflection->getName());
         unset($phpReflection);
 
@@ -59,7 +53,7 @@ class ParameterReflection extends ReflectionParameter implements ReflectionInter
     public function getDeclaringFunction()
     {
         $phpReflection = parent::getDeclaringFunction();
-        if ($phpReflection instanceof \ReflectionMethod) {
+        if ($phpReflection instanceof ReflectionMethod) {
             $laminasReflection = new MethodReflection($this->getDeclaringClass()->getName(), $phpReflection->getName());
         } else {
             $laminasReflection = new FunctionReflection($phpReflection->getName());
@@ -76,7 +70,8 @@ class ParameterReflection extends ReflectionParameter implements ReflectionInter
      */
     public function detectType()
     {
-        if (method_exists($this, 'getType')
+        if (
+            method_exists($this, 'getType')
             && null !== ($type = $this->getType())
             && $type->isBuiltin()
         ) {
@@ -87,7 +82,7 @@ class ParameterReflection extends ReflectionParameter implements ReflectionInter
             return $this->getDeclaringClass()->getName();
         }
 
-        if (($class = $this->getClass()) instanceof \ReflectionClass) {
+        if (($class = $this->getClass()) instanceof ReflectionClass) {
             return $class->getName();
         }
 

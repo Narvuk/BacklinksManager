@@ -11,14 +11,20 @@
 
 namespace Symfony\Component\Security\Core\Encoder;
 
+use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
+
+trigger_deprecation('symfony/security-core', '5.3', 'The "%s" class is deprecated, use "%s" instead.', BasePasswordEncoder::class, CheckPasswordLengthTrait::class);
+
 /**
  * BasePasswordEncoder is the base class for all password encoders.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @deprecated since Symfony 5.3, use CheckPasswordLengthTrait instead
  */
 abstract class BasePasswordEncoder implements PasswordEncoderInterface
 {
-    const MAX_PASSWORD_LENGTH = 4096;
+    public const MAX_PASSWORD_LENGTH = 4096;
 
     /**
      * {@inheritdoc}

@@ -15,6 +15,8 @@ use Doctrine\Common\Persistence\ManagerRegistry as LegacyManagerRegistry;
 use Symfony\Bundle\MakerBundle\Generator;
 use Symfony\Bundle\MakerBundle\Str;
 use Symfony\Bundle\MakerBundle\Util\ClassNameDetails;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @internal
@@ -31,7 +33,7 @@ final class EntityClassGenerator
         $this->doctrineHelper = $doctrineHelper;
     }
 
-    public function generateEntityClass(ClassNameDetails $entityClassDetails, bool $apiResource, bool $withPasswordUpgrade = false, bool $generateRepositoryClass = true): string
+    public function generateEntityClass(ClassNameDetails $entityClassDetails, bool $apiResource, bool $withPasswordUpgrade = false, bool $generateRepositoryClass = true, bool $broadcast = false): string
     {
         $repoClassDetails = $this->generator->createClassNameDetails(
             $entityClassDetails->getRelativeName(),
@@ -48,6 +50,7 @@ final class EntityClassGenerator
                 'repository_full_class_name' => $repoClassDetails->getFullName(),
                 'repository_class_name' => $repoClassDetails->getShortName(),
                 'api_resource' => $apiResource,
+                'broadcast' => $broadcast,
                 'should_escape_table_name' => $this->doctrineHelper->isKeyword($tableName),
                 'table_name' => $tableName,
             ]
@@ -69,6 +72,15 @@ final class EntityClassGenerator
     {
         $shortEntityClass = Str::getShortClassName($entityClass);
         $entityAlias = strtolower($shortEntityClass[0]);
+
+        $passwordUserInterfaceName = UserInterface::class;
+
+        if (interface_exists(PasswordAuthenticatedUserInterface::class)) {
+            $passwordUserInterfaceName = PasswordAuthenticatedUserInterface::class;
+        }
+
+        $interfaceClassNameDetails = new ClassNameDetails($passwordUserInterfaceName, 'Symfony\Component\Security\Core\User');
+
         $this->generator->generateClass(
             $repositoryClass,
             'doctrine/Repository.tpl.php',
@@ -77,6 +89,7 @@ final class EntityClassGenerator
                 'entity_class_name' => $shortEntityClass,
                 'entity_alias' => $entityAlias,
                 'with_password_upgrade' => $withPasswordUpgrade,
+                'password_upgrade_user_interface' => $interfaceClassNameDetails,
                 'doctrine_registry_class' => $this->managerRegistryClassName,
                 'include_example_comments' => $includeExampleComments,
             ]

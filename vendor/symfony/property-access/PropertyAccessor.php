@@ -38,6 +38,19 @@ use Symfony\Component\PropertyInfo\PropertyWriteInfoExtractorInterface;
  */
 class PropertyAccessor implements PropertyAccessorInterface
 {
+    /** @var int Allow none of the magic methods */
+    public const DISALLOW_MAGIC_METHODS = ReflectionExtractor::DISALLOW_MAGIC_METHODS;
+    /** @var int Allow magic __get methods */
+    public const MAGIC_GET = ReflectionExtractor::ALLOW_MAGIC_GET;
+    /** @var int Allow magic __set methods */
+    public const MAGIC_SET = ReflectionExtractor::ALLOW_MAGIC_SET;
+    /** @var int Allow magic __call methods */
+    public const MAGIC_CALL = ReflectionExtractor::ALLOW_MAGIC_CALL;
+
+    public const DO_NOT_THROW = 0;
+    public const THROW_ON_INVALID_INDEX = 1;
+    public const THROW_ON_INVALID_PROPERTY_PATH = 2;
+
     private const VALUE = 0;
     private const REF = 1;
     private const IS_REF_CHAINED = 2;
@@ -45,10 +58,7 @@ class PropertyAccessor implements PropertyAccessorInterface
     private const CACHE_PREFIX_WRITE = 'w';
     private const CACHE_PREFIX_PROPERTY_PATH = 'p';
 
-    /**
-     * @var bool
-     */
-    private $magicCall;
+    private $magicMethodsFlags;
     private $ignoreInvalidIndices;
     private $ignoreInvalidProperty;
 
@@ -68,21 +78,65 @@ class PropertyAccessor implements PropertyAccessorInterface
      * @var PropertyWriteInfoExtractorInterface
      */
     private $writeInfoExtractor;
-
     private $readPropertyCache = [];
     private $writePropertyCache = [];
-    private static $resultProto = [self::VALUE => null];
+    private const RESULT_PROTO = [self::VALUE => null];
 
     /**
      * Should not be used by application code. Use
      * {@link PropertyAccess::createPropertyAccessor()} instead.
+     *
+     * @param int                                 $magicMethods       A bitwise combination of the MAGIC_* constants
+     *                                                                to specify the allowed magic methods (__get, __set, __call)
+     *                                                                or self::DISALLOW_MAGIC_METHODS for none
+     * @param int                                 $throw              A bitwise combination of the THROW_* constants
+     *                                                                to specify when exceptions should be thrown
+     * @param PropertyReadInfoExtractorInterface  $readInfoExtractor
+     * @param PropertyWriteInfoExtractorInterface $writeInfoExtractor
      */
-    public function __construct(bool $magicCall = false, bool $throwExceptionOnInvalidIndex = false, CacheItemPoolInterface $cacheItemPool = null, bool $throwExceptionOnInvalidPropertyPath = true, PropertyReadInfoExtractorInterface $readInfoExtractor = null, PropertyWriteInfoExtractorInterface $writeInfoExtractor = null)
+    public function __construct($magicMethods = self::MAGIC_GET | self::MAGIC_SET, $throw = self::THROW_ON_INVALID_PROPERTY_PATH, CacheItemPoolInterface $cacheItemPool = null, $readInfoExtractor = null, $writeInfoExtractor = null)
     {
-        $this->magicCall = $magicCall;
-        $this->ignoreInvalidIndices = !$throwExceptionOnInvalidIndex;
+        if (\is_bool($magicMethods)) {
+            trigger_deprecation('symfony/property-access', '5.2', 'Passing a boolean as the first argument to "%s()" is deprecated. Pass a combination of bitwise flags instead (i.e an integer).', __METHOD__);
+
+            $magicMethods = ($magicMethods ? self::MAGIC_CALL : 0) | self::MAGIC_GET | self::MAGIC_SET;
+        } elseif (!\is_int($magicMethods)) {
+            throw new \TypeError(sprintf('Argument 1 passed to "%s()" must be an integer, "%s" given.', __METHOD__, get_debug_type($readInfoExtractor)));
+        }
+
+        if (\is_bool($throw)) {
+            trigger_deprecation('symfony/property-access', '5.3', 'Passing a boolean as the second argument to "%s()" is deprecated. Pass a combination of bitwise flags instead (i.e an integer).', __METHOD__);
+
+            $throw = $throw ? self::THROW_ON_INVALID_INDEX : self::DO_NOT_THROW;
+
+            if (!\is_bool($readInfoExtractor)) {
+                $throw |= self::THROW_ON_INVALID_PROPERTY_PATH;
+            }
+        }
+
+        if (\is_bool($readInfoExtractor)) {
+            trigger_deprecation('symfony/property-access', '5.3', 'Passing a boolean as the fourth argument to "%s()" is deprecated. Pass a combination of bitwise flags as the second argument instead (i.e an integer).', __METHOD__);
+
+            if ($readInfoExtractor) {
+                $throw |= self::THROW_ON_INVALID_PROPERTY_PATH;
+            }
+
+            $readInfoExtractor = $writeInfoExtractor;
+            $writeInfoExtractor = 4 < \func_num_args() ? func_get_arg(4) : null;
+        }
+
+        if (null !== $readInfoExtractor && !$readInfoExtractor instanceof PropertyReadInfoExtractorInterface) {
+            throw new \TypeError(sprintf('Argument 4 passed to "%s()" must be null or an instance of "%s", "%s" given.', __METHOD__, PropertyReadInfoExtractorInterface::class, get_debug_type($readInfoExtractor)));
+        }
+
+        if (null !== $writeInfoExtractor && !$writeInfoExtractor instanceof PropertyWriteInfoExtractorInterface) {
+            throw new \TypeError(sprintf('Argument 5 passed to "%s()" must be null or an instance of "%s", "%s" given.', __METHOD__, PropertyWriteInfoExtractorInterface::class, get_debug_type($writeInfoExtractor)));
+        }
+
+        $this->magicMethodsFlags = $magicMethods;
+        $this->ignoreInvalidIndices = 0 === ($throw & self::THROW_ON_INVALID_INDEX);
         $this->cacheItemPool = $cacheItemPool instanceof NullAdapter ? null : $cacheItemPool; // Replace the NullAdapter by the null value
-        $this->ignoreInvalidProperty = !$throwExceptionOnInvalidPropertyPath;
+        $this->ignoreInvalidProperty = 0 === ($throw & self::THROW_ON_INVALID_PROPERTY_PATH);
         $this->readInfoExtractor = $readInfoExtractor ?? new ReflectionExtractor([], null, null, false);
         $this->writeInfoExtractor = $writeInfoExtractor ?? new ReflectionExtractor(['set'], null, null, false);
     }
@@ -195,7 +249,7 @@ class PropertyAccessor implements PropertyAccessorInterface
         }
 
         if (\PHP_VERSION_ID < 80000) {
-            if (0 !== strpos($message, 'Argument ')) {
+            if (!str_starts_with($message, 'Argument ')) {
                 return;
             }
 
@@ -362,7 +416,7 @@ class PropertyAccessor implements PropertyAccessorInterface
             throw new NoSuchIndexException(sprintf('Cannot read index "%s" from object of type "%s" because it doesn\'t implement \ArrayAccess.', $index, get_debug_type($zval[self::VALUE])));
         }
 
-        $result = self::$resultProto;
+        $result = self::RESULT_PROTO;
 
         if (isset($zval[self::VALUE][$index])) {
             $result[self::VALUE] = $zval[self::VALUE][$index];
@@ -390,7 +444,7 @@ class PropertyAccessor implements PropertyAccessorInterface
             throw new NoSuchPropertyException(sprintf('Cannot read property "%s" from an array. Maybe you intended to write the property path as "[%1$s]" instead.', $property));
         }
 
-        $result = self::$resultProto;
+        $result = self::RESULT_PROTO;
         $object = $zval[self::VALUE];
         $class = \get_class($object);
         $access = $this->getReadInfo($class, $property);
@@ -410,9 +464,9 @@ class PropertyAccessor implements PropertyAccessorInterface
                         if (__FILE__ === $trace['file']
                             && $name === $trace['function']
                             && $object instanceof $trace['class']
-                            && preg_match((sprintf('/Return value (?:of .*::\w+\(\) )?must be of (?:the )?type (\w+), null returned$/')), $e->getMessage(), $matches)
+                            && preg_match('/Return value (?:of .*::\w+\(\) )?must be of (?:the )?type (\w+), null returned$/', $e->getMessage(), $matches)
                         ) {
-                            throw new UninitializedPropertyException(sprintf('The method "%s::%s()" returned "null", but expected type "%3$s". Did you forget to initialize a property or to make the return type nullable using "?%3$s"?', false === strpos(\get_class($object), "@anonymous\0") ? \get_class($object) : (get_parent_class($object) ?: key(class_implements($object)) ?: 'class').'@anonymous', $name, $matches[1]), 0, $e);
+                            throw new UninitializedPropertyException(sprintf('The method "%s::%s()" returned "null", but expected type "%3$s". Did you forget to initialize a property or to make the return type nullable using "?%3$s"?', !str_contains(\get_class($object), "@anonymous\0") ? \get_class($object) : (get_parent_class($object) ?: key(class_implements($object)) ?: 'class').'@anonymous', $name, $matches[1]), 0, $e);
                         }
 
                         throw $e;
@@ -472,7 +526,7 @@ class PropertyAccessor implements PropertyAccessorInterface
 
         $accessor = $this->readInfoExtractor->getReadInfo($class, $property, [
             'enable_getter_setter_extraction' => true,
-            'enable_magic_call_extraction' => $this->magicCall,
+            'enable_magic_methods_extraction' => $this->magicMethodsFlags,
             'enable_constructor_extraction' => false,
         ]);
 
@@ -576,7 +630,7 @@ class PropertyAccessor implements PropertyAccessorInterface
 
     private function getWriteInfo(string $class, string $property, $value): PropertyWriteInfo
     {
-        $useAdderAndRemover = \is_array($value) || $value instanceof \Traversable;
+        $useAdderAndRemover = is_iterable($value);
         $key = str_replace('\\', '.', $class).'..'.$property.'..'.(int) $useAdderAndRemover;
 
         if (isset($this->writePropertyCache[$key])) {
@@ -592,7 +646,7 @@ class PropertyAccessor implements PropertyAccessorInterface
 
         $mutator = $this->writeInfoExtractor->getWriteInfo($class, $property, [
             'enable_getter_setter_extraction' => true,
-            'enable_magic_call_extraction' => $this->magicCall,
+            'enable_magic_methods_extraction' => $this->magicMethodsFlags,
             'enable_constructor_extraction' => false,
             'enable_adder_remover_extraction' => $useAdderAndRemover,
         ]);
@@ -606,10 +660,8 @@ class PropertyAccessor implements PropertyAccessorInterface
 
     /**
      * Returns whether a property is writable in the given object.
-     *
-     * @param object $object The object to write to
      */
-    private function isPropertyWritable($object, string $property): bool
+    private function isPropertyWritable(object $object, string $property): bool
     {
         if (!\is_object($object)) {
             return false;
@@ -667,7 +719,7 @@ class PropertyAccessor implements PropertyAccessorInterface
      */
     public static function createCache(string $namespace, int $defaultLifetime, string $version, LoggerInterface $logger = null)
     {
-        if (!class_exists('Symfony\Component\Cache\Adapter\ApcuAdapter')) {
+        if (!class_exists(ApcuAdapter::class)) {
             throw new \LogicException(sprintf('The Symfony Cache component must be installed to use "%s()".', __METHOD__));
         }
 

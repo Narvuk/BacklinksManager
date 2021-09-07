@@ -23,6 +23,10 @@ final class AliasDeprecatedPublicServicesPass extends AbstractRecursivePass
 
     public function __construct(string $tagName = 'container.private')
     {
+        if (0 < \func_num_args()) {
+            trigger_deprecation('symfony/dependency-injection', '5.3', 'Configuring "%s" is deprecated.', __CLASS__);
+        }
+
         $this->tagName = $tagName;
     }
 
@@ -54,7 +58,7 @@ final class AliasDeprecatedPublicServicesPass extends AbstractRecursivePass
 
             $definition = $container->getDefinition($id);
             if (!$definition->isPublic() || $definition->isPrivate()) {
-                throw new InvalidArgumentException(sprintf('The "%s" service is private: it cannot have the "%s" tag.', $id, $this->tagName));
+                continue;
             }
 
             $container

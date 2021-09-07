@@ -29,7 +29,7 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @method void configureRoutes(RoutingConfigurator $routes)
- * @method void configureContainer(ContainerConfigurator $c)
+ * @method void configureContainer(ContainerConfigurator $container)
  */
 trait MicroKernelTrait
 {
@@ -61,7 +61,27 @@ trait MicroKernelTrait
      *
      *     $c->parameters()->set('halloween', 'lot of fun');
      */
-    //abstract protected function configureContainer(ContainerConfigurator $c): void;
+    //abstract protected function configureContainer(ContainerConfigurator $container): void;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCacheDir(): string
+    {
+        if (isset($_SERVER['APP_CACHE_DIR'])) {
+            return $_SERVER['APP_CACHE_DIR'].'/'.$this->environment;
+        }
+
+        return parent::getCacheDir();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getLogDir(): string
+    {
+        return $_SERVER['APP_LOG_DIR'] ?? parent::getLogDir();
+    }
 
     /**
      * {@inheritdoc}
@@ -109,7 +129,7 @@ trait MicroKernelTrait
             try {
                 $configureContainer = new \ReflectionMethod($this, 'configureContainer');
             } catch (\ReflectionException $e) {
-                throw new \LogicException(sprintf('"%s" uses "%s", but does not implement the required method "protected function configureContainer(ContainerConfigurator $c): void".', get_debug_type($this), MicroKernelTrait::class), 0, $e);
+                throw new \LogicException(sprintf('"%s" uses "%s", but does not implement the required method "protected function configureContainer(ContainerConfigurator $container): void".', get_debug_type($this), MicroKernelTrait::class), 0, $e);
             }
 
             $configuratorClass = $configureContainer->getNumberOfParameters() > 0 && ($type = $configureContainer->getParameters()[0]->getType()) instanceof \ReflectionNamedType && !$type->isBuiltin() ? $type->getName() : null;
@@ -132,7 +152,7 @@ trait MicroKernelTrait
             };
 
             try {
-                $this->configureContainer(new ContainerConfigurator($container, $kernelLoader, $instanceof, $file, $file), $loader);
+                $this->configureContainer(new ContainerConfigurator($container, $kernelLoader, $instanceof, $file, $file, $this->getEnvironment()), $loader);
             } finally {
                 $instanceof = [];
                 $kernelLoader->registerAliasesForSinglyImplementedInterfaces();
@@ -162,7 +182,7 @@ trait MicroKernelTrait
             throw new \LogicException(sprintf('"%s" uses "%s", but does not implement the required method "protected function configureRoutes(RoutingConfigurator $routes): void".', get_debug_type($this), MicroKernelTrait::class), 0, $e);
         }
 
-        $configuratorClass = $configureRoutes->getNumberOfParameters() > 0 && ($type = $configureRoutes->getParameters()[0]->getType()) && !$type->isBuiltin() ? $type->getName() : null;
+        $configuratorClass = $configureRoutes->getNumberOfParameters() > 0 && ($type = $configureRoutes->getParameters()[0]->getType()) instanceof \ReflectionNamedType && !$type->isBuiltin() ? $type->getName() : null;
 
         if ($configuratorClass && !is_a(RoutingConfigurator::class, $configuratorClass, true)) {
             trigger_deprecation('symfony/framework-bundle', '5.1', 'Using type "%s" for argument 1 of method "%s:configureRoutes()" is deprecated, use "%s" instead.', RouteCollectionBuilder::class, self::class, RoutingConfigurator::class);
@@ -173,7 +193,7 @@ trait MicroKernelTrait
             return $routes->build();
         }
 
-        $this->configureRoutes(new RoutingConfigurator($collection, $kernelLoader, $file, $file));
+        $this->configureRoutes(new RoutingConfigurator($collection, $kernelLoader, $file, $file, $this->getEnvironment()));
 
         foreach ($collection as $route) {
             $controller = $route->getDefault('_controller');

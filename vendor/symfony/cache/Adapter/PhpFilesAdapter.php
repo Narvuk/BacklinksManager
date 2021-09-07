@@ -292,7 +292,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
         return $this->doCommonDelete($ids);
     }
 
-    protected function doUnlink($file)
+    protected function doUnlink(string $file)
     {
         unset(self::$valuesCache[$file]);
 
@@ -305,7 +305,7 @@ class PhpFilesAdapter extends AbstractAdapter implements PruneableInterface
 
     private function getFileKey(string $file): string
     {
-        if (!$h = @fopen($file, 'rb')) {
+        if (!$h = @fopen($file, 'r')) {
             return '';
         }
 
@@ -323,7 +323,7 @@ class LazyValue
 {
     public $file;
 
-    public function __construct($file)
+    public function __construct(string $file)
     {
         $this->file = $file;
     }

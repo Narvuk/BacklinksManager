@@ -10,9 +10,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+
 use function array_map;
+use function dirname;
 use function getcwd;
 use function implode;
+use function is_dir;
 use function is_string;
 use function is_writable;
 use function sprintf;
@@ -25,7 +28,7 @@ final class ExecuteCommand extends DoctrineCommand
     /** @var string */
     protected static $defaultName = 'migrations:execute';
 
-    protected function configure() : void
+    protected function configure(): void
     {
         $this
             ->setAliases(['execute'])
@@ -34,7 +37,7 @@ final class ExecuteCommand extends DoctrineCommand
             )
             ->addArgument(
                 'versions',
-                InputArgument::REQUIRED|InputArgument::IS_ARRAY,
+                InputArgument::REQUIRED | InputArgument::IS_ARRAY,
                 'The versions to execute.',
                 null
             )
@@ -42,7 +45,7 @@ final class ExecuteCommand extends DoctrineCommand
                 'write-sql',
                 null,
                 InputOption::VALUE_OPTIONAL,
-                'The path to output the migration SQL file instead of executing it. Defaults to current working directory.',
+                'The path to output the migration SQL file. Defaults to current working directory.',
                 false
             )
             ->addOption(
@@ -74,6 +77,11 @@ The <info>%command.name%</info> command executes migration versions up or down m
 
     <info>%command.full_name% FQCN</info>
 
+You can show more information about the process by increasing the verbosity level. To see the
+executed queries, set the level to debug with <comment>-vv</comment>:
+
+    <info>%command.full_name% FQCN -vv</info>
+
 If no <comment>--up</comment> or <comment>--down</comment> option is specified it defaults to up:
 
     <info>%command.full_name% FQCN --down</info>
@@ -82,7 +90,7 @@ You can also execute the migration as a <comment>--dry-run</comment>:
 
     <info>%command.full_name% FQCN --dry-run</info>
 
-You can output the would be executed SQL statements to a file with <comment>--write-sql</comment>:
+You can output the prepared SQL statements to a file with <comment>--write-sql</comment>:
 
     <info>%command.full_name% FQCN --write-sql</info>
 
@@ -92,6 +100,7 @@ Or you can also execute the migration without a warning message which you need t
 
 All the previous commands accept multiple migration versions, allowing you run execute more than
 one migration at once:
+
     <info>%command.full_name% FQCN-1 FQCN-2 ...FQCN-n </info>
 
 EOT
@@ -100,12 +109,15 @@ EOT
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) : int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $migratorConfigurationFactory = $this->getDependencyFactory()->getConsoleInputMigratorConfigurationFactory();
         $migratorConfiguration        = $migratorConfigurationFactory->getMigratorConfiguration($input);
 
-        $question = 'WARNING! You are about to execute a database migration that could result in schema changes and data loss. Are you sure you wish to continue?';
+        $question = sprintf(
+            'WARNING! You are about to execute a migration in database "%s" that could result in schema changes and data loss. Are you sure you wish to continue?',
+            $this->getDependencyFactory()->getConnection()->getDatabase() ?? '<unnamed>'
+        );
         if (! $migratorConfiguration->isDryRun() && ! $this->canExecute($question, $input)) {
             $this->io->error('Migration cancelled!');
 
@@ -120,14 +132,15 @@ EOT
             : Direction::UP;
 
         $path = $input->getOption('write-sql') ?? getcwd();
-        if (is_string($path) && ! is_writable($path)) {
+
+        if (is_string($path) && ! $this->isPathWritable($path)) {
             $this->io->error(sprintf('The path "%s" not writeable!', $path));
 
             return 1;
         }
 
         $planCalculator = $this->getDependencyFactory()->getMigrationPlanCalculator();
-        $plan           = $planCalculator->getPlanForVersions(array_map(static function (string $version) : Version {
+        $plan           = $planCalculator->getPlanForVersions(array_map(static function (string $version): Version {
             return new Version($version);
         }, $versions), $direction);
 
@@ -150,5 +163,10 @@ EOT
         $this->io->newLine();
 
         return 0;
+    }
+
+    private function isPathWritable(string $path): bool
+    {
+        return is_writable($path) || is_dir($path) || is_writable(dirname($path));
     }
 }

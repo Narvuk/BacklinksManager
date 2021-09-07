@@ -21,6 +21,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\PreAuthenticatedUserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
@@ -32,7 +33,6 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @internal
- * @experimental in Symfony 5.1
  */
 abstract class AbstractPreAuthenticatedAuthenticator implements InteractiveAuthenticatorInterface
 {
@@ -41,7 +41,7 @@ abstract class AbstractPreAuthenticatedAuthenticator implements InteractiveAuthe
     private $firewallName;
     private $logger;
 
-    public function __construct(UserProviderInterface $userProvider, TokenStorageInterface $tokenStorage, string $firewallName, ?LoggerInterface $logger = null)
+    public function __construct(UserProviderInterface $userProvider, TokenStorageInterface $tokenStorage, string $firewallName, LoggerInterface $logger = null)
     {
         $this->userProvider = $userProvider;
         $this->tokenStorage = $tokenStorage;
@@ -86,10 +86,18 @@ abstract class AbstractPreAuthenticatedAuthenticator implements InteractiveAuthe
 
     public function authenticate(Request $request): PassportInterface
     {
-        $username = $request->attributes->get('_pre_authenticated_username');
-        $user = $this->userProvider->loadUserByUsername($username);
+        // @deprecated since Symfony 5.3, change to $this->userProvider->loadUserByIdentifier() in 6.0
+        $method = 'loadUserByIdentifier';
+        if (!method_exists($this->userProvider, 'loadUserByIdentifier')) {
+            trigger_deprecation('symfony/security-core', '5.3', 'Not implementing method "loadUserByIdentifier()" in user provider "%s" is deprecated. This method will replace "loadUserByUsername()" in Symfony 6.0.', get_debug_type($this->userProvider));
 
-        return new SelfValidatingPassport($user, [new PreAuthenticatedUserBadge()]);
+            $method = 'loadUserByUsername';
+        }
+
+        return new SelfValidatingPassport(
+            new UserBadge($request->attributes->get('_pre_authenticated_username'), [$this->userProvider, $method]),
+            [new PreAuthenticatedUserBadge()]
+        );
     }
 
     public function createAuthenticatedToken(PassportInterface $passport, string $firewallName): TokenInterface
@@ -117,7 +125,7 @@ abstract class AbstractPreAuthenticatedAuthenticator implements InteractiveAuthe
     private function clearToken(AuthenticationException $exception): void
     {
         $token = $this->tokenStorage->getToken();
-        if ($token instanceof PreAuthenticatedToken && $this->firewallName === $token->getProviderKey()) {
+        if ($token instanceof PreAuthenticatedToken && $this->firewallName === $token->getFirewallName()) {
             $this->tokenStorage->setToken(null);
 
             if (null !== $this->logger) {

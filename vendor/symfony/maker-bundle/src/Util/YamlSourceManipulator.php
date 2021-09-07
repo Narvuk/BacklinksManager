@@ -24,15 +24,15 @@ use Symfony\Component\Yaml\Yaml;
  */
 class YamlSourceManipulator
 {
-    const EMPTY_LINE_PLACEHOLDER_VALUE = '__EMPTY_LINE__';
-    const COMMENT_PLACEHOLDER_VALUE = '__COMMENT__';
+    public const EMPTY_LINE_PLACEHOLDER_VALUE = '__EMPTY_LINE__';
+    public const COMMENT_PLACEHOLDER_VALUE = '__COMMENT__';
 
-    const UNSET_KEY_FLAG = '__MAKER_VALUE_UNSET';
-    const ARRAY_FORMAT_MULTILINE = 'multi';
-    const ARRAY_FORMAT_INLINE = 'inline';
+    public const UNSET_KEY_FLAG = '__MAKER_VALUE_UNSET';
+    public const ARRAY_FORMAT_MULTILINE = 'multi';
+    public const ARRAY_FORMAT_INLINE = 'inline';
 
-    const ARRAY_TYPE_SEQUENCE = 'sequence';
-    const ARRAY_TYPE_HASH = 'hash';
+    public const ARRAY_TYPE_SEQUENCE = 'sequence';
+    public const ARRAY_TYPE_HASH = 'hash';
 
     /**
      * @var LoggerInterface|null
@@ -109,7 +109,7 @@ class YamlSourceManipulator
 
     public function createCommentLine(string $comment): string
     {
-        return sprintf(self::COMMENT_PLACEHOLDER_VALUE.$comment);
+        return self::COMMENT_PLACEHOLDER_VALUE.$comment;
     }
 
     private function updateData(array $newData)
@@ -229,6 +229,13 @@ class YamlSourceManipulator
         // we want to move to the end of the line, beyond that comment
         if (\count($currentData) < \count($newData) && $this->isCurrentArrayMultiline()) {
             $this->advanceBeyondMultilineArrayLastItem($currentData, $newData);
+        }
+
+        if (0 === $this->indentationForDepths[$this->depth] && $this->depth > 1) {
+            $ident = $this->getPreferredIndentationSize();
+            $previousDepth = $this->depth - 1;
+
+            $this->indentationForDepths[$this->depth] = ($ident + $this->indentationForDepths[$previousDepth]);
         }
 
         while (\count($currentData) < \count($newData)) {
@@ -471,9 +478,8 @@ class YamlSourceManipulator
             // we're converting from a scalar to a (multiline) array
             // this means we need to break onto the next line
 
-            // increase the indentation
-            $this->manuallyIncrementIndentation();
-            $newYamlValue = "\n".$this->indentMultilineYamlArray($newYamlValue);
+            // increase(override) the indentation
+            $newYamlValue = "\n".$this->indentMultilineYamlArray($newYamlValue, ($this->indentationForDepths[$this->depth] + $this->getPreferredIndentationSize()));
         } elseif ($this->isCurrentArrayMultiline() && $this->isCurrentArraySequence()) {
             // we are a multi-line sequence, so drop to next line, indent and add "- " in front
             $newYamlValue = "\n".$this->indentMultilineYamlArray('- '.$newYamlValue);
@@ -564,7 +570,7 @@ class YamlSourceManipulator
 
     private function getEndOfKeyPosition($key)
     {
-        preg_match($this->getKeyRegex($key), $this->contents, $matches, PREG_OFFSET_CAPTURE, $this->currentPosition);
+        preg_match($this->getKeyRegex($key), $this->contents, $matches, \PREG_OFFSET_CAPTURE, $this->currentPosition);
 
         if (empty($matches)) {
             // for integers, the key may not be explicitly printed
@@ -583,7 +589,7 @@ class YamlSourceManipulator
      */
     private function getEndOfPreviousKeyPosition($key): int
     {
-        preg_match($this->getKeyRegex($key), $this->contents, $matches, PREG_OFFSET_CAPTURE, $this->currentPosition);
+        preg_match($this->getKeyRegex($key), $this->contents, $matches, \PREG_OFFSET_CAPTURE, $this->currentPosition);
 
         if (empty($matches)) {
             // for integers, the key may not be explicitly printed
@@ -678,7 +684,7 @@ class YamlSourceManipulator
 
     private function getKeyRegex($key)
     {
-        return sprintf('#%s( )*:#', preg_quote($key));
+        return sprintf('#\b%s\'?( )*:#', preg_quote($key));
     }
 
     private function updateContents(string $newContents, array $newData, int $newPosition)
@@ -857,7 +863,7 @@ class YamlSourceManipulator
                 return $offset;
             }
 
-            preg_match(sprintf('#%s#', $pattern), $this->contents, $matches, PREG_OFFSET_CAPTURE, $offset);
+            preg_match(sprintf('#%s#', $pattern), $this->contents, $matches, \PREG_OFFSET_CAPTURE, $offset);
             if (empty($matches)) {
                 throw new YamlManipulationFailedException(sprintf('Cannot find the original value "%s"', $value));
             }
@@ -948,9 +954,11 @@ class YamlSourceManipulator
         --$this->depth;
     }
 
-    private function getCurrentIndentation(): string
+    private function getCurrentIndentation(int $override = null): string
     {
-        return str_repeat(' ', $this->indentationForDepths[$this->depth]);
+        $indent = $override ?? $this->indentationForDepths[$this->depth];
+
+        return str_repeat(' ', $indent);
     }
 
     private function log(string $message, $includeContent = false)
@@ -1295,19 +1303,21 @@ class YamlSourceManipulator
      * Usually an empty line needs to be prepended to this result before
      * adding to the content.
      */
-    private function indentMultilineYamlArray(string $yaml): string
+    private function indentMultilineYamlArray(string $yaml, int $indentOverride = null): string
     {
+        $indent = $this->getCurrentIndentation($indentOverride);
+
         // But, if the *value* is an array, then ITS children will
         // also need to be indented artificially by the same amount
-        $yaml = str_replace("\n", "\n".$this->getCurrentIndentation(), $yaml);
+        $yaml = str_replace("\n", "\n".$indent, $yaml);
 
         if ($this->isMultilineString($yaml)) {
             // Remove extra indentation in case of blank line in multiline string
-            $yaml = str_replace("\n".$this->getCurrentIndentation()."\n", "\n\n", $yaml);
+            $yaml = str_replace("\n".$indent."\n", "\n\n", $yaml);
         }
 
         // now indent this level
-        return $this->getCurrentIndentation().$yaml;
+        return $indent.$yaml;
     }
 
     private function findPositionOfMultilineCharInLine(int $position): ?int

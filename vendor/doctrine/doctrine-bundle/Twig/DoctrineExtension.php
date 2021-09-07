@@ -9,6 +9,22 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
+use function addslashes;
+use function array_key_exists;
+use function bin2hex;
+use function implode;
+use function is_array;
+use function is_bool;
+use function is_object;
+use function is_string;
+use function method_exists;
+use function preg_match;
+use function preg_replace_callback;
+use function sprintf;
+use function strtoupper;
+use function substr;
+use function trigger_deprecation;
+
 /**
  * This class contains the needed functions in order to do the query highlighting
  */
@@ -64,8 +80,8 @@ class DoctrineExtension extends AbstractExtension
                 $result = implode(', ', $result) ?: 'NULL';
                 break;
 
-            case is_object($result):
-                $result = addslashes((string) $result);
+            case is_object($result) && method_exists($result, '__toString'):
+                $result = addslashes($result->__toString());
                 break;
 
             case $result === null:
@@ -83,8 +99,8 @@ class DoctrineExtension extends AbstractExtension
     /**
      * Return a query with the parameters replaced
      *
-     * @param string     $query
-     * @param array|Data $parameters
+     * @param string       $query
+     * @param mixed[]|Data $parameters
      *
      * @return string
      */
@@ -129,7 +145,12 @@ class DoctrineExtension extends AbstractExtension
      */
     public function formatQuery($sql, $highlightOnly = false)
     {
-        @trigger_error(sprintf('The "%s()" method is deprecated and will be removed in DoctrineBundle 3.0.', __METHOD__), E_USER_DEPRECATED);
+        trigger_deprecation(
+            'doctrine/doctrine-bundle',
+            '2.1',
+            'The "%s()" method is deprecated and will be removed in doctrine-bundle 3.0.',
+            __METHOD__
+        );
 
         $this->setUpSqlFormatter(true, true);
 

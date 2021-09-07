@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-code for the canonical source repository
- * @copyright https://github.com/laminas/laminas-code/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-code/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Code\Generator;
 
 use Laminas\Code\Generator\DocBlock\Tag;
@@ -23,40 +17,21 @@ use function wordwrap;
 
 class DocBlockGenerator extends AbstractGenerator
 {
-    /**
-     * @var string
-     */
-    protected $shortDescription;
+    protected string $shortDescription = '';
 
-    /**
-     * @var string
-     */
-    protected $longDescription;
+    protected string $longDescription = '';
 
-    /**
-     * @var array
-     */
-    protected $tags = [];
+    protected array $tags = [];
 
-    /**
-     * @var string
-     */
-    protected $indentation = '';
+    protected string $indentation = '';
 
-    /**
-     * @var bool
-     */
-    protected $wordwrap = true;
+    protected bool $wordwrap = true;
 
-    /**
-     * @var TagManager
-     */
-    protected static $tagManager;
+    protected static ?TagManager $tagManager = null;
 
     /**
      * Build a DocBlock generator object from a reflection object
      *
-     * @param  DocBlockReflection $reflectionDocBlock
      * @return DocBlockGenerator
      */
     public static function fromReflection(DocBlockReflection $reflectionDocBlock)
@@ -82,7 +57,6 @@ class DocBlockGenerator extends AbstractGenerator
      * @configkey shortdescription string The short description for this doc block
      * @configkey longdescription  string The long description for this doc block
      * @configkey tags             array
-     *
      * @throws Exception\InvalidArgumentException
      * @param  array $array
      * @return DocBlockGenerator
@@ -122,9 +96,9 @@ class DocBlockGenerator extends AbstractGenerator
     }
 
     /**
-     * @param  string $shortDescription
-     * @param  string $longDescription
-     * @param  array $tags
+     * @param ?string                $shortDescription
+     * @param ?string                $longDescription
+     * @param array[]|TagInterface[] $tags
      */
     public function __construct($shortDescription = null, $longDescription = null, array $tags = [])
     {
@@ -134,7 +108,7 @@ class DocBlockGenerator extends AbstractGenerator
         if ($longDescription) {
             $this->setLongDescription($longDescription);
         }
-        if (is_array($tags) && $tags) {
+        if ($tags) {
             $this->setTags($tags);
         }
     }
@@ -176,7 +150,7 @@ class DocBlockGenerator extends AbstractGenerator
     }
 
     /**
-     * @param  array $tags
+     * @param  array[]|TagInterface[] $tags
      * @return DocBlockGenerator
      */
     public function setTags(array $tags)
@@ -244,18 +218,18 @@ class DocBlockGenerator extends AbstractGenerator
     public function generate()
     {
         if (! $this->isSourceDirty()) {
-            return $this->docCommentize(trim($this->getSourceContent()));
+            return $this->docCommentize(trim($this->getSourceContent() ?? ''));
         }
 
         $output = '';
-        if (null !== ($sd = $this->getShortDescription())) {
+        if ($sd = $this->getShortDescription()) {
             $output .= $sd . self::LINE_FEED . self::LINE_FEED;
         }
-        if (null !== ($ld = $this->getLongDescription())) {
+        if ($ld = $this->getLongDescription()) {
             $output .= $ld . self::LINE_FEED . self::LINE_FEED;
         }
 
-        /* @var $tag GeneratorInterface */
+        /** @var GeneratorInterface $tag */
         foreach ($this->getTags() as $tag) {
             $output .= $tag->generate() . self::LINE_FEED;
         }

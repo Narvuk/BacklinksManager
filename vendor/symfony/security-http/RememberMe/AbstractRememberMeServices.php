@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CookieTheftException;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
@@ -33,28 +33,30 @@ use Symfony\Component\Security\Http\ParameterBagUtils;
  */
 abstract class AbstractRememberMeServices implements RememberMeServicesInterface, LogoutHandlerInterface
 {
-    const COOKIE_DELIMITER = ':';
+    public const COOKIE_DELIMITER = ':';
 
     protected $logger;
     protected $options = [
         'secure' => false,
         'httponly' => true,
         'samesite' => null,
+        'path' => null,
+        'domain' => null,
     ];
-    private $providerKey;
+    private $firewallName;
     private $secret;
     private $userProviders;
 
     /**
      * @throws \InvalidArgumentException
      */
-    public function __construct(iterable $userProviders, string $secret, string $providerKey, array $options = [], LoggerInterface $logger = null)
+    public function __construct(iterable $userProviders, string $secret, string $firewallName, array $options = [], LoggerInterface $logger = null)
     {
         if (empty($secret)) {
             throw new \InvalidArgumentException('$secret must not be empty.');
         }
-        if (empty($providerKey)) {
-            throw new \InvalidArgumentException('$providerKey must not be empty.');
+        if ('' === $firewallName) {
+            throw new \InvalidArgumentException('$firewallName must not be empty.');
         }
         if (!\is_array($userProviders) && !$userProviders instanceof \Countable) {
             $userProviders = iterator_to_array($userProviders, false);
@@ -65,7 +67,7 @@ abstract class AbstractRememberMeServices implements RememberMeServicesInterface
 
         $this->userProviders = $userProviders;
         $this->secret = $secret;
-        $this->providerKey = $providerKey;
+        $this->firewallName = $firewallName;
         $this->options = array_merge($this->options, $options);
         $this->logger = $logger;
     }
@@ -123,12 +125,12 @@ abstract class AbstractRememberMeServices implements RememberMeServicesInterface
                 $this->logger->info('Remember-me cookie accepted.');
             }
 
-            return new RememberMeToken($user, $this->providerKey, $this->secret);
+            return new RememberMeToken($user, $this->firewallName, $this->secret);
         } catch (CookieTheftException $e) {
             $this->loginFail($request, $e);
 
             throw $e;
-        } catch (UsernameNotFoundException $e) {
+        } catch (UserNotFoundException $e) {
             if (null !== $this->logger) {
                 $this->logger->info('User for remember-me cookie not found.', ['exception' => $e]);
             }
@@ -261,7 +263,7 @@ abstract class AbstractRememberMeServices implements RememberMeServicesInterface
     protected function encodeCookie(array $cookieParts)
     {
         foreach ($cookieParts as $cookiePart) {
-            if (false !== strpos($cookiePart, self::COOKIE_DELIMITER)) {
+            if (str_contains($cookiePart, self::COOKIE_DELIMITER)) {
                 throw new \InvalidArgumentException(sprintf('$cookieParts should not contain the cookie delimiter "%s".', self::COOKIE_DELIMITER));
             }
         }

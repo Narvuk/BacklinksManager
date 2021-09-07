@@ -15,8 +15,6 @@ use Symfony\Component\Notifier\Notification\Notification;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 5.1
  */
 final class ChatMessage implements MessageInterface
 {
@@ -77,7 +75,7 @@ final class ChatMessage implements MessageInterface
     /**
      * @return $this
      */
-    public function transport(string $transport): self
+    public function transport(?string $transport): self
     {
         $this->transport = $transport;
 

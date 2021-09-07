@@ -11,16 +11,18 @@
 
 namespace Symfony\Component\Security\Http\Authenticator\Passport;
 
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Represents a passport for a Security User.
  *
  * @author Wouter de Jong <wouter@wouterj.nl>
- *
- * @experimental in 5.1
  */
 interface UserPassportInterface extends PassportInterface
 {
+    /**
+     * @throws AuthenticationException when the user cannot be found
+     */
     public function getUser(): UserInterface;
 }

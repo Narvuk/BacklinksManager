@@ -1,25 +1,15 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-code for the canonical source repository
- * @copyright https://github.com/laminas/laminas-code/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-code/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Code\Generator\DocBlock\Tag;
 
 use function rtrim;
 
 class MethodTag extends AbstractTypeableTag implements TagInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $methodName;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $isStatic = false;
 
     /**
@@ -88,12 +78,10 @@ class MethodTag extends AbstractTypeableTag implements TagInterface
      */
     public function generate()
     {
-        $output = '@method'
+        return '@method'
             . ($this->isStatic ? ' static' : '')
             . (! empty($this->types) ? ' ' . $this->getTypesAsString() : '')
             . (! empty($this->methodName) ? ' ' . $this->methodName . '()' : '')
             . (! empty($this->description) ? ' ' . $this->description : '');
-
-        return $output;
     }
 }

@@ -13,10 +13,11 @@ namespace Symfony\Bridge\Doctrine;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventManager;
+use Doctrine\Common\EventSubscriber;
 use Psr\Container\ContainerInterface;
 
 /**
- * Allows lazy loading of listener services.
+ * Allows lazy loading of listener and subscriber services.
  *
  * @author Johannes M. Schmitt <schmittjoh@gmail.com>
  */
@@ -28,13 +29,19 @@ class ContainerAwareEventManager extends EventManager
      * <event> => <listeners>
      */
     private $listeners = [];
+    private $subscribers;
     private $initialized = [];
+    private $initializedSubscribers = false;
     private $methods = [];
     private $container;
 
-    public function __construct(ContainerInterface $container)
+    /**
+     * @param list<string|EventSubscriber|array{string[], string|object}> $subscriberIds List of subscribers, subscriber ids, or [events, listener] tuples
+     */
+    public function __construct(ContainerInterface $container, array $subscriberIds = [])
     {
         $this->container = $container;
+        $this->subscribers = $subscriberIds;
     }
 
     /**
@@ -44,11 +51,14 @@ class ContainerAwareEventManager extends EventManager
      */
     public function dispatchEvent($eventName, EventArgs $eventArgs = null)
     {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
         if (!isset($this->listeners[$eventName])) {
             return;
         }
 
-        $eventArgs = null === $eventArgs ? EventArgs::getEmptyInstance() : $eventArgs;
+        $eventArgs = $eventArgs ?? EventArgs::getEmptyInstance();
 
         if (!isset($this->initialized[$eventName])) {
             $this->initializeListeners($eventName);
@@ -66,6 +76,9 @@ class ContainerAwareEventManager extends EventManager
      */
     public function getListeners($event = null)
     {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
         if (null !== $event) {
             if (!isset($this->initialized[$event])) {
                 $this->initializeListeners($event);
@@ -90,6 +103,10 @@ class ContainerAwareEventManager extends EventManager
      */
     public function hasListeners($event)
     {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
+
         return isset($this->listeners[$event]) && $this->listeners[$event];
     }
 
@@ -100,6 +117,10 @@ class ContainerAwareEventManager extends EventManager
      */
     public function addEventListener($events, $listener)
     {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
+
         $hash = $this->getHash($listener);
 
         foreach ((array) $events as $event) {
@@ -122,6 +143,10 @@ class ContainerAwareEventManager extends EventManager
      */
     public function removeEventListener($events, $listener)
     {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
+
         $hash = $this->getHash($listener);
 
         foreach ((array) $events as $event) {
@@ -136,8 +161,27 @@ class ContainerAwareEventManager extends EventManager
         }
     }
 
+    public function addEventSubscriber(EventSubscriber $subscriber): void
+    {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
+
+        parent::addEventSubscriber($subscriber);
+    }
+
+    public function removeEventSubscriber(EventSubscriber $subscriber): void
+    {
+        if (!$this->initializedSubscribers) {
+            $this->initializeSubscribers();
+        }
+
+        parent::removeEventSubscriber($subscriber);
+    }
+
     private function initializeListeners(string $eventName)
     {
+        $this->initialized[$eventName] = true;
         foreach ($this->listeners[$eventName] as $hash => $listener) {
             if (\is_string($listener)) {
                 $this->listeners[$eventName][$hash] = $listener = $this->container->get($listener);
@@ -145,7 +189,22 @@ class ContainerAwareEventManager extends EventManager
                 $this->methods[$eventName][$hash] = $this->getMethod($listener, $eventName);
             }
         }
-        $this->initialized[$eventName] = true;
+    }
+
+    private function initializeSubscribers()
+    {
+        $this->initializedSubscribers = true;
+        foreach ($this->subscribers as $subscriber) {
+            if (\is_array($subscriber)) {
+                $this->addEventListener(...$subscriber);
+                continue;
+            }
+            if (\is_string($subscriber)) {
+                $subscriber = $this->container->get($subscriber);
+            }
+            parent::addEventSubscriber($subscriber);
+        }
+        $this->subscribers = [];
     }
 
     /**
@@ -160,10 +219,7 @@ class ContainerAwareEventManager extends EventManager
         return spl_object_hash($listener);
     }
 
-    /**
-     * @param object $listener
-     */
-    private function getMethod($listener, string $event): string
+    private function getMethod(object $listener, string $event): string
     {
         if (!method_exists($listener, $event) && method_exists($listener, '__invoke')) {
             return '__invoke';

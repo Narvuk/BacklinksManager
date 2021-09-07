@@ -22,16 +22,17 @@ use Symfony\Component\Serializer\Exception\UnexpectedValueException;
  */
 class CsvEncoder implements EncoderInterface, DecoderInterface
 {
-    const FORMAT = 'csv';
-    const DELIMITER_KEY = 'csv_delimiter';
-    const ENCLOSURE_KEY = 'csv_enclosure';
-    const ESCAPE_CHAR_KEY = 'csv_escape_char';
-    const KEY_SEPARATOR_KEY = 'csv_key_separator';
-    const HEADERS_KEY = 'csv_headers';
-    const ESCAPE_FORMULAS_KEY = 'csv_escape_formulas';
-    const AS_COLLECTION_KEY = 'as_collection';
-    const NO_HEADERS_KEY = 'no_headers';
-    const OUTPUT_UTF8_BOM_KEY = 'output_utf8_bom';
+    public const FORMAT = 'csv';
+    public const DELIMITER_KEY = 'csv_delimiter';
+    public const ENCLOSURE_KEY = 'csv_enclosure';
+    public const ESCAPE_CHAR_KEY = 'csv_escape_char';
+    public const KEY_SEPARATOR_KEY = 'csv_key_separator';
+    public const HEADERS_KEY = 'csv_headers';
+    public const ESCAPE_FORMULAS_KEY = 'csv_escape_formulas';
+    public const AS_COLLECTION_KEY = 'as_collection';
+    public const NO_HEADERS_KEY = 'no_headers';
+    public const END_OF_LINE = 'csv_end_of_line';
+    public const OUTPUT_UTF8_BOM_KEY = 'output_utf8_bom';
 
     private const UTF8_BOM = "\xEF\xBB\xBF";
 
@@ -40,6 +41,7 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
         self::DELIMITER_KEY => ',',
         self::ENCLOSURE_KEY => '"',
         self::ESCAPE_CHAR_KEY => '',
+        self::END_OF_LINE => "\n",
         self::ESCAPE_FORMULAS_KEY => false,
         self::HEADERS_KEY => [],
         self::KEY_SEPARATOR_KEY => '.',
@@ -94,11 +96,17 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
 
         if (!($context[self::NO_HEADERS_KEY] ?? $this->defaultContext[self::NO_HEADERS_KEY])) {
             fputcsv($handle, $headers, $delimiter, $enclosure, $escapeChar);
+            if ("\n" !== ($context[self::END_OF_LINE] ?? $this->defaultContext[self::END_OF_LINE]) && 0 === fseek($handle, -1, \SEEK_CUR)) {
+                fwrite($handle, $context[self::END_OF_LINE]);
+            }
         }
 
         $headers = array_fill_keys($headers, '');
         foreach ($data as $row) {
             fputcsv($handle, array_replace($headers, $row), $delimiter, $enclosure, $escapeChar);
+            if ("\n" !== ($context[self::END_OF_LINE] ?? $this->defaultContext[self::END_OF_LINE]) && 0 === fseek($handle, -1, \SEEK_CUR)) {
+                fwrite($handle, $context[self::END_OF_LINE]);
+            }
         }
 
         rewind($handle);
@@ -133,7 +141,7 @@ class CsvEncoder implements EncoderInterface, DecoderInterface
         fwrite($handle, $data);
         rewind($handle);
 
-        if (0 === strpos($data, self::UTF8_BOM)) {
+        if (str_starts_with($data, self::UTF8_BOM)) {
             fseek($handle, \strlen(self::UTF8_BOM));
         }
 

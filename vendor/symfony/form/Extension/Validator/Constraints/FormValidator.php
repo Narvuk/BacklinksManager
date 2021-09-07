@@ -110,7 +110,9 @@ class FormValidator extends ConstraintValidator
                 foreach ($constraints as $constraint) {
                     // For the "Valid" constraint, validate the data in all groups
                     if ($constraint instanceof Valid) {
-                        $validator->atPath('data')->validate($data, $constraint, $groups);
+                        if (\is_object($data)) {
+                            $validator->atPath('data')->validate($data, $constraint, $groups);
+                        }
 
                         continue;
                     }
@@ -201,7 +203,7 @@ class FormValidator extends ConstraintValidator
     /**
      * Returns the validation groups of the given form.
      *
-     * @return string|GroupSequence|(string|GroupSequence)[] The validation groups
+     * @return string|GroupSequence|array<string|GroupSequence> The validation groups
      */
     private function getValidationGroups(FormInterface $form)
     {
@@ -240,9 +242,9 @@ class FormValidator extends ConstraintValidator
     /**
      * Post-processes the validation groups option for a given form.
      *
-     * @param string|GroupSequence|(string|GroupSequence)[]|callable $groups The validation groups
+     * @param string|GroupSequence|array<string|GroupSequence>|callable $groups The validation groups
      *
-     * @return GroupSequence|(string|GroupSequence)[] The validation groups
+     * @return GroupSequence|array<string|GroupSequence> The validation groups
      */
     private static function resolveValidationGroups($groups, FormInterface $form)
     {
@@ -259,8 +261,16 @@ class FormValidator extends ConstraintValidator
 
     private static function getConstraintsInGroups($constraints, $group)
     {
-        return array_filter($constraints, static function (Constraint $constraint) use ($group) {
-            return \in_array($group, $constraint->groups, true);
+        $groups = (array) $group;
+
+        return array_filter($constraints, static function (Constraint $constraint) use ($groups) {
+            foreach ($groups as $group) {
+                if (\in_array($group, $constraint->groups, true)) {
+                    return true;
+                }
+            }
+
+            return false;
         });
     }
 }

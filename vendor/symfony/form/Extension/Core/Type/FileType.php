@@ -24,10 +24,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FileType extends AbstractType
 {
-    const KIB_BYTES = 1024;
-    const MIB_BYTES = 1048576;
+    public const KIB_BYTES = 1024;
+    public const MIB_BYTES = 1048576;
 
-    private static $suffixes = [
+    private const SUFFIXES = [
         1 => 'bytes',
         self::KIB_BYTES => 'KiB',
         self::MIB_BYTES => 'MiB',
@@ -114,7 +114,7 @@ class FileType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $dataClass = null;
-        if (class_exists('Symfony\Component\HttpFoundation\File\File')) {
+        if (class_exists(\Symfony\Component\HttpFoundation\File\File::class)) {
             $dataClass = function (Options $options) {
                 return $options['multiple'] ? null : 'Symfony\Component\HttpFoundation\File\File';
             };
@@ -130,6 +130,11 @@ class FileType extends AbstractType
             'empty_data' => $emptyData,
             'multiple' => false,
             'allow_file_upload' => true,
+            'invalid_message' => function (Options $options, $previousValue) {
+                return ($options['legacy_error_messages'] ?? true)
+                    ? $previousValue
+                    : 'Please select a valid file.';
+            },
         ]);
     }
 
@@ -171,8 +176,10 @@ class FileType extends AbstractType
      * Returns the maximum size of an uploaded file as configured in php.ini.
      *
      * This method should be kept in sync with Symfony\Component\HttpFoundation\File\UploadedFile::getMaxFilesize().
+     *
+     * @return int|float The maximum size of an uploaded file in bytes (returns float if size > PHP_INT_MAX)
      */
-    private static function getMaxFilesize(): int
+    private static function getMaxFilesize()
     {
         $iniMax = strtolower(ini_get('upload_max_filesize'));
 
@@ -181,9 +188,9 @@ class FileType extends AbstractType
         }
 
         $max = ltrim($iniMax, '+');
-        if (0 === strpos($max, '0x')) {
+        if (str_starts_with($max, '0x')) {
             $max = \intval($max, 16);
-        } elseif (0 === strpos($max, '0')) {
+        } elseif (str_starts_with($max, '0')) {
             $max = \intval($max, 8);
         } else {
             $max = (int) $max;
@@ -207,8 +214,10 @@ class FileType extends AbstractType
      * (i.e. try "MB", then "kB", then "bytes").
      *
      * This method should be kept in sync with Symfony\Component\Validator\Constraints\FileValidator::factorizeSizes().
+     *
+     * @param int|float $limit
      */
-    private function factorizeSizes(int $size, int $limit)
+    private function factorizeSizes(int $size, $limit)
     {
         $coef = self::MIB_BYTES;
         $coefFactor = self::KIB_BYTES;
@@ -233,7 +242,7 @@ class FileType extends AbstractType
             $sizeAsString = (string) round($size / $coef, 2);
         }
 
-        return [$limitAsString, self::$suffixes[$coef]];
+        return [$limitAsString, self::SUFFIXES[$coef]];
     }
 
     /**

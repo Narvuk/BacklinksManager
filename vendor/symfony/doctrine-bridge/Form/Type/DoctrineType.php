@@ -23,6 +23,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\ChoiceList\ChoiceList;
 use Symfony\Component\Form\ChoiceList\Factory\CachingFactoryDecorator;
 use Symfony\Component\Form\Exception\RuntimeException;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -91,7 +92,7 @@ abstract class DoctrineType extends AbstractType implements ResetInterface
      * @internal This method is public to be usable as callback. It should not
      *           be used in user code.
      */
-    public function getQueryBuilderPartsForCachingHash($queryBuilder): ?array
+    public function getQueryBuilderPartsForCachingHash(object $queryBuilder): ?array
     {
         return null;
     }
@@ -231,15 +232,16 @@ abstract class DoctrineType extends AbstractType implements ResetInterface
     /**
      * Return the default loader object.
      *
-     * @param mixed $queryBuilder
-     *
      * @return EntityLoaderInterface
      */
-    abstract public function getLoader(ObjectManager $manager, $queryBuilder, string $class);
+    abstract public function getLoader(ObjectManager $manager, object $queryBuilder, string $class);
 
+    /**
+     * @return string
+     */
     public function getParent()
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\ChoiceType';
+        return ChoiceType::class;
     }
 
     public function reset()
@@ -262,12 +264,10 @@ abstract class DoctrineType extends AbstractType implements ResetInterface
         return $this->idReaders[$hash] = $idReader->isSingleId() ? $idReader : null;
     }
 
-    private function getCachedEntityLoader(ObjectManager $manager, $queryBuilder, string $class, array $vary): EntityLoaderInterface
+    private function getCachedEntityLoader(ObjectManager $manager, object $queryBuilder, string $class, array $vary): EntityLoaderInterface
     {
         $hash = CachingFactoryDecorator::generateHash($vary);
 
         return $this->entityLoaders[$hash] ?? ($this->entityLoaders[$hash] = $this->getLoader($manager, $queryBuilder, $class));
     }
 }
-
-interface_exists(ObjectManager::class);

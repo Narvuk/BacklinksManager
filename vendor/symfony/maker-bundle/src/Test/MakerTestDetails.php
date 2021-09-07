@@ -48,6 +48,9 @@ final class MakerTestDetails
 
     private $guardAuthenticators = [];
 
+    private $shouldSkip = false;
+    private $skipMessage;
+
     /**
      * @return static
      */
@@ -141,12 +144,13 @@ final class MakerTestDetails
             )
         ;
 
-        // use MySQL 5.6, which is what's currently available on Travis
+        // Flex includes a recipe to suffix the dbname w/ "_test" - lets keep
+        // things simple for these tests and not do that.
         $this->addReplacement(
-            'config/packages/doctrine.yaml',
-            "#server_version: '13'",
-            "server_version: '5.7'"
-        );
+            'config/packages/test/doctrine.yaml',
+            "dbname_suffix: '_test%env(default::TEST_TOKEN)%'",
+            '')
+        ;
 
         // this looks silly, but it's the only way to drop the database *for sure*,
         // as doctrine:database:drop will error if there is no database
@@ -329,5 +333,23 @@ final class MakerTestDetails
     public function getRequiredPackageVersions(): array
     {
         return $this->requiredPackageVersions;
+    }
+
+    public function skip(string $message)
+    {
+        $this->shouldSkip = true;
+        $this->skipMessage = $message;
+
+        return $this;
+    }
+
+    public function shouldSkip(): bool
+    {
+        return $this->shouldSkip;
+    }
+
+    public function getSkipMessage(): ?string
+    {
+        return $this->skipMessage;
     }
 }

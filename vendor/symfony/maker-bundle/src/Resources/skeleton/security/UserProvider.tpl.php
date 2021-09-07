@@ -3,7 +3,7 @@
 namespace <?= $namespace; ?>;
 
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\<?= $uses_user_identifier ? 'UserNotFoundException' : 'UsernameNotFoundException' ?>;
 <?= ($password_upgrader = interface_exists('Symfony\Component\Security\Core\User\PasswordUpgraderInterface')) ? "use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;\n" : '' ?>
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -17,19 +17,27 @@ class <?= $class_name ?> implements UserProviderInterface<?= $password_upgrader 
      * If you're not using these features, you do not need to implement
      * this method.
      *
-     * @return UserInterface
-     *
-     * @throws UsernameNotFoundException if the user is not found
+     * @throws <?= $uses_user_identifier ? 'UserNotFoundException' :  'UsernameNotFoundException' ?> if the user is not found
      */
-    public function loadUserByUsername($username)
+    public function <?= $uses_user_identifier ? 'loadUserByIdentifier($identifier)' : 'loadUserByUsername($username)' ?>: UserInterface
     {
-        // Load a User object from your data source or throw UsernameNotFoundException.
-        // The $username argument may not actually be a username:
-        // it is whatever value is being returned by the getUsername()
+        // Load a User object from your data source or throw <?= $uses_user_identifier ? 'UserNotFoundException' :  'UsernameNotFoundException' ?>.
+        // The <?= $uses_user_identifier ? '$identifier' :  '$username' ?> argument may not actually be a username:
+        // it is whatever value is being returned by the <?= $uses_user_identifier ? 'getUserIdentifier' :  'getUsername' ?>()
         // method in your User class.
-        throw new \Exception('TODO: fill in loadUserByUsername() inside '.__FILE__);
+        throw new \Exception('TODO: fill in <?= $uses_user_identifier ? 'loadUserByIdentifier()' : 'loadUserByUsername()' ?> inside '.__FILE__);
     }
 
+<?php if ($uses_user_identifier) : ?>
+    /**
+     * @deprecated since Symfony 5.3, loadUserByIdentifier() is used instead
+     */
+    public function loadUserByUsername($username): UserInterface
+    {
+        return $this->loadUserByIdentifier($username);
+    }
+
+<?php endif ?>
     /**
      * Refreshes the user after being reloaded from the session.
      *
@@ -64,13 +72,13 @@ class <?= $class_name ?> implements UserProviderInterface<?= $password_upgrader 
 <?php if ($password_upgrader): ?>
 
     /**
-     * Upgrades the encoded password of a user, typically for using a better hash algorithm.
+     * Upgrades the hashed password of a user, typically for using a better hash algorithm.
      */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
+    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
-        // TODO: when encoded passwords are in use, this method should:
+        // TODO: when hashed passwords are in use, this method should:
         // 1. persist the new password in the user storage
-        // 2. update the $user object with $user->setPassword($newEncodedPassword);
+        // 2. update the $user object with $user->setPassword($newHashedPassword);
     }
 <?php endif ?>
 }

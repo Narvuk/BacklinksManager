@@ -121,11 +121,12 @@
 {% block file_widget -%}
     <{{ element|default('div') }} class="custom-file">
         {%- set type = type|default('file') -%}
-        {{- block('form_widget_simple') -}}
-        {%- set label_attr = label_attr|merge({ class: (label_attr.class|default('') ~ ' custom-file-label')|trim }) -%}
         {%- set input_lang = 'en' -%}
         {% if app is defined and app.request is defined %}{%- set input_lang = app.request.locale -%}{%- endif -%}
-        <label for="{{ form.vars.id }}" lang="{{ input_lang }}" {% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}>
+        {%- set attr = {lang: input_lang} | merge(attr) -%}
+        {{- block('form_widget_simple') -}}
+        {%- set label_attr = label_attr|merge({ class: (label_attr.class|default('') ~ ' custom-file-label')|trim })|filter((value, key) => key != 'id') -%}
+        <label for="{{ form.vars.id }}" {% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}>
             {%- if attr.placeholder is defined and attr.placeholder is not none -%}
                 {{- translation_domain is same as(false) ? attr.placeholder : attr.placeholder|trans({}, translation_domain) -}}
             {%- endif -%}
@@ -134,9 +135,15 @@
 {% endblock %}
 
 {% block form_widget_simple -%}
-    {% if type is not defined or type != 'hidden' %}
-        {%- set attr = attr|merge({class: (attr.class|default('') ~ (type|default('') == 'file' ? ' custom-file-input' : ' form-control'))|trim}) -%}
-    {% endif %}
+    {%- if type is not defined or type != 'hidden' -%}
+        {%- set className = ' form-control' -%}
+        {%- if type|default('') == 'file' -%}
+            {%- set className = ' custom-file-input' -%}
+        {%- elseif type|default('') == 'range' -%}
+            {%- set className = ' form-control-range' -%}
+        {%- endif -%}
+        {%- set attr = attr|merge({class: (attr.class|default('') ~ className)|trim}) -%}
+    {%- endif -%}
     {%- if type is defined and (type == 'range' or type == 'color') %}
         {# Attribute "required" is not supported #}
         {%- set required = false -%}
@@ -144,12 +151,12 @@
     {{- parent() -}}
 {%- endblock form_widget_simple %}
 
-{%- block widget_attributes -%}
-    {%- if not valid %}
+{% block widget_attributes -%}
+    {%- if not valid -%}
         {% set attr = attr|merge({class: (attr.class|default('') ~ ' is-invalid')|trim}) %}
-    {% endif -%}
+    {%- endif -%}
     {{ parent() }}
-{%- endblock widget_attributes -%}
+{%- endblock widget_attributes %}
 
 {% block button_widget -%}
     {%- set attr = attr|merge({class: (attr.class|default('btn-secondary') ~ ' btn')|trim}) -%}
@@ -195,6 +202,11 @@
         </div>
     {%- endif -%}
 {%- endblock radio_widget %}
+
+{% block choice_widget_collapsed -%}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) -%}
+    {{- parent() -}}
+{%- endblock choice_widget_collapsed %}
 
 {% block choice_widget_expanded -%}
     <div {{ block('widget_container_attributes') }}>

@@ -29,31 +29,31 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
 {
     use SerializerAwareTrait;
 
-    const FORMAT = 'xml';
+    public const FORMAT = 'xml';
 
-    const AS_COLLECTION = 'as_collection';
+    public const AS_COLLECTION = 'as_collection';
 
     /**
      * An array of ignored XML node types while decoding, each one of the DOM Predefined XML_* constants.
      */
-    const DECODER_IGNORED_NODE_TYPES = 'decoder_ignored_node_types';
+    public const DECODER_IGNORED_NODE_TYPES = 'decoder_ignored_node_types';
 
     /**
      * An array of ignored XML node types while encoding, each one of the DOM Predefined XML_* constants.
      */
-    const ENCODER_IGNORED_NODE_TYPES = 'encoder_ignored_node_types';
-    const ENCODING = 'xml_encoding';
-    const FORMAT_OUTPUT = 'xml_format_output';
+    public const ENCODER_IGNORED_NODE_TYPES = 'encoder_ignored_node_types';
+    public const ENCODING = 'xml_encoding';
+    public const FORMAT_OUTPUT = 'xml_format_output';
 
     /**
      * A bit field of LIBXML_* constants.
      */
-    const LOAD_OPTIONS = 'load_options';
-    const REMOVE_EMPTY_TAGS = 'remove_empty_tags';
-    const ROOT_NODE_NAME = 'xml_root_node_name';
-    const STANDALONE = 'xml_standalone';
-    const TYPE_CAST_ATTRIBUTES = 'xml_type_cast_attributes';
-    const VERSION = 'xml_version';
+    public const LOAD_OPTIONS = 'load_options';
+    public const REMOVE_EMPTY_TAGS = 'remove_empty_tags';
+    public const ROOT_NODE_NAME = 'xml_root_node_name';
+    public const STANDALONE = 'xml_standalone';
+    public const TYPE_CAST_ATTRIBUTES = 'xml_type_cast_attributes';
+    public const VERSION = 'xml_version';
 
     private $defaultContext = [
         self::AS_COLLECTION => false,
@@ -250,7 +250,7 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
     final protected function isElementNameValid(string $name): bool
     {
         return $name &&
-            false === strpos($name, ' ') &&
+            !str_contains($name, ' ') &&
             preg_match('#^[\pL_][\pL0-9._:-]*$#ui', $name);
     }
 
@@ -376,7 +376,7 @@ class XmlEncoder implements EncoderInterface, DecoderInterface, NormalizationAwa
         if (\is_array($data) || ($data instanceof \Traversable && (null === $this->serializer || !$this->serializer->supportsNormalization($data, $this->format)))) {
             foreach ($data as $key => $data) {
                 //Ah this is the magic @ attribute types.
-                if (0 === strpos($key, '@') && $this->isElementNameValid($attributeName = substr($key, 1))) {
+                if (str_starts_with($key, '@') && $this->isElementNameValid($attributeName = substr($key, 1))) {
                     if (!is_scalar($data)) {
                         $data = $this->serializer->normalize($data, $this->format, $this->context);
                     }

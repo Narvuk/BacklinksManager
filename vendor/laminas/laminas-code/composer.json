@@ -1,43 +1,35 @@
 {
     "name": "laminas/laminas-code",
     "description": "Extensions to the PHP Reflection API, static code scanning, and code generation",
-    "license": "BSD-3-Clause",
     "keywords": [
         "laminas",
+        "laminasframework",
         "code"
     ],
     "homepage": "https://laminas.dev",
-    "support": {
-        "docs": "https://docs.laminas.dev/laminas-code/",
-        "issues": "https://github.com/laminas/laminas-code/issues",
-        "source": "https://github.com/laminas/laminas-code",
-        "rss": "https://github.com/laminas/laminas-code/releases.atom",
-        "chat": "https://laminas.dev/chat",
-        "forum": "https://discourse.laminas.dev"
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "extra": {
-    },
+    "license": "BSD-3-Clause",
     "require": {
-        "php": "^7.3 || ~8.0.0",
-        "laminas/laminas-eventmanager": "^3.3",
-        "laminas/laminas-zendframework-bridge": "^1.1"
-    },
-    "require-dev": {
-        "ext-phar": "*",
-        "doctrine/annotations": "^1.10.4",
-        "laminas/laminas-coding-standard": "^1.0.0",
-        "laminas/laminas-stdlib": "^3.3.0",
-        "phpunit/phpunit": "^9.4.2"
+        "php": "^7.4 || ~8.0.0"
     },
     "conflict": {
         "phpspec/prophecy": "<1.9.0"
     },
+    "require-dev": {
+        "ext-phar": "*",
+        "doctrine/annotations": "^1.10.4",
+        "laminas/laminas-coding-standard": "^2.1.4",
+        "laminas/laminas-stdlib": "^3.3.0",
+        "phpunit/phpunit": "^9.4.2",
+        "psalm/plugin-phpunit": "^0.14.0",
+        "vimeo/psalm": "^4.3.1"
+    },
     "suggest": {
         "doctrine/annotations": "Doctrine\\Common\\Annotations >=1.0 for annotation features",
-        "laminas/laminas-stdlib": "Laminas\\Stdlib component"
+        "laminas/laminas-stdlib": "Laminas\\Stdlib component",
+        "laminas/laminas-zendframework-bridge": "A bridge with Zend Framework"
+    },
+    "config": {
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
@@ -56,10 +48,16 @@
         ],
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
+        "static-analysis": "psalm --shepherd --stats",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     },
-    "replace": {
-        "zendframework/zend-code": "^3.4.1"
+    "support": {
+        "issues": "https://github.com/laminas/laminas-code/issues",
+        "forum": "https://discourse.laminas.dev",
+        "chat": "https://laminas.dev/chat",
+        "source": "https://github.com/laminas/laminas-code",
+        "docs": "https://docs.laminas.dev/laminas-code/",
+        "rss": "https://github.com/laminas/laminas-code/releases.atom"
     }
 }

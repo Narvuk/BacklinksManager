@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-code for the canonical source repository
- * @copyright https://github.com/laminas/laminas-code/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-code/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Code\Reflection\DocBlock\Tag;
 
 use function preg_match;
@@ -13,14 +7,10 @@ use function rtrim;
 
 class AuthorTag implements TagInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $authorName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $authorEmail;
 
     /**
@@ -69,6 +59,10 @@ class AuthorTag implements TagInterface
         return $this->authorEmail;
     }
 
+    /**
+     * @return string
+     * @psalm-return non-empty-string
+     */
     public function __toString()
     {
         return 'DocBlock Tag [ * @' . $this->getName() . ' ]' . "\n";

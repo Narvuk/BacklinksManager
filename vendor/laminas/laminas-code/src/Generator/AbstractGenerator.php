@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-code for the canonical source repository
- * @copyright https://github.com/laminas/laminas-code/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-code/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Code\Generator;
 
 use Traversable;
@@ -22,22 +16,17 @@ abstract class AbstractGenerator implements GeneratorInterface
     /**
      * Line feed to use in place of EOL
      */
-    const LINE_FEED = "\n";
+    public const LINE_FEED = "\n";
+
+    protected bool $isSourceDirty = true;
+
+    /** @var string 4 spaces by default */
+    protected string $indentation = '    ';
 
     /**
-     * @var bool
+     * TODO: Type should be changed to "string" in the next major version. Nullable for BC
      */
-    protected $isSourceDirty = true;
-
-    /**
-     * @var int|string 4 spaces by default
-     */
-    protected $indentation = '    ';
-
-    /**
-     * @var string
-     */
-    protected $sourceContent;
+    protected ?string $sourceContent = null;
 
     /**
      * @param  array $options
@@ -86,7 +75,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * @param  string $sourceContent
+     * @param  ?string $sourceContent
      * @return AbstractGenerator
      */
     public function setSourceContent($sourceContent)
@@ -96,7 +85,7 @@ abstract class AbstractGenerator implements GeneratorInterface
     }
 
     /**
-     * @return string
+     * @return ?string
      */
     public function getSourceContent()
     {

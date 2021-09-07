@@ -17,7 +17,6 @@ interface ObjectRepository
      * @param mixed $id The identifier.
      *
      * @return object|null The object.
-     *
      * @psalm-return T|null
      */
     public function find($id);
@@ -26,7 +25,6 @@ interface ObjectRepository
      * Finds all objects in the repository.
      *
      * @return array<int, object> The objects.
-     *
      * @psalm-return T[]
      */
     public function findAll();
@@ -38,26 +36,25 @@ interface ObjectRepository
      * an UnexpectedValueException if certain values of the sorting or limiting details are
      * not supported.
      *
-     * @param mixed[]       $criteria
-     * @param string[]|null $orderBy
-     * @param int|null      $limit
-     * @param int|null      $offset
+     * @param array<string, mixed> $criteria
+     * @param string[]|null        $orderBy
+     * @param int|null             $limit
+     * @param int|null             $offset
+     * @psalm-param array<string, 'asc'|'desc'|'ASC'|'DESC'> $orderBy
      *
      * @return object[] The objects.
+     * @psalm-return T[]
      *
      * @throws UnexpectedValueException
-     *
-     * @psalm-return T[]
      */
     public function findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null);
 
     /**
      * Finds a single object by a set of criteria.
      *
-     * @param mixed[] $criteria The criteria.
+     * @param array<string, mixed> $criteria The criteria.
      *
      * @return object|null The object.
-     *
      * @psalm-return T|null
      */
     public function findOneBy(array $criteria);

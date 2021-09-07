@@ -32,18 +32,18 @@ migration looks like:
      */
     final class Version20180601193057 extends AbstractMigration
     {
-        public function getDescription() : string
+        public function getDescription(): string
         {
             return '';
         }
 
-        public function up(Schema $schema) : void
+        public function up(Schema $schema): void
         {
             // this up() migration is auto-generated, please modify it to your needs
 
         }
 
-        public function down(Schema $schema) : void
+        public function down(Schema $schema): void
         {
             // this down() migration is auto-generated, please modify it to your needs
 
@@ -62,10 +62,21 @@ Override this method if you want to disable transactions in a migration. It defa
 
 .. code-block:: php
 
-    public function isTransactional() : bool
+    public function isTransactional(): bool
     {
         return false;
     }
+
+.. note::
+
+    Some database platforms like MySQL or Oracle do not support DDL
+    statements in transactions and may or may not implicitly commit the
+    transaction opened by this library as soon as they encounter such a
+    statement, and before running it. Make sure to read the manual of
+    your database platform to know what is actually happening.
+    ``isTransactional()`` does not guarantee that statements are wrapped
+    in a single transaction. To learn more about this, read the
+    :ref:`dedicated explanation <../explanation/implicit-commits>`.
 
 getDescription
 ~~~~~~~~~~~~~~
@@ -75,7 +86,7 @@ will get outputted when you run the ``./vendor/bin/doctrine-migrations status --
 
 .. code-block:: php
 
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return 'The description of my awesome migration!';
     }
@@ -87,7 +98,7 @@ This method gets called before the ``up()`` is called.
 
 .. code-block:: php
 
-    public function preUp(Schema $schema) : void
+    public function preUp(Schema $schema): void
     {
     }
 
@@ -98,7 +109,7 @@ This method gets called after the ``up()`` is called.
 
 .. code-block:: php
 
-    public function postUp(Schema $schema) : void
+    public function postUp(Schema $schema): void
     {
     }
 
@@ -109,7 +120,7 @@ This method gets called before the ``down()`` is called.
 
 .. code-block:: php
 
-    public function preDown(Schema $schema) : void
+    public function preDown(Schema $schema): void
     {
     }
 
@@ -120,7 +131,7 @@ This method gets called after the ``down()`` is called.
 
 .. code-block:: php
 
-    public function postDown(Schema $schema) : void
+    public function postDown(Schema $schema): void
     {
     }
 
@@ -136,7 +147,7 @@ Warn with a message if some condition is met.
 
 .. code-block:: php
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->warnIf(true, 'Something might be going wrong');
 
@@ -150,7 +161,7 @@ Abort the migration if some condition is met:
 
 .. code-block:: php
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->abortIf(true, 'Something went wrong. Aborting.');
 
@@ -164,7 +175,7 @@ Skip the migration if some condition is met.
 
 .. code-block:: php
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->skipIf(true, 'Skipping this migration.');
 
@@ -181,7 +192,7 @@ to the addSql method as parameters.
 
 .. code-block:: php
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $users = [
             ['name' => 'mike', 'id' => 1],
@@ -201,7 +212,7 @@ Write some debug information to the console.
 
 .. code-block:: php
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->write('Doing some cool migration!');
 
@@ -216,7 +227,7 @@ The ``throwIrreversibleMigrationException`` method accepts an optional message t
 
 .. code-block:: php
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->throwIrreversibleMigrationException();
 

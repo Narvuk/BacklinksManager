@@ -1,7 +1,7 @@
 {
     "name": "symfony/var-exporter",
     "type": "library",
-    "description": "A blend of var_export() + serialize() to turn any serializable data structure to plain PHP code",
+    "description": "Allows exporting any serializable PHP data structure to plain PHP code",
     "keywords": ["export", "serialize", "instantiate", "hydrate", "construct", "clone"],
     "homepage": "https://symfony.com",
     "license": "MIT",
@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": ">=7.2.5",
-        "symfony/polyfill-php80": "^1.15"
+        "symfony/polyfill-php80": "^1.16"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.4.9|^5.0.9"

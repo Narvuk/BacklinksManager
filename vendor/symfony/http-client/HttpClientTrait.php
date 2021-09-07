@@ -17,13 +17,24 @@ use Symfony\Component\HttpClient\Exception\TransportException;
 /**
  * Provides the common logic from writing HttpClientInterface implementations.
  *
- * All methods are static to prevent implementers from creating memory leaks via circular references.
+ * All private methods are static to prevent implementers from creating memory leaks via circular references.
  *
  * @author Nicolas Grekas <p@tchwork.com>
  */
 trait HttpClientTrait
 {
     private static $CHUNK_SIZE = 16372;
+
+    /**
+     * {@inheritdoc}
+     */
+    public function withOptions(array $options): self
+    {
+        $clone = clone $this;
+        $clone->defaultOptions = self::mergeDefaultOptions($options, $this->defaultOptions);
+
+        return $clone;
+    }
 
     /**
      * Validates and normalizes method, URL and options, and merges them with defaults.
@@ -216,7 +227,7 @@ trait HttpClientTrait
             $alternatives = [];
 
             foreach ($defaultOptions as $key => $v) {
-                if (levenshtein($name, $key) <= \strlen($name) / 3 || false !== strpos($key, $name)) {
+                if (levenshtein($name, $key) <= \strlen($name) / 3 || str_contains($key, $name)) {
                     $alternatives[] = $key;
                 }
             }
@@ -391,6 +402,10 @@ trait HttpClientTrait
             throw new InvalidArgumentException(sprintf('Invalid "base_uri" option: host or scheme is missing in "%s".', implode('', $base)));
         }
 
+        if (null === $url['scheme'] && (null === $base || null === $base['scheme'])) {
+            throw new InvalidArgumentException(sprintf('Invalid URL: scheme is missing in "%s". Did you forget to add "http(s)://"?', implode('', $base ?? $url)));
+        }
+
         if (null === $base && '' === $url['scheme'].$url['authority']) {
             throw new InvalidArgumentException(sprintf('Invalid URL: no "base_uri" option was provided and host or scheme is missing in "%s".', implode('', $url)));
         }
@@ -430,6 +445,10 @@ trait HttpClientTrait
 
         if ('' === ($url['path'] ?? '')) {
             $url['path'] = '/';
+        }
+
+        if ('?' === ($url['query'] ?? '')) {
+            $url['query'] = null;
         }
 
         return $url;
@@ -475,7 +494,7 @@ trait HttpClientTrait
                 continue;
             }
 
-            if (false !== strpos($parts[$part], '%')) {
+            if (str_contains($parts[$part], '%')) {
                 // https://tools.ietf.org/html/rfc3986#section-2.3
                 $parts[$part] = preg_replace_callback('/%(?:2[DE]|3[0-9]|[46][1-9A-F]|5F|[57][0-9A]|7E)++/i', function ($m) { return rawurldecode($m[0]); }, $parts[$part]);
             }
@@ -503,11 +522,11 @@ trait HttpClientTrait
         $result = '';
 
         while (!\in_array($path, ['', '.', '..'], true)) {
-            if ('.' === $path[0] && (0 === strpos($path, $p = '../') || 0 === strpos($path, $p = './'))) {
+            if ('.' === $path[0] && (str_starts_with($path, $p = '../') || str_starts_with($path, $p = './'))) {
                 $path = substr($path, \strlen($p));
-            } elseif ('/.' === $path || 0 === strpos($path, '/./')) {
+            } elseif ('/.' === $path || str_starts_with($path, '/./')) {
                 $path = substr_replace($path, '/', 0, 3);
-            } elseif ('/..' === $path || 0 === strpos($path, '/../')) {
+            } elseif ('/..' === $path || str_starts_with($path, '/../')) {
                 $i = strrpos($result, '/');
                 $result = $i ? substr($result, 0, $i) : '';
                 $path = substr_replace($path, '/', 0, 4);

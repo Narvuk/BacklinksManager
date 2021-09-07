@@ -22,7 +22,6 @@ use Symfony\Component\Security\Core\Exception\LogicException;
  * @author Wouter de Jong <wouter@wouterj.nl>
  *
  * @final
- * @experimental in 5.1
  */
 class PasswordCredentials implements CredentialsInterface
 {

@@ -11,34 +11,38 @@
 
 namespace Symfony\Component\Intl\Globals;
 
+use Symfony\Polyfill\Intl\Icu\Icu;
+
 /**
  * Provides fake static versions of the global functions in the intl extension.
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  *
  * @internal
+ *
+ * @deprecated since Symfony 5.3, use symfony/polyfill-intl-icu ^1.21 instead
  */
 abstract class IntlGlobals
 {
     /**
      * Indicates that no error occurred.
      */
-    const U_ZERO_ERROR = 0;
+    public const U_ZERO_ERROR = 0;
 
     /**
      * Indicates that an invalid argument was passed.
      */
-    const U_ILLEGAL_ARGUMENT_ERROR = 1;
+    public const U_ILLEGAL_ARGUMENT_ERROR = 1;
 
     /**
      * Indicates that the parse() operation failed.
      */
-    const U_PARSE_ERROR = 9;
+    public const U_PARSE_ERROR = 9;
 
     /**
      * All known error codes.
      */
-    private static $errorCodes = [
+    private const ERROR_CODES = [
         self::U_ZERO_ERROR => 'U_ZERO_ERROR',
         self::U_ILLEGAL_ARGUMENT_ERROR => 'U_ILLEGAL_ARGUMENT_ERROR',
         self::U_PARSE_ERROR => 'U_PARSE_ERROR',
@@ -61,7 +65,13 @@ abstract class IntlGlobals
      */
     public static function isFailure(int $errorCode): bool
     {
-        return isset(self::$errorCodes[$errorCode])
+        if (class_exists(Icu::class)) {
+            return Icu::isFailure($errorCode);
+        }
+
+        trigger_deprecation('symfony/intl', '5.3', 'Polyfills are deprecated, try running "composer require symfony/polyfill-intl-icu ^1.21" instead.');
+
+        return isset(self::ERROR_CODES[$errorCode])
             && $errorCode > self::U_ZERO_ERROR;
     }
 
@@ -74,6 +84,12 @@ abstract class IntlGlobals
      */
     public static function getErrorCode()
     {
+        if (class_exists(Icu::class)) {
+            return Icu::getErrorCode();
+        }
+
+        trigger_deprecation('symfony/intl', '5.3', 'Polyfills are deprecated, try running "composer require symfony/polyfill-intl-icu ^1.21" instead.');
+
         return self::$errorCode;
     }
 
@@ -84,6 +100,12 @@ abstract class IntlGlobals
      */
     public static function getErrorMessage(): string
     {
+        if (class_exists(Icu::class)) {
+            return Icu::getErrorMessage();
+        }
+
+        trigger_deprecation('symfony/intl', '5.3', 'Polyfills are deprecated, try running "composer require symfony/polyfill-intl-icu ^1.21" instead.');
+
         return self::$errorMessage;
     }
 
@@ -94,7 +116,13 @@ abstract class IntlGlobals
      */
     public static function getErrorName(int $code): string
     {
-        return self::$errorCodes[$code] ?? '[BOGUS UErrorCode]';
+        if (class_exists(Icu::class)) {
+            return Icu::getErrorName($code);
+        }
+
+        trigger_deprecation('symfony/intl', '5.3', 'Polyfills are deprecated, try running "composer require symfony/polyfill-intl-icu ^1.21" instead.');
+
+        return self::ERROR_CODES[$code] ?? '[BOGUS UErrorCode]';
     }
 
     /**
@@ -107,11 +135,15 @@ abstract class IntlGlobals
      */
     public static function setError(int $code, string $message = '')
     {
-        if (!isset(self::$errorCodes[$code])) {
+        if (class_exists(Icu::class)) {
+            return Icu::setError($code, $message);
+        }
+
+        if (!isset(self::ERROR_CODES[$code])) {
             throw new \InvalidArgumentException(sprintf('No such error code: "%s".', $code));
         }
 
-        self::$errorMessage = $message ? sprintf('%s: %s', $message, self::$errorCodes[$code]) : self::$errorCodes[$code];
+        self::$errorMessage = $message ? sprintf('%s: %s', $message, self::ERROR_CODES[$code]) : self::ERROR_CODES[$code];
         self::$errorCode = $code;
     }
 }

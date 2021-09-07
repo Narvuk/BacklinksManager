@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-code for the canonical source repository
- * @copyright https://github.com/laminas/laminas-code/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-code/blob/master/LICENSE.md New BSD License
- */
-
 namespace Laminas\Code\Reflection\DocBlock\Tag;
 
 use function explode;
@@ -17,18 +11,15 @@ class MethodTag implements TagInterface, PhpDocTypedTagInterface
     /**
      * Return value type
      *
-     * @var array
+     * @var string[]
+     * @psalm-var list<string>
      */
     protected $types = [];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $methodName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $description;
 
     /**
@@ -77,8 +68,9 @@ class MethodTag implements TagInterface, PhpDocTypedTagInterface
     /**
      * Get return value type
      *
-     * @return null|string
      * @deprecated 2.0.4 use getTypes instead
+     *
+     * @return null|string
      */
     public function getReturnType()
     {
@@ -89,6 +81,7 @@ class MethodTag implements TagInterface, PhpDocTypedTagInterface
         return $this->types[0];
     }
 
+    /** {@inheritDoc} */
     public function getTypes()
     {
         return $this->types;
@@ -118,6 +111,10 @@ class MethodTag implements TagInterface, PhpDocTypedTagInterface
         return $this->isStatic;
     }
 
+    /**
+     * @return string
+     * @psalm-return non-empty-string
+     */
     public function __toString()
     {
         return 'DocBlock Tag [ * @' . $this->getName() . ' ]' . "\n";

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -24,25 +25,29 @@ use Doctrine\ORM\Tools\Console\MetadataFilter;
 use Doctrine\ORM\Tools\DisconnectedClassMetadataFactory;
 use Doctrine\ORM\Tools\EntityGenerator;
 use Doctrine\ORM\Tools\Export\ClassMetadataExporter;
+use Doctrine\ORM\Tools\Export\Driver\AbstractExporter;
 use Doctrine\ORM\Tools\Export\Driver\AnnotationExporter;
-use Symfony\Component\Console\Command\Command;
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use function file_exists;
+use function is_dir;
+use function is_writable;
+use function mkdir;
+use function realpath;
+use function sprintf;
+use function strtolower;
+
 /**
  * Command to convert your mapping information between the various formats.
  *
  * @link    www.doctrine-project.org
- * @since   2.0
- * @author  Benjamin Eberlei <kontakt@beberlei.de>
- * @author  Guilherme Blanco <guilhermeblanco@hotmail.com>
- * @author  Jonathan Wage <jonwage@gmail.com>
- * @author  Roman Borschel <roman@code-factory.org>
  */
-class ConvertMappingCommand extends Command
+class ConvertMappingCommand extends AbstractEntityManagerCommand
 {
     /**
      * {@inheritdoc}
@@ -54,6 +59,7 @@ class ConvertMappingCommand extends Command
              ->setDescription('Convert mapping information between supported formats')
              ->addArgument('to-type', InputArgument::REQUIRED, 'The mapping type to be converted.')
              ->addArgument('dest-path', InputArgument::REQUIRED, 'The path to generate your entities classes.')
+             ->addOption('em', null, InputOption::VALUE_REQUIRED, 'Name of the entity manager to operate on')
              ->addOption('filter', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'A string pattern used to match entities that should be processed.')
              ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force to overwrite existing mapping files.')
              ->addOption('from-database', null, null, 'Whether or not to convert mapping information from existing database.')
@@ -88,12 +94,14 @@ EOT
 
     /**
      * {@inheritdoc}
+     *
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $ui = new SymfonyStyle($input, $output);
 
-        $em = $this->getHelper('em')->getEntityManager();
+        $em = $this->getEntityManager($input);
 
         if ($input->getOption('from-database') === true) {
             $databaseDriver = new DatabaseDriver(
@@ -104,7 +112,8 @@ EOT
                 $databaseDriver
             );
 
-            if (($namespace = $input->getOption('namespace')) !== null) {
+            $namespace = $input->getOption('namespace');
+            if ($namespace !== null) {
                 $databaseDriver->setNamespace($namespace);
             }
         }
@@ -115,19 +124,21 @@ EOT
         $metadata = MetadataFilter::filter($metadata, $input->getOption('filter'));
 
         // Process destination directory
-        if ( ! is_dir($destPath = $input->getArgument('dest-path'))) {
+        $destPath = $input->getArgument('dest-path');
+        if (! is_dir($destPath)) {
             mkdir($destPath, 0775, true);
         }
+
         $destPath = realpath($destPath);
 
-        if ( ! file_exists($destPath)) {
-            throw new \InvalidArgumentException(
+        if (! file_exists($destPath)) {
+            throw new InvalidArgumentException(
                 sprintf("Mapping destination directory '<info>%s</info>' does not exist.", $input->getArgument('dest-path'))
             );
         }
 
-        if ( ! is_writable($destPath)) {
-            throw new \InvalidArgumentException(
+        if (! is_writable($destPath)) {
+            throw new InvalidArgumentException(
                 sprintf("Mapping destination directory '<info>%s</info>' does not have write permissions.", $destPath)
             );
         }
@@ -143,13 +154,15 @@ EOT
 
             $entityGenerator->setNumSpaces((int) $input->getOption('num-spaces'));
 
-            if (($extend = $input->getOption('extend')) !== null) {
+            $extend = $input->getOption('extend');
+            if ($extend !== null) {
                 $entityGenerator->setClassToExtend($extend);
             }
         }
 
         if (empty($metadata)) {
             $ui->success('No Metadata Classes to process.');
+
             return;
         }
 
@@ -176,7 +189,7 @@ EOT
      * @param string $toType
      * @param string $destPath
      *
-     * @return \Doctrine\ORM\Tools\Export\Driver\AbstractExporter
+     * @return AbstractExporter
      */
     protected function getExporter($toType, $destPath)
     {

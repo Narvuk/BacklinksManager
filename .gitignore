@@ -16,3 +16,8 @@
 ###< symfony/phpunit-bridge ###
 ### Editors ##
 /.idea
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###

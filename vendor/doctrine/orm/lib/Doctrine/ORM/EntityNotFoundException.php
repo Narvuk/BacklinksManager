@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,11 +20,11 @@
 
 namespace Doctrine\ORM;
 
+use function implode;
+use function sprintf;
+
 /**
  * Exception thrown when a Proxy fails to retrieve an Entity result.
- *
- * @author robo
- * @since 2.0
  */
 class EntityNotFoundException extends ORMException
 {
@@ -43,9 +44,21 @@ class EntityNotFoundException extends ORMException
             $ids[] = $key . '(' . $value . ')';
         }
 
-
         return new self(
             'Entity of type \'' . $className . '\'' . ($ids ? ' for IDs ' . implode(', ', $ids) : '') . ' was not found'
         );
+    }
+
+    /**
+     * Instance for which no identifier can be found
+     *
+     * @psalm-param class-string $className
+     */
+    public static function noIdentifierFound(string $className): self
+    {
+        return new self(sprintf(
+            'Unable to find "%s" entity identifier associated with the UnitOfWork',
+            $className
+        ));
     }
 }

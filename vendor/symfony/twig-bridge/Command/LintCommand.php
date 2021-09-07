@@ -35,6 +35,7 @@ use Twig\Source;
 class LintCommand extends Command
 {
     protected static $defaultName = 'lint:twig';
+    protected static $defaultDescription = 'Lint a Twig template and outputs encountered errors';
 
     private $twig;
 
@@ -48,7 +49,7 @@ class LintCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Lints a template and outputs encountered errors')
+            ->setDescription(self::$defaultDescription)
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format', 'txt')
             ->addOption('show-deprecations', null, InputOption::VALUE_NONE, 'Show deprecations as errors')
             ->addArgument('filename', InputArgument::IS_ARRAY, 'A file, a directory or "-" for reading from STDIN')
@@ -219,7 +220,7 @@ EOF
         return min($errors, 1);
     }
 
-    private function renderException(OutputInterface $output, string $template, Error $exception, string $file = null)
+    private function renderException(SymfonyStyle $output, string $template, Error $exception, string $file = null)
     {
         $line = $exception->getTemplateLine();
 

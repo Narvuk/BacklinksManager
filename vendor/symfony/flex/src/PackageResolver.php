@@ -47,7 +47,7 @@ class PackageResolver
         // second pass to resolve package names
         $packages = [];
         foreach ($explodedArguments as $i => $argument) {
-            if (false === strpos($argument, '/') && !preg_match(PlatformRepository::PLATFORM_PACKAGE_REGEX, $argument) && !\in_array($argument, ['mirrors', 'nothing'])) {
+            if (false === strpos($argument, '/') && !preg_match(PlatformRepository::PLATFORM_PACKAGE_REGEX, $argument) && !preg_match('{(?<=[a-z0-9_/-])\*|\*(?=[a-z0-9_/-])}i', $argument) && !\in_array($argument, ['mirrors', 'nothing'])) {
                 if (null === self::$aliases) {
                     self::$aliases = $this->downloader->get('/aliases.json')->getBody();
                 }
@@ -119,7 +119,7 @@ class PackageResolver
         $alternatives = [];
         foreach (self::$aliases as $alias => $package) {
             $lev = levenshtein($argument, $alias);
-            if ($lev <= \strlen($argument) / 3 || false !== strpos($alias, $argument)) {
+            if ($lev <= \strlen($argument) / 3 || ('' !== $argument && false !== strpos($alias, $argument))) {
                 $alternatives[$package][] = $alias;
             }
         }

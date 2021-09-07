@@ -25,7 +25,7 @@ final class Dsn
     private $port;
     private $options;
 
-    public function __construct(string $scheme, string $host, ?string $user = null, ?string $password = null, ?int $port = null, array $options = [])
+    public function __construct(string $scheme, string $host, string $user = null, string $password = null, int $port = null, array $options = [])
     {
         $this->scheme = $scheme;
         $this->host = $host;
@@ -49,8 +49,8 @@ final class Dsn
             throw new InvalidArgumentException(sprintf('The "%s" mailer DSN must contain a host (use "default" by default).', $dsn));
         }
 
-        $user = isset($parsedDsn['user']) ? urldecode($parsedDsn['user']) : null;
-        $password = isset($parsedDsn['pass']) ? urldecode($parsedDsn['pass']) : null;
+        $user = '' !== ($parsedDsn['user'] ?? '') ? urldecode($parsedDsn['user']) : null;
+        $password = '' !== ($parsedDsn['pass'] ?? '') ? urldecode($parsedDsn['pass']) : null;
         $port = $parsedDsn['port'] ?? null;
         parse_str($parsedDsn['query'] ?? '', $query);
 

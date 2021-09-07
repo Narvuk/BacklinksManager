@@ -1,4 +1,5 @@
 <?php
+
 /*
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,20 +20,26 @@
 
 namespace Doctrine\ORM\Mapping;
 
+use Attribute;
+use Doctrine\Common\Annotations\Annotation\NamedArgumentConstructor;
+
 /**
  * @Annotation
+ * @NamedArgumentConstructor()
  * @Target("PROPERTY")
  */
+#[Attribute(Attribute::TARGET_PROPERTY)]
 final class Embedded implements Annotation
 {
-    /**
-     * @Required
-     * @var string
-     */
+    /** @var string|null */
     public $class;
 
-    /**
-     * @var mixed
-     */
+    /** @var string|bool|null */
     public $columnPrefix;
+
+    public function __construct(?string $class = null, $columnPrefix = null)
+    {
+        $this->class        = $class;
+        $this->columnPrefix = $columnPrefix;
+    }
 }

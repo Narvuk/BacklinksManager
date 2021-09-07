@@ -18,14 +18,19 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\AuthenticationEvents;
 use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
+use Symfony\Component\Security\Core\Exception\AccountStatusException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\InteractiveAuthenticatorInterface;
-use Symfony\Component\Security\Http\Authenticator\Passport\AnonymousPassport;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\BadgeInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\Event\AuthenticationTokenCreatedEvent;
 use Symfony\Component\Security\Http\Event\CheckPassportEvent;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
@@ -37,8 +42,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * @author Wouter de Jong <wouter@wouterj.nl>
  * @author Ryan Weaver <ryan@symfonycasts.com>
  * @author Amaury Leroux de Lens <amaury@lerouxdelens.com>
- *
- * @experimental in 5.1
  */
 class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthenticatorInterface
 {
@@ -48,11 +51,13 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
     private $eraseCredentials;
     private $logger;
     private $firewallName;
+    private $hideUserNotFoundExceptions;
+    private $requiredBadges;
 
     /**
      * @param AuthenticatorInterface[] $authenticators
      */
-    public function __construct(iterable $authenticators, TokenStorageInterface $tokenStorage, EventDispatcherInterface $eventDispatcher, string $firewallName, ?LoggerInterface $logger = null, bool $eraseCredentials = true)
+    public function __construct(iterable $authenticators, TokenStorageInterface $tokenStorage, EventDispatcherInterface $eventDispatcher, string $firewallName, LoggerInterface $logger = null, bool $eraseCredentials = true, bool $hideUserNotFoundExceptions = true, array $requiredBadges = [])
     {
         $this->authenticators = $authenticators;
         $this->tokenStorage = $tokenStorage;
@@ -60,6 +65,8 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
         $this->firewallName = $firewallName;
         $this->logger = $logger;
         $this->eraseCredentials = $eraseCredentials;
+        $this->hideUserNotFoundExceptions = $hideUserNotFoundExceptions;
+        $this->requiredBadges = $requiredBadges;
     }
 
     /**
@@ -68,7 +75,11 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
     public function authenticateUser(UserInterface $user, AuthenticatorInterface $authenticator, Request $request, array $badges = []): ?Response
     {
         // create an authenticated token for the User
-        $token = $authenticator->createAuthenticatedToken($passport = new SelfValidatingPassport($user, $badges), $this->firewallName);
+        // @deprecated since Symfony 5.3, change to $user->getUserIdentifier() in 6.0
+        $token = $authenticator->createAuthenticatedToken($passport = new SelfValidatingPassport(new UserBadge(method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : $user->getUsername(), function () use ($user) { return $user; }), $badges), $this->firewallName);
+
+        // announce the authenticated token
+        $token = $this->eventDispatcher->dispatch(new AuthenticationTokenCreatedEvent($token, $passport))->getAuthenticatedToken();
 
         // authenticate this in the system
         return $this->handleAuthenticationSuccess($token, $passport, $request, $authenticator);
@@ -153,6 +164,8 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
 
     private function executeAuthenticator(AuthenticatorInterface $authenticator, Request $request): ?Response
     {
+        $passport = null;
+
         try {
             // get the passport from the Authenticator
             $passport = $authenticator->authenticate($request);
@@ -162,10 +175,26 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
             $this->eventDispatcher->dispatch($event);
 
             // check if all badges are resolved
-            $passport->checkIfCompletelyResolved();
+            $resolvedBadges = [];
+            foreach ($passport->getBadges() as $badge) {
+                if (!$badge->isResolved()) {
+                    throw new BadCredentialsException(sprintf('Authentication failed: Security badge "%s" is not resolved, did you forget to register the correct listeners?', get_debug_type($badge)));
+                }
+
+                $resolvedBadges[] = \get_class($badge);
+            }
+
+            $missingRequiredBadges = array_diff($this->requiredBadges, $resolvedBadges);
+            if ($missingRequiredBadges) {
+                throw new BadCredentialsException(sprintf('Authentication failed; Some badges marked as required by the firewall config are not available on the passport: "%s".', implode('", "', $missingRequiredBadges)));
+            }
 
             // create the authenticated token
             $authenticatedToken = $authenticator->createAuthenticatedToken($passport, $this->firewallName);
+
+            // announce the authenticated token
+            $authenticatedToken = $this->eventDispatcher->dispatch(new AuthenticationTokenCreatedEvent($authenticatedToken, $passport))->getAuthenticatedToken();
+
             if (true === $this->eraseCredentials) {
                 $authenticatedToken->eraseCredentials();
             }
@@ -175,41 +204,43 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
             if (null !== $this->logger) {
                 $this->logger->info('Authenticator successful!', ['token' => $authenticatedToken, 'authenticator' => \get_class($authenticator)]);
             }
-
-            // success! (sets the token on the token storage, etc)
-            $response = $this->handleAuthenticationSuccess($authenticatedToken, $passport, $request, $authenticator);
-            if ($response instanceof Response) {
-                return $response;
-            }
-
-            if (null !== $this->logger) {
-                $this->logger->debug('Authenticator set no success response: request continues.', ['authenticator' => \get_class($authenticator)]);
-            }
-
-            return null;
         } catch (AuthenticationException $e) {
             // oh no! Authentication failed!
-            $response = $this->handleAuthenticationFailure($e, $request, $authenticator);
+            $response = $this->handleAuthenticationFailure($e, $request, $authenticator, $passport);
             if ($response instanceof Response) {
                 return $response;
             }
 
             return null;
         }
+
+        // success! (sets the token on the token storage, etc)
+        $response = $this->handleAuthenticationSuccess($authenticatedToken, $passport, $request, $authenticator);
+        if ($response instanceof Response) {
+            return $response;
+        }
+
+        if (null !== $this->logger) {
+            $this->logger->debug('Authenticator set no success response: request continues.', ['authenticator' => \get_class($authenticator)]);
+        }
+
+        return null;
     }
 
     private function handleAuthenticationSuccess(TokenInterface $authenticatedToken, PassportInterface $passport, Request $request, AuthenticatorInterface $authenticator): ?Response
     {
+        // @deprecated since Symfony 5.3
+        $user = $authenticatedToken->getUser();
+        if ($user instanceof UserInterface && !method_exists($user, 'getUserIdentifier')) {
+            trigger_deprecation('symfony/security-core', '5.3', 'Not implementing method "getUserIdentifier(): string" in user class "%s" is deprecated. This method will replace "getUsername()" in Symfony 6.0.', get_debug_type($authenticatedToken->getUser()));
+        }
+
         $this->tokenStorage->setToken($authenticatedToken);
 
         $response = $authenticator->onAuthenticationSuccess($request, $authenticatedToken, $this->firewallName);
         if ($authenticator instanceof InteractiveAuthenticatorInterface && $authenticator->isInteractive()) {
             $loginEvent = new InteractiveLoginEvent($request, $authenticatedToken);
             $this->eventDispatcher->dispatch($loginEvent, SecurityEvents::INTERACTIVE_LOGIN);
-        }
-
-        if ($passport instanceof AnonymousPassport) {
-            return $response;
         }
 
         $this->eventDispatcher->dispatch($loginSuccessEvent = new LoginSuccessEvent($authenticator, $passport, $authenticatedToken, $request, $response, $this->firewallName));
@@ -220,10 +251,16 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
     /**
      * Handles an authentication failure and returns the Response for the authenticator.
      */
-    private function handleAuthenticationFailure(AuthenticationException $authenticationException, Request $request, AuthenticatorInterface $authenticator): ?Response
+    private function handleAuthenticationFailure(AuthenticationException $authenticationException, Request $request, AuthenticatorInterface $authenticator, ?PassportInterface $passport): ?Response
     {
         if (null !== $this->logger) {
             $this->logger->info('Authenticator failed.', ['exception' => $authenticationException, 'authenticator' => \get_class($authenticator)]);
+        }
+
+        // Avoid leaking error details in case of invalid user (e.g. user not found or invalid account status)
+        // to prevent user enumeration via response content comparison
+        if ($this->hideUserNotFoundExceptions && ($authenticationException instanceof UsernameNotFoundException || ($authenticationException instanceof AccountStatusException && !$authenticationException instanceof CustomUserMessageAccountStatusException))) {
+            $authenticationException = new BadCredentialsException('Bad credentials.', 0, $authenticationException);
         }
 
         $response = $authenticator->onAuthenticationFailure($request, $authenticationException);
@@ -231,7 +268,7 @@ class AuthenticatorManager implements AuthenticatorManagerInterface, UserAuthent
             $this->logger->debug('The "{authenticator}" authenticator set the failure response.', ['authenticator' => \get_class($authenticator)]);
         }
 
-        $this->eventDispatcher->dispatch($loginFailureEvent = new LoginFailureEvent($authenticationException, $authenticator, $request, $response, $this->firewallName));
+        $this->eventDispatcher->dispatch($loginFailureEvent = new LoginFailureEvent($authenticationException, $authenticator, $request, $response, $this->firewallName, $passport));
 
         // returning null is ok, it means they want the request to continue
         return $loginFailureEvent->getResponse();

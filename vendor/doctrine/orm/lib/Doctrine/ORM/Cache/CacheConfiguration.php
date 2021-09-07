@@ -24,34 +24,23 @@ use Doctrine\ORM\Cache\Logging\CacheLogger;
 
 /**
  * Configuration container for second-level cache.
- *
- * @since   2.5
- * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
 class CacheConfiguration
 {
-    /**
-     * @var \Doctrine\ORM\Cache\CacheFactory|null
-     */
+    /** @var CacheFactory|null */
     private $cacheFactory;
 
-    /**
-     * @var \Doctrine\ORM\Cache\RegionsConfiguration|null
-     */
+    /** @var RegionsConfiguration|null */
     private $regionsConfig;
 
-    /**
-     * @var \Doctrine\ORM\Cache\Logging\CacheLogger|null
-     */
+    /** @var CacheLogger|null */
     private $cacheLogger;
 
-    /**
-     * @var \Doctrine\ORM\Cache\QueryCacheValidator|null
-     */
+    /** @var QueryCacheValidator|null */
     private $queryValidator;
 
     /**
-     * @return \Doctrine\ORM\Cache\CacheFactory|null
+     * @return CacheFactory|null
      */
     public function getCacheFactory()
     {
@@ -59,8 +48,6 @@ class CacheConfiguration
     }
 
     /**
-     * @param \Doctrine\ORM\Cache\CacheFactory $factory
-     *
      * @return void
      */
     public function setCacheFactory(CacheFactory $factory)
@@ -69,7 +56,7 @@ class CacheConfiguration
     }
 
     /**
-     * @return \Doctrine\ORM\Cache\Logging\CacheLogger|null
+     * @return CacheLogger|null
      */
     public function getCacheLogger()
     {
@@ -77,7 +64,7 @@ class CacheConfiguration
     }
 
     /**
-     * @param \Doctrine\ORM\Cache\Logging\CacheLogger $logger
+     * @return void
      */
     public function setCacheLogger(CacheLogger $logger)
     {
@@ -85,7 +72,7 @@ class CacheConfiguration
     }
 
     /**
-     * @return \Doctrine\ORM\Cache\RegionsConfiguration
+     * @return RegionsConfiguration
      */
     public function getRegionsConfiguration()
     {
@@ -97,7 +84,7 @@ class CacheConfiguration
     }
 
     /**
-     * @param \Doctrine\ORM\Cache\RegionsConfiguration $regionsConfig
+     * @return void
      */
     public function setRegionsConfiguration(RegionsConfiguration $regionsConfig)
     {
@@ -105,7 +92,7 @@ class CacheConfiguration
     }
 
     /**
-     * @return \Doctrine\ORM\Cache\QueryCacheValidator
+     * @return QueryCacheValidator
      */
     public function getQueryValidator()
     {
@@ -119,7 +106,7 @@ class CacheConfiguration
     }
 
     /**
-     * @param \Doctrine\ORM\Cache\QueryCacheValidator $validator
+     * @return void
      */
     public function setQueryValidator(QueryCacheValidator $validator)
     {

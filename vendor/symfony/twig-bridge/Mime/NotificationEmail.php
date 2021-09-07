@@ -37,6 +37,7 @@ class NotificationEmail extends TemplatedEmail
         'action_url' => null,
         'markdown' => false,
         'raw' => false,
+        'footer_text' => 'Notification e-mail sent by Symfony',
     ];
 
     public function __construct(Headers $headers = null, AbstractPart $body = null)
@@ -55,6 +56,25 @@ class NotificationEmail extends TemplatedEmail
         }
 
         parent::__construct($headers, $body);
+    }
+
+    /**
+     * Creates a NotificationEmail instance that is appropriate to send to normal (non-admin) users.
+     */
+    public static function asPublicEmail(Headers $headers = null, AbstractPart $body = null): self
+    {
+        $email = new static($headers, $body);
+        $email->markAsPublic();
+
+        return $email;
+    }
+
+    public function markAsPublic(): self
+    {
+        $this->context['importance'] = null;
+        $this->context['footer_text'] = null;
+
+        return $this;
     }
 
     /**
@@ -166,7 +186,9 @@ class NotificationEmail extends TemplatedEmail
 
         $importance = $this->context['importance'] ?? self::IMPORTANCE_LOW;
         $this->priority($this->determinePriority($importance));
-        $headers->setHeaderBody('Text', 'Subject', sprintf('[%s] %s', strtoupper($importance), $this->getSubject()));
+        if ($this->context['importance']) {
+            $headers->setHeaderBody('Text', 'Subject', sprintf('[%s] %s', strtoupper($importance), $this->getSubject()));
+        }
 
         return $headers;
     }

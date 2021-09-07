@@ -25,14 +25,13 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @final
- * @experimental in Symfony 5.1
  */
 class X509Authenticator extends AbstractPreAuthenticatedAuthenticator
 {
     private $userKey;
     private $credentialsKey;
 
-    public function __construct(UserProviderInterface $userProvider, TokenStorageInterface $tokenStorage, string $firewallName, string $userKey = 'SSL_CLIENT_S_DN_Email', string $credentialsKey = 'SSL_CLIENT_S_DN', ?LoggerInterface $logger = null)
+    public function __construct(UserProviderInterface $userProvider, TokenStorageInterface $tokenStorage, string $firewallName, string $userKey = 'SSL_CLIENT_S_DN_Email', string $credentialsKey = 'SSL_CLIENT_S_DN', LoggerInterface $logger = null)
     {
         parent::__construct($userProvider, $tokenStorage, $firewallName, $logger);
 

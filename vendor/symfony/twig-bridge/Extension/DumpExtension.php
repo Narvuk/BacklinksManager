@@ -73,8 +73,8 @@ final class DumpExtension extends AbstractExtension
             unset($vars[0], $vars[1]);
         }
 
-        $dump = fopen('php://memory', 'r+b');
-        $this->dumper = $this->dumper ?: new HtmlDumper();
+        $dump = fopen('php://memory', 'r+');
+        $this->dumper = $this->dumper ?? new HtmlDumper();
         $this->dumper->setCharset($env->getCharset());
 
         foreach ($vars as $value) {

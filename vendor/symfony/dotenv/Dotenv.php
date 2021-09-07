@@ -25,9 +25,9 @@ use Symfony\Component\Process\Process;
  */
 final class Dotenv
 {
-    const VARNAME_REGEX = '(?i:[A-Z][A-Z0-9_]*+)';
-    const STATE_VARNAME = 0;
-    const STATE_VALUE = 1;
+    public const VARNAME_REGEX = '(?i:[A-Z][A-Z0-9_]*+)';
+    public const STATE_VARNAME = 0;
+    public const STATE_VALUE = 1;
 
     private $path;
     private $cursor;
@@ -71,7 +71,7 @@ final class Dotenv
      *
      * @return $this
      */
-    public function usePutenv($usePutenv = true): self
+    public function usePutenv(bool $usePutenv = true): self
     {
         $this->usePutenv = $usePutenv;
 
@@ -312,7 +312,7 @@ final class Dotenv
             throw $this->createFormatException('Whitespace are not supported before the value');
         }
 
-        $loadedVars = array_flip(explode(',', isset($_SERVER['SYMFONY_DOTENV_VARS']) ? $_SERVER['SYMFONY_DOTENV_VARS'] : (isset($_ENV['SYMFONY_DOTENV_VARS']) ? $_ENV['SYMFONY_DOTENV_VARS'] : '')));
+        $loadedVars = array_flip(explode(',', $_SERVER['SYMFONY_DOTENV_VARS'] ?? ($_ENV['SYMFONY_DOTENV_VARS'] ?? '')));
         unset($loadedVars['']);
         $v = '';
 

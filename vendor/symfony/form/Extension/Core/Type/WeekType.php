@@ -23,7 +23,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WeekType extends AbstractType
 {
-    private static $widgets = [
+    private const WIDGETS = [
         'text' => IntegerType::class,
         'choice' => ChoiceType::class,
     ];
@@ -78,8 +78,8 @@ class WeekType extends AbstractType
                 }
             }
 
-            $builder->add('year', self::$widgets[$options['widget']], $yearOptions);
-            $builder->add('week', self::$widgets[$options['widget']], $weekOptions);
+            $builder->add('year', self::WIDGETS[$options['widget']], $yearOptions);
+            $builder->add('week', self::WIDGETS[$options['widget']], $weekOptions);
         }
     }
 
@@ -155,6 +155,9 @@ class WeekType extends AbstractType
             },
             'compound' => $compound,
             'choice_translation_domain' => false,
+            'invalid_message' => static function (Options $options, $previousValue) {
+                return ($options['legacy_error_messages'] ?? true) ? $previousValue : 'Please enter a valid week.';
+            },
         ]);
 
         $resolver->setNormalizer('placeholder', $placeholderNormalizer);

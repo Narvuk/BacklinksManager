@@ -22,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Extension\ConfigurationExtensionInterface;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * A console command for dumping available configuration reference.
@@ -35,6 +36,7 @@ use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 class ConfigDumpReferenceCommand extends AbstractConfigCommand
 {
     protected static $defaultName = 'config:dump-reference';
+    protected static $defaultDescription = 'Dump the default configuration for an extension';
 
     /**
      * {@inheritdoc}
@@ -47,7 +49,7 @@ class ConfigDumpReferenceCommand extends AbstractConfigCommand
                 new InputArgument('path', InputArgument::OPTIONAL, 'The configuration option path'),
                 new InputOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (yaml or xml)', 'yaml'),
             ])
-            ->setDescription('Dumps the default configuration for an extension')
+            ->setDescription(self::$defaultDescription)
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command dumps the default configuration for an
 extension/bundle.
@@ -106,12 +108,19 @@ EOF
         if ($extension instanceof ConfigurationInterface) {
             $configuration = $extension;
         } else {
-            $configuration = $extension->getConfiguration([], $this->getContainerBuilder());
+            $configuration = $extension->getConfiguration([], $this->getContainerBuilder($this->getApplication()->getKernel()));
         }
 
         $this->validateConfiguration($extension, $configuration);
 
         $format = $input->getOption('format');
+
+        if ('yaml' === $format && !class_exists(Yaml::class)) {
+            $errorIo->error('Setting the "format" option to "yaml" requires the Symfony Yaml component. Try running "composer install symfony/yaml" or use "--format=xml" instead.');
+
+            return 1;
+        }
+
         $path = $input->getArgument('path');
 
         if (null !== $path && 'yaml' !== $format) {

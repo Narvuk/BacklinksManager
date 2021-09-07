@@ -25,7 +25,7 @@ use Symfony\Component\Intl\Data\Util\LocaleScanner;
  */
 class CurrencyDataGenerator extends AbstractDataGenerator
 {
-    private static $denylist = [
+    private const DENYLIST = [
         'XBA' => true, // European Composite Unit
         'XBB' => true, // European Monetary Unit
         'XBC' => true, // European Unit of Account (XBC)
@@ -130,10 +130,12 @@ class CurrencyDataGenerator extends AbstractDataGenerator
 
     private function generateSymbolNamePairs(ArrayAccessibleResourceBundle $rootBundle): array
     {
-        $symbolNamePairs = iterator_to_array($rootBundle['Currencies']);
+        $symbolNamePairs = array_map(function ($pair) {
+            return \array_slice(iterator_to_array($pair), 0, 2);
+        }, iterator_to_array($rootBundle['Currencies']));
 
         // Remove unwanted currencies
-        $symbolNamePairs = array_diff_key($symbolNamePairs, self::$denylist);
+        $symbolNamePairs = array_diff_key($symbolNamePairs, self::DENYLIST);
 
         return $symbolNamePairs;
     }

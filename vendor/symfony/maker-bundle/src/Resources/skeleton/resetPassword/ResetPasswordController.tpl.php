@@ -38,11 +38,11 @@ class <?= $class_name ?> extends AbstractController
 
     /**
      * Display & process form to request a password reset.
-     *
 <?php if ($use_attributes) { ?>
      */
     #[Route('', name: 'app_forgot_password_request')]
 <?php } else { ?>
+     *
      * @Route("", name="app_forgot_password_request")
      */
 <?php } ?>
@@ -65,33 +65,34 @@ class <?= $class_name ?> extends AbstractController
 
     /**
      * Confirmation page after a user has requested a password reset.
-     *
 <?php if ($use_attributes) { ?>
      */
     #[Route('/check-email', name: 'app_check_email')]
 <?php } else { ?>
+     *
      * @Route("/check-email", name="app_check_email")
      */
 <?php } ?>
     public function checkEmail(): Response
     {
-        // We prevent users from directly accessing this page
-        if (!$this->canCheckEmail()) {
-            return $this->redirectToRoute('app_forgot_password_request');
+        // Generate a fake token if the user does not exist or someone hit this page directly.
+        // This prevents exposing whether or not a user was found with the given email address or not
+        if (null === ($resetToken = $this->getTokenObjectFromSession())) {
+            $resetToken = $this->resetPasswordHelper->generateFakeResetToken();
         }
 
         return $this->render('reset_password/check_email.html.twig', [
-            'tokenLifetime' => $this->resetPasswordHelper->getTokenLifetime(),
+            'resetToken' => $resetToken,
         ]);
     }
 
     /**
      * Validates and process the reset URL that the user clicked in their email.
-     *
 <?php if ($use_attributes) { ?>
      */
     #[Route('/reset/{token}', name: 'app_reset_password')]
 <?php } else { ?>
+     *
      * @Route("/reset/{token}", name="app_reset_password")
      */
 <?php } ?>
@@ -155,9 +156,6 @@ class <?= $class_name ?> extends AbstractController
             '<?= $email_field ?>' => $emailFormData,
         ]);
 
-        // Marks that you are allowed to see the app_check_email page.
-        $this->setCanCheckEmailInSession();
-
         // Do not reveal whether a user account was found or not.
         if (!$user) {
             return $this->redirectToRoute('app_check_email');
@@ -185,11 +183,13 @@ class <?= $class_name ?> extends AbstractController
             ->htmlTemplate('reset_password/email.html.twig')
             ->context([
                 'resetToken' => $resetToken,
-                'tokenLifetime' => $this->resetPasswordHelper->getTokenLifetime(),
             ])
         ;
 
         $mailer->send($email);
+
+        // Store the token object in session for retrieval in check-email route.
+        $this->setTokenObjectInSession($resetToken);
 
         return $this->redirectToRoute('app_check_email');
     }

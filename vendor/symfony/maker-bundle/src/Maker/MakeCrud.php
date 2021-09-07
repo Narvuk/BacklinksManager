@@ -15,6 +15,7 @@ use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\Common\Inflector\Inflector as LegacyInflector;
 use Doctrine\Inflector\InflectorFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\MakerBundle\ConsoleStyle;
 use Symfony\Bundle\MakerBundle\DependencyBuilder;
 use Symfony\Bundle\MakerBundle\Doctrine\DoctrineHelper;
@@ -44,6 +45,8 @@ final class MakeCrud extends AbstractMaker
 
     private $inflector;
 
+    private $controllerClassName;
+
     public function __construct(DoctrineHelper $doctrineHelper, FormTypeRenderer $formTypeRenderer)
     {
         $this->doctrineHelper = $doctrineHelper;
@@ -59,13 +62,17 @@ final class MakeCrud extends AbstractMaker
         return 'make:crud';
     }
 
+    public static function getCommandDescription(): string
+    {
+        return 'Creates CRUD for Doctrine entity class';
+    }
+
     /**
      * {@inheritdoc}
      */
     public function configureCommand(Command $command, InputConfiguration $inputConfig)
     {
         $command
-            ->setDescription('Creates CRUD for Doctrine entity class')
             ->addArgument('entity-class', InputArgument::OPTIONAL, sprintf('The class name of the entity to create CRUD (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
             ->setHelp(file_get_contents(__DIR__.'/../Resources/help/MakeCrud.txt'))
         ;
@@ -87,6 +94,13 @@ final class MakeCrud extends AbstractMaker
 
             $input->setArgument('entity-class', $value);
         }
+
+        $defaultControllerClass = Str::asClassName(sprintf('%s Controller', $input->getArgument('entity-class')));
+
+        $this->controllerClassName = $io->ask(
+            sprintf('Choose a name for your controller class (e.g. <fg=yellow>%s</>)', $defaultControllerClass),
+            $defaultControllerClass
+        );
     }
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator)
@@ -115,7 +129,7 @@ final class MakeCrud extends AbstractMaker
         }
 
         $controllerClassDetails = $generator->createClassNameDetails(
-            $entityClassDetails->getRelativeNameWithoutSuffix().'Controller',
+            $this->controllerClassName,
             'Controller\\',
             'Controller'
         );
@@ -155,6 +169,7 @@ final class MakeCrud extends AbstractMaker
                     'entity_var_singular' => $entityVarSingular,
                     'entity_twig_var_singular' => $entityTwigVarSingular,
                     'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
+                    'use_render_form' => method_exists(AbstractController::class, 'renderForm'),
                 ],
                 $repositoryVars
             )

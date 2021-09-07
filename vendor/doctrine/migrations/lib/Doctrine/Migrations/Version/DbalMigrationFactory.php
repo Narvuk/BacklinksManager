@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 /**
  * The DbalMigrationFactory class is responsible for creating instances of a migration class name for a DBAL connection.
  *
- * @var internal
+ * @internal
  */
 final class DbalMigrationFactory implements MigrationFactory
 {
@@ -27,7 +27,7 @@ final class DbalMigrationFactory implements MigrationFactory
         $this->logger     = $logger;
     }
 
-    public function createVersion(string $migrationClassName) : AbstractMigration
+    public function createVersion(string $migrationClassName): AbstractMigration
     {
         return new $migrationClassName(
             $this->connection,

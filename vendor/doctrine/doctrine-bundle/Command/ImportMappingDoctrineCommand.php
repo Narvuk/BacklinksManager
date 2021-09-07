@@ -13,6 +13,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function chmod;
+use function dirname;
+use function file_put_contents;
+use function is_dir;
+use function mkdir;
+use function sprintf;
+use function str_replace;
+
 /**
  * Import Doctrine ORM metadata mapping information from an existing database.
  *
@@ -25,9 +33,7 @@ class ImportMappingDoctrineCommand extends DoctrineCommand
     /** @var string[] */
     private $bundles;
 
-    /**
-     * @param string[] $bundles
-     */
+    /** @param string[] $bundles */
     public function __construct(ManagerRegistry $doctrine, array $bundles)
     {
         parent::__construct($doctrine);

@@ -46,6 +46,14 @@ final class BodyRenderer implements BodyRendererInterface
         }
 
         $messageContext = $message->getContext();
+
+        $previousRenderingKey = $messageContext[__CLASS__] ?? null;
+        unset($messageContext[__CLASS__]);
+        $currentRenderingKey = $this->getFingerPrint($message);
+        if ($previousRenderingKey === $currentRenderingKey) {
+            return;
+        }
+
         if (isset($messageContext['email'])) {
             throw new InvalidArgumentException(sprintf('A "%s" context cannot have an "email" entry as this is a reserved variable.', get_debug_type($message)));
         }
@@ -66,6 +74,24 @@ final class BodyRenderer implements BodyRendererInterface
         if (!$message->getTextBody() && null !== $html = $message->getHtmlBody()) {
             $message->text($this->convertHtmlToText(\is_resource($html) ? stream_get_contents($html) : $html));
         }
+        $message->context($message->getContext() + [__CLASS__ => $currentRenderingKey]);
+    }
+
+    private function getFingerPrint(TemplatedEmail $message): string
+    {
+        $messageContext = $message->getContext();
+        unset($messageContext[__CLASS__]);
+
+        $payload = [$messageContext, $message->getTextTemplate(), $message->getHtmlTemplate()];
+        try {
+            $serialized = serialize($payload);
+        } catch (\Exception $e) {
+            // Serialization of 'Closure' is not allowed
+            // Happens when context contain a closure, in that case, we assume that context always change.
+            $serialized = random_bytes(8);
+        }
+
+        return md5($serialized);
     }
 
     private function convertHtmlToText(string $html): string
@@ -74,6 +100,6 @@ final class BodyRenderer implements BodyRendererInterface
             return $this->converter->convert($html);
         }
 
-        return strip_tags(preg_replace('{<(head|style)\b.*?</\1>}i', '', $html));
+        return strip_tags(preg_replace('{<(head|style)\b.*?</\1>}is', '', $html));
     }
 }

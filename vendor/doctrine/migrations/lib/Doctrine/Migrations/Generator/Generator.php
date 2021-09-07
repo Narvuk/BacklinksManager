@@ -8,6 +8,7 @@ use Doctrine\Migrations\Configuration\Configuration;
 use Doctrine\Migrations\Generator\Exception\InvalidTemplateSpecified;
 use Doctrine\Migrations\Tools\Console\Helper\MigrationDirectoryHelper;
 use InvalidArgumentException;
+
 use function explode;
 use function file_get_contents;
 use function file_put_contents;
@@ -42,22 +43,22 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class <className> extends AbstractMigration
 {
-    public function getDescription() : string
+    public function getDescription(): string
     {
         return '';
     }
 
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
 <up>
     }
 
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
 <down>
-    }
+    }<override>
 }
 
 TEMPLATE;
@@ -77,7 +78,7 @@ TEMPLATE;
         string $fqcn,
         ?string $up = null,
         ?string $down = null
-    ) : string {
+    ): string {
         $mch = [];
         if (preg_match('~(.*)\\\\([^\\\\]+)~', $fqcn, $mch) === 0) {
             throw new InvalidArgumentException(sprintf('Invalid FQCN'));
@@ -97,6 +98,15 @@ TEMPLATE;
             '<className>' => $className,
             '<up>' => $up !== null ? '        ' . implode("\n        ", explode("\n", $up)) : null,
             '<down>' => $down !== null ? '        ' . implode("\n        ", explode("\n", $down)) : null,
+            '<override>' => $this->configuration->isTransactional() ? '' : <<<'METHOD'
+
+
+    public function isTransactional(): bool
+    {
+        return false;
+    }
+METHOD
+        ,
         ];
 
         $code = strtr($this->getTemplate(), $replacements);
@@ -111,7 +121,7 @@ TEMPLATE;
         return $path;
     }
 
-    private function getTemplate() : string
+    private function getTemplate(): string
     {
         if ($this->template === null) {
             $this->template = $this->loadCustomTemplate();
@@ -127,7 +137,7 @@ TEMPLATE;
     /**
      * @throws InvalidTemplateSpecified
      */
-    private function loadCustomTemplate() : ?string
+    private function loadCustomTemplate(): ?string
     {
         $customTemplate = $this->configuration->getCustomTemplate();
 

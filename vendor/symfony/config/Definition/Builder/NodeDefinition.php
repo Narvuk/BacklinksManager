@@ -105,8 +105,6 @@ abstract class NodeDefinition implements NodeParentInterface
     /**
      * Creates the node.
      *
-     * @param bool $forceRootNode Whether to force this node as the root node
-     *
      * @return NodeInterface
      */
     public function getNode(bool $forceRootNode = false)
@@ -124,7 +122,9 @@ abstract class NodeDefinition implements NodeParentInterface
         }
 
         $node = $this->createNode();
-        $node->setAttributes($this->attributes);
+        if ($node instanceof BaseNode) {
+            $node->setAttributes($this->attributes);
+        }
 
         return $node;
     }

@@ -12,6 +12,7 @@
 namespace Symfony\Component\Serializer\Mapping\Loader;
 
 use Doctrine\Common\Annotations\Reader;
+use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Annotation\DiscriminatorMap;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\Ignore;
@@ -19,19 +20,30 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Serializer\Exception\MappingException;
 use Symfony\Component\Serializer\Mapping\AttributeMetadata;
+use Symfony\Component\Serializer\Mapping\AttributeMetadataInterface;
 use Symfony\Component\Serializer\Mapping\ClassDiscriminatorMapping;
 use Symfony\Component\Serializer\Mapping\ClassMetadataInterface;
 
 /**
- * Annotation loader.
+ * Loader for Doctrine annotations and PHP 8 attributes.
  *
  * @author Kévin Dunglas <dunglas@gmail.com>
+ * @author Alexander M. Turek <me@derrabus.de>
  */
 class AnnotationLoader implements LoaderInterface
 {
+    private const KNOWN_ANNOTATIONS = [
+        DiscriminatorMap::class => true,
+        Groups::class => true,
+        Ignore::class => true,
+        MaxDepth::class => true,
+        SerializedName::class => true,
+        Context::class => true,
+    ];
+
     private $reader;
 
-    public function __construct(Reader $reader)
+    public function __construct(Reader $reader = null)
     {
         $this->reader = $reader;
     }
@@ -47,7 +59,7 @@ class AnnotationLoader implements LoaderInterface
 
         $attributesMetadata = $classMetadata->getAttributesMetadata();
 
-        foreach ($this->reader->getClassAnnotations($reflectionClass) as $annotation) {
+        foreach ($this->loadAnnotations($reflectionClass) as $annotation) {
             if ($annotation instanceof DiscriminatorMap) {
                 $classMetadata->setClassDiscriminatorMapping(new ClassDiscriminatorMapping(
                     $annotation->getTypeProperty(),
@@ -63,7 +75,7 @@ class AnnotationLoader implements LoaderInterface
             }
 
             if ($property->getDeclaringClass()->name === $className) {
-                foreach ($this->reader->getPropertyAnnotations($property) as $annotation) {
+                foreach ($this->loadAnnotations($property) as $annotation) {
                     if ($annotation instanceof Groups) {
                         foreach ($annotation->getGroups() as $group) {
                             $attributesMetadata[$property->name]->addGroup($group);
@@ -74,6 +86,8 @@ class AnnotationLoader implements LoaderInterface
                         $attributesMetadata[$property->name]->setSerializedName($annotation->getSerializedName());
                     } elseif ($annotation instanceof Ignore) {
                         $attributesMetadata[$property->name]->setIgnore(true);
+                    } elseif ($annotation instanceof Context) {
+                        $this->setAttributeContextsForGroups($annotation, $attributesMetadata[$property->name]);
                     }
 
                     $loaded = true;
@@ -98,10 +112,10 @@ class AnnotationLoader implements LoaderInterface
                 }
             }
 
-            foreach ($this->reader->getMethodAnnotations($method) as $annotation) {
+            foreach ($this->loadAnnotations($method) as $annotation) {
                 if ($annotation instanceof Groups) {
                     if (!$accessorOrMutator) {
-                        throw new MappingException(sprintf('Groups on "%s::%s" cannot be added. Groups can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
+                        throw new MappingException(sprintf('Groups on "%s::%s()" cannot be added. Groups can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
                     }
 
                     foreach ($annotation->getGroups() as $group) {
@@ -109,18 +123,24 @@ class AnnotationLoader implements LoaderInterface
                     }
                 } elseif ($annotation instanceof MaxDepth) {
                     if (!$accessorOrMutator) {
-                        throw new MappingException(sprintf('MaxDepth on "%s::%s" cannot be added. MaxDepth can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
+                        throw new MappingException(sprintf('MaxDepth on "%s::%s()" cannot be added. MaxDepth can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
                     }
 
                     $attributeMetadata->setMaxDepth($annotation->getMaxDepth());
                 } elseif ($annotation instanceof SerializedName) {
                     if (!$accessorOrMutator) {
-                        throw new MappingException(sprintf('SerializedName on "%s::%s" cannot be added. SerializedName can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
+                        throw new MappingException(sprintf('SerializedName on "%s::%s()" cannot be added. SerializedName can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
                     }
 
                     $attributeMetadata->setSerializedName($annotation->getSerializedName());
                 } elseif ($annotation instanceof Ignore) {
                     $attributeMetadata->setIgnore(true);
+                } elseif ($annotation instanceof Context) {
+                    if (!$accessorOrMutator) {
+                        throw new MappingException(sprintf('Context on "%s::%s()" cannot be added. Context can only be added on methods beginning with "get", "is", "has" or "set".', $className, $method->name));
+                    }
+
+                    $this->setAttributeContextsForGroups($annotation, $attributeMetadata);
                 }
 
                 $loaded = true;
@@ -128,5 +148,49 @@ class AnnotationLoader implements LoaderInterface
         }
 
         return $loaded;
+    }
+
+    /**
+     * @param \ReflectionClass|\ReflectionMethod|\ReflectionProperty $reflector
+     */
+    public function loadAnnotations(object $reflector): iterable
+    {
+        if (\PHP_VERSION_ID >= 80000) {
+            foreach ($reflector->getAttributes() as $attribute) {
+                if (self::KNOWN_ANNOTATIONS[$attribute->getName()] ?? false) {
+                    yield $attribute->newInstance();
+                }
+            }
+        }
+
+        if (null === $this->reader) {
+            return;
+        }
+
+        if ($reflector instanceof \ReflectionClass) {
+            yield from $this->reader->getClassAnnotations($reflector);
+        }
+        if ($reflector instanceof \ReflectionMethod) {
+            yield from $this->reader->getMethodAnnotations($reflector);
+        }
+        if ($reflector instanceof \ReflectionProperty) {
+            yield from $this->reader->getPropertyAnnotations($reflector);
+        }
+    }
+
+    private function setAttributeContextsForGroups(Context $annotation, AttributeMetadataInterface $attributeMetadata): void
+    {
+        if ($annotation->getContext()) {
+            $attributeMetadata->setNormalizationContextForGroups($annotation->getContext(), $annotation->getGroups());
+            $attributeMetadata->setDenormalizationContextForGroups($annotation->getContext(), $annotation->getGroups());
+        }
+
+        if ($annotation->getNormalizationContext()) {
+            $attributeMetadata->setNormalizationContextForGroups($annotation->getNormalizationContext(), $annotation->getGroups());
+        }
+
+        if ($annotation->getDenormalizationContext()) {
+            $attributeMetadata->setDenormalizationContextForGroups($annotation->getDenormalizationContext(), $annotation->getGroups());
+        }
     }
 }

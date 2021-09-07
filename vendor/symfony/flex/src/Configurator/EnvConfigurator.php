@@ -51,7 +51,11 @@ class EnvConfigurator extends AbstractConfigurator
             foreach ($vars as $key => $value) {
                 $value = $this->evaluateValue($value);
                 if ('#' === $key[0] && is_numeric(substr($key, 1))) {
-                    $data .= '# '.$value."\n";
+                    if ('' === $value) {
+                        $data .= "#\n";
+                    } else {
+                        $data .= '# '.$value."\n";
+                    }
 
                     continue;
                 }
@@ -65,7 +69,7 @@ class EnvConfigurator extends AbstractConfigurator
             $data = $this->markData($recipe, $data);
 
             if (!$this->updateData($env, $data)) {
-                file_put_contents($env, $data, FILE_APPEND);
+                file_put_contents($env, $data, \FILE_APPEND);
             }
         }
     }

@@ -11,16 +11,12 @@
 
 namespace Symfony\Component\Notifier\Message;
 
-use Symfony\Component\Notifier\Exception\LogicException;
+use Symfony\Component\Notifier\Exception\InvalidArgumentException;
 use Symfony\Component\Notifier\Notification\Notification;
-use Symfony\Component\Notifier\Notification\SmsNotificationInterface;
-use Symfony\Component\Notifier\Recipient\Recipient;
 use Symfony\Component\Notifier\Recipient\SmsRecipientInterface;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
- *
- * @experimental in 5.1
  */
 final class SmsMessage implements MessageInterface
 {
@@ -30,16 +26,16 @@ final class SmsMessage implements MessageInterface
 
     public function __construct(string $phone, string $subject)
     {
+        if ('' === $phone) {
+            throw new InvalidArgumentException(sprintf('"%s" needs a phone number, it cannot be empty.', __CLASS__));
+        }
+
         $this->subject = $subject;
         $this->phone = $phone;
     }
 
-    public static function fromNotification(Notification $notification, Recipient $recipient): self
+    public static function fromNotification(Notification $notification, SmsRecipientInterface $recipient): self
     {
-        if (!$recipient instanceof SmsRecipientInterface) {
-            throw new LogicException(sprintf('To send a SMS message, "%s" should implement "%s" or the recipient should implement "%s".', get_debug_type($notification), SmsNotificationInterface::class, SmsRecipientInterface::class));
-        }
-
         return new self($recipient->getPhone(), $notification->getSubject());
     }
 
@@ -48,6 +44,10 @@ final class SmsMessage implements MessageInterface
      */
     public function phone(string $phone): self
     {
+        if ('' === $phone) {
+            throw new InvalidArgumentException(sprintf('"%s" needs a phone number, it cannot be empty.', static::class));
+        }
+
         $this->phone = $phone;
 
         return $this;
@@ -81,7 +81,7 @@ final class SmsMessage implements MessageInterface
     /**
      * @return $this
      */
-    public function transport(string $transport): self
+    public function transport(?string $transport): self
     {
         $this->transport = $transport;
 
