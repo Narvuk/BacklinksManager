@@ -1,7 +1,3 @@
-### Sept 2021 Update:
-
-We are in the process of upgrading and updating the core system, a new release will be due soon as we fix
-
 ### Description
 
 
