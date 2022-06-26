@@ -23,9 +23,9 @@ class ReleaseInfo extends AbstractController
     public function UpdateService()
     {
         $api_key = 'r9zCymkGV3aoqDY3wtwhMoPeVRsgo4h3';
-        $url = 'https://infinityweb.solutions/api/software/details/?api_key='.$api_key;
-        $json = file_get_contents($url);
-        $updates = json_decode($json, TRUE);
+        //$url = 'https://infinityweb.solutions/api/software/details/?api_key='.$api_key;
+        //$json = file_get_contents($url);
+        $updates = json_decode('{"currentversion":"0.6.0", "developmentversion":"0.6.0", "uservtime":"172800", "devstage":"Beta"}', TRUE);
         return $updates;
     }
 
