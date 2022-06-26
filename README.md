@@ -1,8 +1,3 @@
-### UPDATE June 2022
-- The system will still run upto PHP 8.1
-- Due to moving development from infinity web to Narvuk update check currently disabled (will be back in future)
-- Due to running on slightly older codebase and framework, i will be checking and sorting a possible rebuild any ideas please submit them what you would like to see in the future of the backlinks manager.
-
 ### Description
 
 
